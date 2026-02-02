@@ -9,8 +9,8 @@ function AdminDashboard() {
       .then((data) => setCharities(data))
       .catch((err) => console.error(err));
   }, []);
-  
-    const handleApprove = (id) => {
+
+  const handleApprove = (id) => {
     fetch(`/api/charities/${id}/approve`, {
       method: "PATCH",
     }).then(() => {
@@ -47,8 +47,8 @@ function AdminDashboard() {
       );
     });
   };
-  
-    const pendingCharities = charities.filter(
+
+  const pendingCharities = charities.filter(
     (charity) => charity.status === "pending"
   );
 
