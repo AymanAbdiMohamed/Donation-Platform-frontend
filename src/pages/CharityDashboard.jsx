@@ -16,4 +16,12 @@ function CharityDashboard({ charityId }) {
         setTotalDonations(total);
       })
       .catch((err) => console.error(err));
+  }, [charityId]);
+
+  // Fetch stories
+  useEffect(() => {
+    fetch(`/api/charities/${charityId}/stories`)
+      .then((res) => res.json())
+      .then((data) => setStories(data))
+      .catch((err) => console.error(err));
   }, [charityId]);}
