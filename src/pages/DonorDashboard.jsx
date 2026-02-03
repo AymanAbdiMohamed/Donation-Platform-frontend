@@ -10,4 +10,12 @@ function DonorDashboard({ donorId }) {
       .then((res) => res.json())
       .then((data) => setDonations(data))
       .catch((err) => console.error(err));
-  }, [donorId]);}
+  }, [donorId]);
+ 
+   // Fetch stories from all charities
+  useEffect(() => {
+    fetch("/api/stories")
+      .then((res) => res.json())
+      .then((data) => setStories(data))
+      .catch((err) => console.error(err));
+  }, []);}
