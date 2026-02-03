@@ -24,4 +24,19 @@ function CharityDashboard({ charityId }) {
       .then((res) => res.json())
       .then((data) => setStories(data))
       .catch((err) => console.error(err));
-  }, [charityId]);}
+  }, [charityId]);
+
+   // Add a story
+  const handleAddStory = () => {
+    fetch(`/api/charities/${charityId}/stories`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newStory),
+    })
+      .then((res) => res.json())
+      .then((story) => {
+        setStories((prev) => [...prev, story]);
+        setNewStory({ title: "", content: "" });
+      })
+      .catch((err) => console.error(err));
+  };}
