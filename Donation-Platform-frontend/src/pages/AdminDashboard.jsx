@@ -46,4 +46,48 @@ function AdminDashboard() {
         prev.filter((charity) => charity.id !== id)
       );
     });
-  };}
+  };
+  
+    const pendingCharities = charities.filter(
+    (charity) => charity.status === "pending"
+  );
+
+  const approvedCharities = charities.filter(
+    (charity) => charity.status === "approved"
+  );
+
+  return (
+    <div>
+      <h1>Admin Dashboard</h1>
+
+      <h2>Pending Charity Applications</h2>
+      {pendingCharities.map((charity) => (
+        <div key={charity.id}>
+          <h3>{charity.name}</h3>
+          <p>{charity.description}</p>
+
+          <button onClick={() => handleApprove(charity.id)}>
+            Approve
+          </button>
+          <button onClick={() => handleReject(charity.id)}>
+            Reject
+          </button>
+        </div>
+      ))}
+
+      <h2>Approved Charities</h2>
+      {approvedCharities.map((charity) => (
+        <div key={charity.id}>
+          <h3>{charity.name}</h3>
+          <p>{charity.description}</p>
+
+          <button onClick={() => handleDelete(charity.id)}>
+            Delete
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default AdminDashboard;
