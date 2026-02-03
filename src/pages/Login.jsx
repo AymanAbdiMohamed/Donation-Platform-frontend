@@ -30,11 +30,11 @@ function Login() {
       
       // Navigate to dashboard based on role
       const dashboards = {
-        donor: '/donor/dashboard',
-        charity: '/charity/dashboard',
-        admin: '/admin/dashboard',
+        donor: '/donor',
+        charity: '/charity',
+        admin: '/admin',
       }
-      navigate(dashboards[user.role] || '/donor/dashboard')
+      navigate(dashboards[user.role] || '/donor')
     } catch (err) {
       // Error handled by context
     }
