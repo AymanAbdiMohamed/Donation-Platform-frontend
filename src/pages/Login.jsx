@@ -2,9 +2,6 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-/**
- * Login page.
- */
 function Login() {
   const navigate = useNavigate();
   const { login, error, loading, clearError } = useAuth();
@@ -24,11 +21,11 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    clearError();
 
     try {
       const user = await login(formData.email, formData.password);
 
-      // Navigate to dashboard based on role
       const dashboards = {
         donor: "/donor/dashboard",
         charity: "/charity/dashboard",

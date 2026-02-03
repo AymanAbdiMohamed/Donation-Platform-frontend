@@ -1,130 +1,82 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function Register() {
   const navigate = useNavigate();
+  const { register, loading, error, clearError } = useAuth();
 
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-    role: "donor", // default
-  });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("donor");
 
-  const [loading, setLoading] = useState(false);
-  const [generalError, setGeneralError] = useState("");
-  const [fieldErrors, setFieldErrors] = useState({});
-
-  const handleChange = (e) => {
-    setGeneralError("");
-    setFieldErrors({});
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const handleRegister = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setGeneralError("");
-    setFieldErrors({});
+    clearError();
 
     try {
-      const res = await fetch("http://127.0.0.1:5000/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json();
-
-      // Validation errors
-      if (res.status === 422) {
-        setFieldErrors(data.errors || {});
-        setLoading(false);
-        return;
-      }
-
-      if (!res.ok) {
-        setGeneralError(data.message || "Registration failed.");
-        setLoading(false);
-        return;
-      }
-
-      // success
-      alert("Account created successfully. Please login.");
-      navigate("/login");
+      await register(email, password, role);
+      navigate("/"); // or navigate("/login") depending on your app flow
     } catch (err) {
-      setGeneralError("Server error. Try again later.");
-    } finally {
-      setLoading(false);
+      // error handled in context
     }
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "40px auto" }}>
-      <h2>Create Account</h2>
+    <div style={{ maxWidth: 420, margin: "50px auto", padding: 20 }}>
+      <h2>Register</h2>
 
-      {generalError && <p style={{ color: "red" }}>{generalError}</p>}
-
-      <form onSubmit={handleRegister}>
-        <div>
-          <label>Username</label>
-          <input
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            required
-          />
-          {fieldErrors.username && (
-            <small style={{ color: "red" }}>{fieldErrors.username}</small>
-          )}
+      {error && (
+        <div style={{ background: "#ffe0e0", padding: 10, marginBottom: 10 }}>
+          <p style={{ margin: 0, color: "red" }}>{error}</p>
         </div>
+      )}
 
-        <div>
+      <form onSubmit={handleSubmit}>
+        <div style={{ marginBottom: 12 }}>
           <label>Email</label>
           <input
-            name="email"
+            style={{ width: "100%", padding: 10 }}
             type="email"
-            value={formData.email}
-            onChange={handleChange}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
-          {fieldErrors.email && (
-            <small style={{ color: "red" }}>{fieldErrors.email}</small>
-          )}
         </div>
 
-        <div>
+        <div style={{ marginBottom: 12 }}>
           <label>Password</label>
           <input
-            name="password"
+            style={{ width: "100%", padding: 10 }}
             type="password"
-            value={formData.password}
-            onChange={handleChange}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
           />
-          {fieldErrors.password && (
-            <small style={{ color: "red" }}>{fieldErrors.password}</small>
-          )}
         </div>
 
-        <div>
+        <div style={{ marginBottom: 12 }}>
           <label>Role</label>
-          <select name="role" value={formData.role} onChange={handleChange}>
+          <select
+            style={{ width: "100%", padding: 10 }}
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+          >
             <option value="donor">Donor</option>
             <option value="charity">Charity</option>
-            <option value="admin">Admin</option>
           </select>
-          {fieldErrors.role && (
-            <small style={{ color: "red" }}>{fieldErrors.role}</small>
-          )}
         </div>
 
-        <button type="submit" disabled={loading}>
+        <button
+          type="submit"
+          disabled={loading}
+          style={{ width: "100%", padding: 10 }}
+        >
           {loading ? "Creating..." : "Register"}
         </button>
       </form>
 
-      <p style={{ marginTop: 10 }}>
+      <p style={{ marginTop: 12 }}>
         Already have an account? <Link to="/login">Login</Link>
       </p>
     </div>
