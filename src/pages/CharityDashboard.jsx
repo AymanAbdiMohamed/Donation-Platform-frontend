@@ -1,39 +1,42 @@
-import { useAuth } from '../context/AuthContext'
+import { useEffect, useState } from "react";
 
-/**
- * Charity Dashboard - placeholder page.
- */
-function CharityDashboard() {
-  const { user, logout } = useAuth()
+function CharityDashboard({ charityId }) {
+  const [donations, setDonations] = useState([]);
+  const [stories, setStories] = useState([]);
+  const [totalDonations, setTotalDonations] = useState(0);
+  const [newStory, setNewStory] = useState({ title: "", content: "" });
 
-  return (
-    <div style={{ padding: '20px' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-        <h1>Charity Dashboard</h1>
-        <button onClick={logout} style={{ padding: '8px 16px', cursor: 'pointer' }}>Logout</button>
-      </header>
-      
-      <p>Welcome, {user?.email}!</p>
-      
-      <section style={{ marginTop: '30px' }}>
-        <h2>Application Status</h2>
-        <p>Your charity application status will appear here...</p>
-        {/* TODO: FE1 - Charity application form / status */}
-      </section>
-      
-      <section style={{ marginTop: '30px' }}>
-        <h2>Your Profile</h2>
-        <p>Charity profile will appear here...</p>
-        {/* TODO: FE3 - Charity profile component */}
-      </section>
-      
-      <section style={{ marginTop: '30px' }}>
-        <h2>Donations Received</h2>
-        <p>Donations received will appear here...</p>
-        {/* TODO: FE3 - Donations received component */}
-      </section>
-    </div>
-  )
-}
+    // Fetch donations
+  useEffect(() => {
+    fetch(`/api/charities/${charityId}/donations`)
+      .then((res) => res.json())
+      .then((data) => {
+        setDonations(data);
+        const total = data.reduce((sum, d) => sum + d.amount, 0);
+        setTotalDonations(total);
+      })
+      .catch((err) => console.error(err));
+  }, [charityId]);
 
-export default CharityDashboard
+  // Fetch stories
+  useEffect(() => {
+    fetch(`/api/charities/${charityId}/stories`)
+      .then((res) => res.json())
+      .then((data) => setStories(data))
+      .catch((err) => console.error(err));
+  }, [charityId]);
+
+   // Add a story
+  const handleAddStory = () => {
+    fetch(`/api/charities/${charityId}/stories`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newStory),
+    })
+      .then((res) => res.json())
+      .then((story) => {
+        setStories((prev) => [...prev, story]);
+        setNewStory({ title: "", content: "" });
+      })
+      .catch((err) => console.error(err));
+  };}
