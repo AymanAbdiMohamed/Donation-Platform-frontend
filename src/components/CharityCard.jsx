@@ -5,7 +5,7 @@ function CharityCard({ charity }) {
       {/* Image placeholder */}
       <div className="h-32 bg-red-100 flex items-center justify-center">
         <span className="text-red-400 font-semibold">
-          Charity Image
+          Charity Image placeholder
         </span>
       </div>
 
