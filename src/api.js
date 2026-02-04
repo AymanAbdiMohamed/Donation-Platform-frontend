@@ -39,7 +39,7 @@ export const registerUser = async ({ email, password, role }) => {
     password,
     role,
   });
-  return response.data; // { user, access_token }
+  return response.data; // { user, access_token } jbjhjjgjhj
 };
 
 // Get current logged-in user
@@ -71,7 +71,7 @@ export const getPendingApplications = async () => {
 // Approve application
 export const approveApplication = async (applicationId) => {
   const response = await api.patch(
-    `/admin/applications/${applicationId}/approve`
+    `/admin/applications/${applicationId}/approve`,
   );
   return response.data;
 };
@@ -80,7 +80,7 @@ export const approveApplication = async (applicationId) => {
 export const rejectApplication = async (applicationId, reason = "") => {
   const response = await api.patch(
     `/admin/applications/${applicationId}/reject`,
-    { reason }
+    { reason },
   );
   return response.data;
 };
