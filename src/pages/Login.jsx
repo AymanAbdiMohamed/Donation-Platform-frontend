@@ -31,9 +31,10 @@ function Login() {
         charity: "/charity/dashboard",
         admin: "/admin/dashboard",
       };
+
       navigate(dashboards[user.role] || "/donor/dashboard");
     } catch (err) {
-      // Error handled by context
+      // Error is handled by AuthContext
     }
   };
 
@@ -42,7 +43,9 @@ function Login() {
       <h1>Login</h1>
 
       {error && (
-        <div style={{ color: "red", marginBottom: "10px" }}>{error}</div>
+        <div style={{ color: "red", marginBottom: "10px" }}>
+          {error}
+        </div>
       )}
 
       <form onSubmit={handleSubmit}>
@@ -82,7 +85,7 @@ function Login() {
       </form>
 
       <p style={{ marginTop: "20px", textAlign: "center" }}>
-        Don't have an account? <Link to="/register">Register</Link>
+        Don&apos;t have an account? <Link to="/register">Register</Link>
       </p>
     </div>
   );

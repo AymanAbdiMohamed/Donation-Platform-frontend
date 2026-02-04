@@ -15,10 +15,17 @@ export default function Register() {
     clearError();
 
     try {
-      await register(email, password, role);
-      navigate("/"); // or navigate("/login") depending on your app flow
+      const user = await register(email, password, role);
+
+      const dashboards = {
+        donor: "/donor/dashboard",
+        charity: "/charity/dashboard",
+        admin: "/admin/dashboard",
+      };
+
+      navigate(dashboards[user.role] || "/donor/dashboard");
     } catch (err) {
-      // error handled in context
+      // Error handled in AuthContext
     }
   };
 

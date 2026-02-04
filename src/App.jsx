@@ -21,9 +21,9 @@ function App() {
 
   const getDefaultDashboard = () => {
     const dashboards = {
-      donor: '/donor/dashboard',
-      charity: '/charity/dashboard',
-      admin: '/admin/dashboard',
+      donor: '/donor',
+      charity: '/charity',
+      admin: '/admin',
     }
     return dashboards[user?.role] || '/login'
   }
@@ -55,7 +55,7 @@ function App() {
 
         {/* Donor routes */}
         <Route
-          path="/donor/dashboard"
+          path="/donor"
           element={
             <ProtectedRoute allowedRoles={['donor']}>
               <DonorDashboard />
@@ -65,7 +65,7 @@ function App() {
 
         {/* Charity routes */}
         <Route
-          path="/charity/dashboard"
+          path="/charity"
           element={
             <ProtectedRoute allowedRoles={['charity']}>
               <CharityDashboard />
@@ -75,7 +75,7 @@ function App() {
 
         {/* Admin routes */}
         <Route
-          path="/admin/dashboard"
+          path="/admin"
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminDashboard />
