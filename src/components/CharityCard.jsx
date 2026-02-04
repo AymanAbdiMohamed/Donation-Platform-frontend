@@ -1,5 +1,5 @@
 function CharityCard({ charity }) {
-  return (
+  return  (
     <div className="bg-white border border-red-200 rounded-xl shadow-sm p-6 hover:shadow-md transition">
       <h3 className="text-xl font-semibold text-red-600 mb-2">
         {charity.name}
