@@ -1,8 +1,8 @@
 import axios from "axios";
 
-// Create a reusable Axios instance known as 'api'.
-// This allows us to set a base URL (where our backend is) and default headers
-// so we don't have to repeat them for every single request.
+// Create a reusable Axios instance.
+// This centralizes backend configuration (base URL + headers)
+// so individual API calls stay clean.
 const api = axios.create({
   baseURL: "http://127.0.0.1:5000",
   headers: {
@@ -10,52 +10,80 @@ const api = axios.create({
   },
 });
 
-// Interceptors are like "middlemen" that sit between the app and the server.
-// Here, we use a request interceptor to automatically add the user's authentication token
-// to every outgoing request if they are logged in.
-// This saves us from manually adding the "Authorization" header in every single API call.
+// Attach access token automatically to every request (if available).
+// This prevents manually adding Authorization headers everywhere.
 api.interceptors.request.use((config) => {
-  // Retrieve the access token from the browser's local storage
   const token = localStorage.getItem("access_token");
-  
-  // If a token exists, add it to the request headers
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
 
-// Function to log in a user.
-// It takes email and password, sends them to the backend, and returns the response data.
-// 'async/await' is used because network requests take time to complete.
+/* =========================
+   AUTHENTICATION
+   ========================= */
+
+// Login user
 export const loginUser = async ({ email, password }) => {
   const response = await api.post("/auth/login", { email, password });
-  return response.data; // The backend returns user info and the access token here
+  return response.data; // { user, access_token }
 };
 
-// Function to register a new user.
-// It sends email, password, and the selected role (donor or charity) to the backend.
+// Register user
 export const registerUser = async ({ email, password, role }) => {
-  const response = await api.post("/auth/register", { email, password, role });
-  return response.data; // expect { user, access_token }
+  const response = await api.post("/auth/register", {
+    email,
+    password,
+    role,
+  });
+  return response.data; // { user, access_token }
 };
 
-// Function to get the currently logged-in user's details.
-// Since the token is automatically attached by the interceptor (see above),
-// the backend knows who is asking for this information.
+// Get current logged-in user
 export const getMe = async () => {
   const response = await api.get("/auth/me");
-  return response.data; // expect { user }
+  return response.data; // { user }
 };
 
-// Function to submit a charity application form.
-// This function handles file uploads, so the data is sent as 'FormData' instead of simple JSON.
-// Axios is smart enough to detect FormData and set the correct 'Content-Type' header automatically.
+/* =========================
+   CHARITY
+   ========================= */
+
+// Submit charity application (supports file uploads)
 export const submitCharityApplication = async (formData) => {
   const response = await api.post("/charity/application", formData);
   return response.data;
 };
 
+/* =========================
+   ADMIN
+   ========================= */
 
-export { api };
+// Get pending charity applications
+export const getPendingApplications = async () => {
+  const response = await api.get("/admin/applications?status=pending");
+  return response.data; // array of applications
+};
+
+// Approve application
+export const approveApplication = async (applicationId) => {
+  const response = await api.patch(
+    `/admin/applications/${applicationId}/approve`
+  );
+  return response.data;
+};
+
+// Reject application (optional reason)
+export const rejectApplication = async (applicationId, reason = "") => {
+  const response = await api.patch(
+    `/admin/applications/${applicationId}/reject`,
+    { reason }
+  );
+  return response.data;
+};
+
+// Default export for direct api access if needed
 export default api;
