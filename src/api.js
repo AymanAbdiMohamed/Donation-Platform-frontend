@@ -32,5 +32,31 @@ export const getMe = async () => {
   const response = await api.get("/auth/me");
   return response.data; // expected { user }
 };
+// =========================
+// ADMIN: Charity Applications
+// =========================
+
+// 1) Fetch pending charity applications
+export const getPendingApplications = async () => {
+  const response = await api.get("/admin/applications?status=pending");
+  return response.data; // expected: array of applications
+};
+
+// 2) Approve application
+export const approveApplication = async (applicationId) => {
+  const response = await api.patch(
+    `/admin/applications/${applicationId}/approve`,
+  );
+  return response.data;
+};
+
+// 3) Reject application (optional reason)
+export const rejectApplication = async (applicationId, reason = "") => {
+  const response = await api.patch(
+    `/admin/applications/${applicationId}/reject`,
+    { reason },
+  );
+  return response.data;
+};
 
 export default api;
