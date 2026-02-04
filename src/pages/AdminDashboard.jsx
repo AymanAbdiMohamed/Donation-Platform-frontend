@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import {
   getPendingApplications,
   approveApplication,
@@ -6,6 +7,8 @@ import {
 } from "../api"; // adjust path if needed
 
 function AdminDashboard() {
+  const { user } = useAuth();
+
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -32,7 +35,6 @@ function AdminDashboard() {
   const handleApprove = async (id) => {
     try {
       await approveApplication(id);
-      // remove from pending list
       setApplications((prev) => prev.filter((app) => app.id !== id));
     } catch (err) {
       console.error(err);
@@ -44,8 +46,6 @@ function AdminDashboard() {
     try {
       const reason = prompt("Enter rejection reason (optional):") || "";
       await rejectApplication(id, reason);
-
-      // remove from pending list
       setApplications((prev) => prev.filter((app) => app.id !== id));
     } catch (err) {
       console.error(err);
@@ -56,13 +56,15 @@ function AdminDashboard() {
   return (
     <div style={{ padding: "20px" }}>
       <h1>Admin Dashboard</h1>
+      <p>Role: {user?.role}</p>
 
       <h2>Pending Charity Applications</h2>
 
       {loading && <p>Loading applications...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
-
-      {!loading && applications.length === 0 && <p>No pending applications.</p>}
+      {!loading && applications.length === 0 && (
+        <p>No pending applications.</p>
+      )}
 
       {applications.map((app) => (
         <div
