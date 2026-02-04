@@ -1,130 +1,91 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-/**
- * Register page.
- */
-function Register() {
-  const navigate = useNavigate()
-  const { register, error, loading, clearError } = useAuth()
-  
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    role: 'donor',
-  })
-  const [validationError, setValidationError] = useState('')
+export default function Register() {
+  const navigate = useNavigate();
+  const { register, loading, error, clearError } = useAuth();
 
-  const handleChange = (e) => {
-    clearError()
-    setValidationError('')
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    })
-  }
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("donor");
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    
-    if (formData.password !== formData.confirmPassword) {
-      setValidationError('Passwords do not match')
-      return
-    }
-    
-    try {
-      const user = await register(formData.email, formData.password, formData.role)
-      
-      // Navigate to dashboard based on role
-      const dashboards = {
-        donor: '/donor',
-        charity: '/charity',
-        admin: '/admin',
-      }
-      navigate(dashboards[user.role] || '/donor')
-    } catch (err) {
-      // Error handled by context
-    }
-  }
+    e.preventDefault();
+    clearError();
 
-  const displayError = validationError || error
+    try {
+      const user = await register(email, password, role);
+
+      const dashboards = {
+        donor: "/donor/dashboard",
+        charity: "/charity/dashboard",
+        admin: "/admin/dashboard",
+      };
+
+      navigate(dashboards[user.role] || "/donor/dashboard");
+    } catch (err) {
+      // Error handled in AuthContext
+    }
+  };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px' }}>
-      <h1>Register</h1>
-      
-      {displayError && <div style={{ color: 'red', marginBottom: '10px' }}>{displayError}</div>}
-      
+    <div style={{ maxWidth: 420, margin: "50px auto", padding: 20 }}>
+      <h2>Register</h2>
+
+      {error && (
+        <div style={{ background: "#ffe0e0", padding: 10, marginBottom: 10 }}>
+          <p style={{ margin: 0, color: "red" }}>{error}</p>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="email">Email:</label>
+        <div style={{ marginBottom: 12 }}>
+          <label>Email</label>
           <input
+            style={{ width: "100%", padding: 10 }}
             type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
           />
         </div>
-        
-        <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="password">Password:</label>
+
+        <div style={{ marginBottom: 12 }}>
+          <label>Password</label>
           <input
+            style={{ width: "100%", padding: 10 }}
             type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
           />
         </div>
-        
-        <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="confirmPassword">Confirm Password:</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-          />
-        </div>
-        
-        <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="role">I want to:</label>
+
+        <div style={{ marginBottom: 12 }}>
+          <label>Role</label>
           <select
-            id="role"
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+            style={{ width: "100%", padding: 10 }}
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
           >
-            <option value="donor">Donate to charities</option>
-            <option value="charity">Register as a charity</option>
+            <option value="donor">Donor</option>
+            <option value="charity">Charity</option>
           </select>
         </div>
-        
-        <button 
-          type="submit" 
+
+        <button
+          type="submit"
           disabled={loading}
-          style={{ width: '100%', padding: '10px', cursor: 'pointer' }}
+          style={{ width: "100%", padding: 10 }}
         >
-          {loading ? 'Registering...' : 'Register'}
+          {loading ? "Creating..." : "Register"}
         </button>
       </form>
-      
-      <p style={{ marginTop: '20px', textAlign: 'center' }}>
+
+      <p style={{ marginTop: 12 }}>
         Already have an account? <Link to="/login">Login</Link>
       </p>
     </div>
-  )
+  );
 }
-
-export default Register

@@ -1,37 +1,36 @@
-import axios from 'axios'
+import axios from "axios";
 
-/**
- * Axios instance with base URL and JWT interceptor.
- */
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
+  baseURL: "http://127.0.0.1:5000",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
-})
+});
 
-// Request interceptor - add JWT token
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('access_token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => Promise.reject(error)
-)
-
-// Response interceptor - handle 401
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('access_token')
-      window.location.href = '/login'
-    }
-    return Promise.reject(error)
+//To attach token automatically on every request
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("access_token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-)
+  return config;
+});
 
-export default api
+export const loginUser = async ({ email, password }) => {
+  const response = await api.post("/auth/login", { email, password });
+  return response.data; // expected { user, access_token }
+};
+
+// registerUser(email, password, role)
+export const registerUser = async ({ email, password, role }) => {
+  const response = await api.post("/auth/register", { email, password, role });
+  return response.data; // expected { user, access_token }
+};
+
+// get logged in user from token
+export const getMe = async () => {
+  const response = await api.get("/auth/me");
+  return response.data; // expected { user }
+};
+
+export default api;
