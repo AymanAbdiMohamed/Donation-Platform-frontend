@@ -57,4 +57,5 @@ export const submitCharityApplication = async (formData) => {
 };
 
 
+export { api };
 export default api;
