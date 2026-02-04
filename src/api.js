@@ -33,11 +33,6 @@ export const getMe = async () => {
   return response.data; // expected { user }
 };
 
-// =========================
-// ADMIN: Charity Applications
-// =========================
-
-// 1) Fetch pending charity applications
 export const getPendingApplications = async () => {
   const response = await api.get("/admin/applications?status=pending");
   return response.data; // expected: array of applications
