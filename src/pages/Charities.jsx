@@ -19,7 +19,7 @@ function Charities() {
 
       {charities.length === 0 ? (
         <p className="text-center text-gray-600">
-          No charities available.
+          No charities available at the moment.
         </p>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
