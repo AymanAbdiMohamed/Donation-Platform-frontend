@@ -1,19 +1,19 @@
-import { useState } from "react";
-import { submitCharityApplication } from "../api";
+import { useState, useEffect } from "react";
+import { submitCharityApplication, api } from "../api";
 import { useAuth } from "../context/AuthContext";
 
 function CharityDashboard() {
-  // Access the current logged-in user from our global AuthContext
   const { user } = useAuth();
-  
-  // STATE MANAGEMENT
-  // This large state object holds all the values for our application form.
-  // Using a single object for related fields is cleaner than having 20+ separate useState variables.
+  const [status, setStatus] = useState("idle"); // idle, submitting, success, error
+  const [errorMessage, setErrorMessage] = useState("");
+  const [application, setApplication] = useState(null);
+  const [loadingApp, setLoadingApp] = useState(false);
+
   const [formData, setFormData] = useState({
     charityName: "",
     registrationNumber: "",
     countryOfOperation: "",
-    yearEstablished: "",
+    yearOfEstablishment: "", // matches "Year Established" in image
     primaryContactPerson: "",
     emailAddress: "",
     phoneNumber: "",
@@ -23,62 +23,67 @@ function CharityDashboard() {
     regionServed: "",
     girlsReachedLastYear: "",
     annualBudget: "",
-    photos: null,       // Will store File object
-    evidenceFile: null, // Will store File object
-    complyEducation: false, // Checkbox
-    partnerSchools: false,  // Checkbox
-    confirmAccuracy: false, // Checkbox
+    photos: null,
+    evidenceFile: null,
+    complyEducation: false,
+    partnerSchools: false,
+    confirmAccuracy: false,
   });
 
-  // Track the status of the form submission:
-  // 'idle' = user hasn't submitted yet
-  // 'submitting' = request is in progress (show loading spinner)
-  // 'success' = application sent successfully (show thank you message)
-  // 'error' = something went wrong (show error message)
-  const [status, setStatus] = useState("idle");
-  const [errorMessage, setErrorMessage] = useState("");
+  // Fetch application status if it exists
+  useEffect(() => {
+    const fetchAppStatus = async () => {
+      setLoadingApp(true);
+      try {
+        const response = await api.get("/charity/application");
+        if (response.data && response.data.application) {
+          setApplication(response.data.application);
+        }
+      } catch (err) {
+        console.error("Error fetching application status:", err);
+      } finally {
+        setLoadingApp(false);
+      }
+    };
 
-  // GENERIC CHANGE HANDLER
-  // This one function handles ALL inputs (text, number, checkbox, file).
+    if (user) {
+      fetchAppStatus();
+    }
+  }, [user]);
+
   const handleChange = (e) => {
-    // Destructure properties from the input element
     const { name, value, type, checked, files } = e.target;
-    
     setFormData((prev) => ({
       ...prev,
-      [name]:
-        // If it's a checkbox, use 'checked' (true/false)
-        type === "checkbox" ? checked 
-        // If it's a file input, grab the first file selected
-        : type === "file" ? files[0] 
-        // Otherwise (text, number, etc.), use the standard 'value'
-        : value,
+      [name]: type === "checkbox" ? checked : type === "file" ? files[0] : value,
     }));
   };
 
-  // FORM SUBMISSION HANDLER
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Stop default HTML form submission
-    setStatus("submitting"); // Update UI to show loading state
-    setErrorMessage(""); // Clear old errors
+    e.preventDefault();
+    if (!formData.confirmAccuracy) {
+      alert("Please confirm the accuracy of provide information.");
+      return;
+    }
+
+    setStatus("submitting");
+    setErrorMessage("");
 
     try {
-        // PREPARE DATA FOR UPLOAD
-        // Because we are uploading files, we can't just send a plain JSON object.
-        // We must use 'FormData', which is a built-in browser API for constructing
-        // key/value pairs representing form fields and their values (including files).
-        const data = new FormData();
-        
-        // Loop through our state object and append each key-value pair to the FormData
-        Object.keys(formData).forEach(key => {
-            data.append(key, formData[key]);
-        });
-        
-        // Send to backend via our API helper function
-        await submitCharityApplication(data);
-        
-        // If successful, update status to show the success message
-        setStatus("success");
+      const data = new FormData();
+      Object.keys(formData).forEach((key) => {
+        if (formData[key] !== null) {
+          data.append(key, formData[key]);
+        }
+      });
+
+      await submitCharityApplication(data);
+      setStatus("success");
+      // Refresh application status
+      const response = await api.get("/charity/application");
+      if (response.data && response.data.application) {
+        setApplication(response.data.application);
+      }
     } catch (err) {
       console.error(err);
       setStatus("error");
@@ -86,272 +91,297 @@ function CharityDashboard() {
     }
   };
 
-  // CONDITIONALLY RENDER SUCCESS MESSAGE
-  // If status is 'success', we hide the form and show this nice message instead.
-  if (status === "success") {
-    return (
-      <div className="max-w-4xl mx-auto p-8 text-center">
-        <h2 className="text-3xl font-bold text-green-600 mb-4">Application Submitted!</h2>
-        <p className="text-gray-700">
-          Thank you for joining our mission. Your application is currently under review.
-          We will contact you shortly.
-        </p>
-        <button 
-            onClick={() => setStatus("idle")} // Reset to show the form again
-            className="mt-6 bg-red-600 text-white px-6 py-2 rounded-full hover:bg-red-700 transition"
-        >
-            Start New Application
-        </button>
-      </div>
-    );
+  if (loadingApp) {
+    return <div className="p-8 text-center text-gray-500">Loading Dashboard...</div>;
   }
 
+  // If already has a charity profile (approved), we might want a different view, 
+  // but for now, we'll show status or form.
+  
   return (
-    <div className="max-w-6xl mx-auto p-8 bg-white">
-      {/* Header Section */}
-      <div className="flex flex-col items-center mb-12">
-        <div className="flex items-center gap-2 mb-2">
-            {/* Title with multi-colored text span */}
-            <h1 className="text-4xl font-bold flex items-center gap-2">
-                <span className="text-red-500">SheNeeds</span>
-                <span>Join Our Mission to Help Our Girls</span>
+    <div className="max-w-[1200px] mx-auto p-12 bg-white min-h-screen">
+      {/* Header Section from Image */}
+      <header className="flex flex-col items-center mb-12">
+        <div className="flex items-center gap-3 mb-4">
+            {/* Simple representation of the logo */}
+            <div className="flex items-center gap-1">
+                <span className="text-red-500 text-3xl font-bold flex items-center">
+                    <svg className="w-8 h-8 mr-1" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    SheNeeds
+                </span>
+            </div>
+            <h1 className="text-5xl font-extrabold tracking-tight text-black">
+                Join Our Mission to Help Our Girls
             </h1>
         </div>
-        <p className="text-gray-600">
+        <p className="text-gray-500 text-lg">
           Apply to become a verified Partner in ensuring our Girls get Access to essential Menstrual Hygiene Products
         </p>
-      </div>
+      </header>
 
-      <form onSubmit={handleSubmit} className="space-y-10">
-        
-        {/* SECTION 1: Organisation Information */}
-        <section>
-          <h3 className="text-lg font-bold mb-4">Organisation Information</h3>
-          {/* Grid layout: 1 column on mobile, 2 on medium screens, 4 on large screens */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <input
-              type="text"
-              name="charityName"
-              placeholder="Charity Name"
-              value={formData.charityName}
-              onChange={handleChange}
-              className="w-full bg-gray-200 p-3 rounded"
-              required
-            />
-            <input
-              type="text"
-              name="registrationNumber"
-              placeholder="Registration Number"
-              value={formData.registrationNumber}
-              onChange={handleChange}
-              className="w-full bg-gray-200 p-3 rounded"
-              required
-            />
-            <input
-              type="text"
-              name="countryOfOperation"
-              placeholder="Country Of Operation"
-              value={formData.countryOfOperation}
-              onChange={handleChange}
-              className="w-full bg-gray-200 p-3 rounded"
-              required
-            />
-            <input
-              type="text"
-              name="yearEstablished"
-              placeholder="Year Established"
-              value={formData.yearEstablished}
-              onChange={handleChange}
-              className="w-full bg-gray-200 p-3 rounded"
-              required
-            />
+      {/* Application Status Alert */}
+      {application && (
+        <div className={`mb-8 p-4 rounded-lg flex justify-between items-center ${
+          application.status === 'approved' ? 'bg-green-100 text-green-800' :
+          application.status === 'rejected' ? 'bg-red-100 text-red-800' :
+          'bg-yellow-100 text-yellow-800'
+        }`}>
+          <div>
+            <span className="font-bold">Application Status: </span>
+            <span className="capitalize">{application.status}</span>
+            {application.rejection_reason && (
+                <p className="text-sm mt-1">Reason: {application.rejection_reason}</p>
+            )}
           </div>
-        </section>
+          <p className="text-xs uppercase tracking-wider font-semibold opacity-70">Case #{application.id}</p>
+        </div>
+      )}
 
-        {/* SECTION 2: Contact Detail */}
-        <section>
-          <h3 className="text-lg font-bold mb-4">Contact Detail</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <input
-              type="text"
-              name="primaryContactPerson"
-              placeholder="Primary Contact Person"
-              value={formData.primaryContactPerson}
-              onChange={handleChange}
-              className="w-full bg-gray-200 p-3 rounded"
-              required
-            />
-            <input
-              type="email"
-              name="emailAddress"
-              placeholder="Email Address"
-              value={formData.emailAddress}
-              onChange={handleChange}
-              className="w-full bg-gray-200 p-3 rounded"
-              required
-            />
-            <input
-              type="tel"
-              name="phoneNumber"
-              placeholder="Phone number"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              className="w-full bg-gray-200 p-3 rounded"
-              required
-            />
-          </div>
-        </section>
-
-        {/* SECTION 3: Mission & Activities */}
-        <section>
-          <h3 className="text-lg font-bold mb-4">Mission & Activities</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <input
-              type="text"
-              name="missionStatement"
-              placeholder="Mission Statement"
-              value={formData.missionStatement}
-              onChange={handleChange}
-              className="w-full bg-gray-200 p-3 rounded"
-              required
-            />
-            <input
-              type="text"
-              name="targetAgeGroup"
-              placeholder="Target Age Group"
-              value={formData.targetAgeGroup}
-              onChange={handleChange}
-              className="w-full bg-gray-200 p-3 rounded"
-              required
-            />
-            <input
-              type="text"
-              name="menstrualHealthProgramme"
-              placeholder="Menstrual Health Programme"
-              value={formData.menstrualHealthProgramme}
-              onChange={handleChange}
-              className="w-full bg-gray-200 p-3 rounded"
-              required
-            />
-             <input
-              type="text"
-              name="regionServed"
-              placeholder="Region Served"
-              value={formData.regionServed}
-              onChange={handleChange}
-              className="w-full bg-gray-200 p-3 rounded"
-              required
-            />
-          </div>
-        </section>
-
-        {/* SECTION 4: Impact & Transparency (Handles File Uploads) */}
-        <section>
-          <h3 className="text-lg font-bold mb-4">Impact & Transparency</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-            
-            {/* Row 1: Girls Reached + Photo Upload */}
-            <input
-              type="text"
-              name="girlsReachedLastYear"
-              placeholder="Girls Reached Last Year"
-              value={formData.girlsReachedLastYear}
-              onChange={handleChange}
-              className="w-full bg-gray-200 p-3 rounded"
-              required
-            />
-            {/* Custom File Input Styling */}
-            {/* We hide the actual <input type="file"> and style a label instead */}
-            <div className="flex gap-4 items-center">
-                 <label className="bg-gray-300 px-4 py-2 cursor-pointer rounded hover:bg-gray-400 text-sm whitespace-nowrap">
-                    Choose File
-                    <input type="file" name="photos" onChange={handleChange} className="hidden" />
-                 </label>
-                 {/* Show the selected file name or a default text */}
-                 <div className="flex-1 bg-gray-200 p-3 rounded text-gray-500 truncate">
-                    {formData.photos ? formData.photos.name : "Upload Photos or Testimonials"}
-                 </div>
-            </div>
-
-             {/* Row 2: Budget + Evidence Upload */}
-            <input
-              type="text"
-              name="annualBudget"
-              placeholder="Annual Budget"
-              value={formData.annualBudget}
-              onChange={handleChange}
-              className="w-full bg-gray-200 p-3 rounded"
-              required
-            />
-             <div className="flex gap-4 items-center">
-                 <label className="bg-gray-300 px-4 py-2 cursor-pointer rounded hover:bg-gray-400 text-sm whitespace-nowrap">
-                    Choose File
-                    <input type="file" name="evidenceFile" onChange={handleChange} className="hidden" />
-                 </label>
-                 <div className="flex-1 bg-gray-200 p-3 rounded text-gray-500 truncate">
-                    {formData.evidenceFile ? formData.evidenceFile.name : "Upload Files or text evidences"}
-                 </div>
-            </div>
-
-          </div>
-        </section>
-
-        {/* SECTION 5: Compliance & Verification (Checkboxes) */}
-        <section>
-          <h3 className="text-lg font-bold mb-4">Compliance & Verification</h3>
-          <div className="space-y-2">
-            <label className="flex items-center gap-3">
+      {status === "success" ? (
+        <div className="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+          <h2 className="text-3xl font-bold text-green-600 mb-4">Application Submitted!</h2>
+          <p className="text-gray-600 max-w-md mx-auto">
+            Thank you for applying. Our team will review your organization and get back to you shortly.
+          </p>
+          <button 
+            onClick={() => setStatus("idle")}
+            className="mt-8 bg-red-600 text-white px-10 py-3 rounded-full hover:bg-red-700 transition font-bold"
+          >
+            Submit Another Application
+          </button>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-16">
+          
+          {/* SECTION 1: Organisation Information */}
+          <section>
+            <h3 className="text-xl font-bold mb-6 text-gray-800">Organisation Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <input
-                type="checkbox"
-                name="complyEducation"
-                checked={formData.complyEducation}
+                type="text"
+                name="charityName"
+                placeholder="Charity Name"
+                value={formData.charityName}
                 onChange={handleChange}
-                className="w-5 h-5"
-              />
-              <span className="text-gray-700">Do you Follow Menstrual Health education guidlines ?</span>
-            </label>
-            <label className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                name="partnerSchools"
-                checked={formData.partnerSchools}
-                onChange={handleChange}
-                className="w-5 h-5"
-              />
-              <span className="text-gray-700">Do you patner with Schools or Clinics</span>
-            </label>
-          </div>
-        </section>
-
-        {/* SECTION 6: Final Confirmation */}
-        <div className="pt-6 border-t border-gray-300">
-             <label className="flex items-start gap-3">
-              <input
-                type="checkbox"
-                name="confirmAccuracy"
-                checked={formData.confirmAccuracy}
-                onChange={handleChange}
-                className="w-5 h-5 mt-1"
+                className="w-full bg-gray-200 p-4 rounded-md focus:outline-none focus:ring-2 focus:ring-red-300 transition"
                 required
               />
-              <span className="text-gray-700">Confirm That all the information provided is accurate and that our organisation agrees to the Platform Terms and Values</span>
-            </label>
-        </div>
-        
-        {/* Error Message Display */}
-        {errorMessage && <div className="text-red-500 text-center">{errorMessage}</div>}
+              <input
+                type="text"
+                name="registrationNumber"
+                placeholder="Registration Number"
+                value={formData.registrationNumber}
+                onChange={handleChange}
+                className="w-full bg-gray-200 p-4 rounded-md focus:outline-none focus:ring-2 focus:ring-red-300 transition"
+                required
+              />
+              <input
+                type="text"
+                name="countryOfOperation"
+                placeholder="Country Of Operation"
+                value={formData.countryOfOperation}
+                onChange={handleChange}
+                className="w-full bg-gray-200 p-4 rounded-md focus:outline-none focus:ring-2 focus:ring-red-300 transition"
+                required
+              />
+              <input
+                type="text"
+                name="yearOfEstablishment"
+                placeholder="Year Established"
+                value={formData.yearOfEstablishment}
+                onChange={handleChange}
+                className="w-full bg-gray-200 p-4 rounded-md focus:outline-none focus:ring-2 focus:ring-red-300 transition"
+                required
+              />
+            </div>
+          </section>
 
-        <div className="flex justify-center pb-12">
-            <button
-                type="submit"
-                disabled={status === 'submitting'}
-                className="bg-red-600 text-white text-xl font-bold py-3 px-12 rounded-full hover:bg-red-700 transition duration-300 shadow-lg"
-            >
-                {status === 'submitting' ? 'Submitting...' : 'Join Our Network'}
-            </button>
-        </div>
+          {/* SECTION 2: Contact Detail */}
+          <section>
+            <h3 className="text-xl font-bold mb-6 text-gray-800">Contact Detail</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <input
+                type="text"
+                name="primaryContactPerson"
+                placeholder="Primary Contact Person"
+                value={formData.primaryContactPerson}
+                onChange={handleChange}
+                className="w-full bg-gray-200 p-4 rounded-md"
+                required
+              />
+              <input
+                type="email"
+                name="emailAddress"
+                placeholder="Email Address"
+                value={formData.emailAddress}
+                onChange={handleChange}
+                className="w-full bg-gray-200 p-4 rounded-md"
+                required
+              />
+              <input
+                type="tel"
+                name="phoneNumber"
+                placeholder="Phone number"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                className="w-full bg-gray-200 p-4 rounded-md"
+                required
+              />
+            </div>
+          </section>
 
-      </form>
+          {/* SECTION 3: Mission & Activities */}
+          <section>
+            <h3 className="text-xl font-bold mb-6 text-gray-800">Mission & Activities</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <input
+                type="text"
+                name="missionStatement"
+                placeholder="Mission Statement"
+                value={formData.missionStatement}
+                onChange={handleChange}
+                className="w-full bg-gray-200 p-4 rounded-md"
+                required
+              />
+              <input
+                type="text"
+                name="targetAgeGroup"
+                placeholder="Target Age Group"
+                value={formData.targetAgeGroup}
+                onChange={handleChange}
+                className="w-full bg-gray-200 p-4 rounded-md"
+                required
+              />
+              <input
+                type="text"
+                name="menstrualHealthProgramme"
+                placeholder="Menstrual Health Programme"
+                value={formData.menstrualHealthProgramme}
+                onChange={handleChange}
+                className="w-full bg-gray-200 p-4 rounded-md"
+                required
+              />
+               <input
+                type="text"
+                name="regionServed"
+                placeholder="Region Served"
+                value={formData.regionServed}
+                onChange={handleChange}
+                className="w-full bg-gray-200 p-4 rounded-md"
+                required
+              />
+            </div>
+          </section>
+
+          {/* SECTION 4: impact & Transparency */}
+          <section>
+            <h3 className="text-xl font-bold mb-6 text-gray-800">impact & Transparency</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+              <input
+                type="text"
+                name="girlsReachedLastYear"
+                placeholder="Girls Reached Last Year"
+                value={formData.girlsReachedLastYear}
+                onChange={handleChange}
+                className="w-full bg-gray-200 p-4 rounded-md"
+                required
+              />
+              <div className="flex gap-4 items-center">
+                   <label className="bg-gray-300 px-6 py-3 cursor-pointer rounded-md hover:bg-gray-400 transition text-sm font-semibold whitespace-nowrap">
+                      Choose File
+                      <input type="file" name="photos" onChange={handleChange} className="hidden" />
+                   </label>
+                   <div className="flex-1 bg-gray-200 p-4 rounded-md text-gray-500 truncate">
+                      {formData.photos ? formData.photos.name : "Upload Photos or Testimonials"}
+                   </div>
+              </div>
+              <div className="hidden lg:block"></div> {/* Spacer for alignment if needed */}
+
+              <input
+                type="text"
+                name="annualBudget"
+                placeholder="Annual Budget"
+                value={formData.annualBudget}
+                onChange={handleChange}
+                className="w-full bg-gray-200 p-4 rounded-md"
+                required
+              />
+               <div className="flex gap-4 items-center">
+                   <label className="bg-gray-300 px-6 py-3 cursor-pointer rounded-md hover:bg-gray-400 transition text-sm font-semibold whitespace-nowrap">
+                      Choose File
+                      <input type="file" name="evidenceFile" onChange={handleChange} className="hidden" />
+                   </label>
+                   <div className="flex-1 bg-gray-200 p-4 rounded-md text-gray-500 truncate">
+                      {formData.evidenceFile ? formData.evidenceFile.name : "Upload Files or text evidences"}
+                   </div>
+              </div>
+            </div>
+          </section>
+
+          {/* SECTION 5: Compliance & Verification */}
+          <section>
+            <h3 className="text-xl font-bold mb-6 text-gray-800">Compliance & Verification</h3>
+            <div className="space-y-4">
+              <label className="flex items-center gap-4 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  name="complyEducation"
+                  checked={formData.complyEducation}
+                  onChange={handleChange}
+                  className="w-5 h-5 accent-red-600"
+                />
+                <span className="text-gray-700 font-medium group-hover:text-black transition">Do you Follow Menstrual Health education guidlines ?</span>
+              </label>
+              <label className="flex items-center gap-4 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  name="partnerSchools"
+                  checked={formData.partnerSchools}
+                  onChange={handleChange}
+                  className="w-5 h-5 accent-red-600"
+                />
+                <span className="text-gray-700 font-medium group-hover:text-black transition">Do you patner with Schools or Clinics</span>
+              </label>
+            </div>
+          </section>
+
+          {/* SECTION 6: Final Confirmation */}
+          <div className="pt-10 border-t-2 border-gray-100">
+               <label className="flex items-start gap-4 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  name="confirmAccuracy"
+                  checked={formData.confirmAccuracy}
+                  onChange={handleChange}
+                  className="w-6 h-6 mt-1 accent-red-600"
+                  required
+                />
+                <span className="text-gray-700 font-medium group-hover:text-black transition text-lg">
+                    Confirm That all the information provided is accurate and that our organisation agrees to the Platform's Terms and Values
+                </span>
+              </label>
+          </div>
+          
+          {errorMessage && (
+            <div className="bg-red-50 text-red-600 p-4 rounded-xl text-center font-bold">
+                {errorMessage}
+            </div>
+          )}
+
+          <div className="flex justify-center pt-8 pb-20">
+              <button
+                  type="submit"
+                  disabled={status === 'submitting'}
+                  className="bg-red-600 text-white text-3xl font-bold py-5 px-24 rounded-full hover:bg-red-700 transition duration-300 shadow-2xl hover:scale-105 active:scale-95 disabled:opacity-50"
+              >
+                  {status === 'submitting' ? 'Submitting...' : 'Join Our Network'}
+              </button>
+          </div>
+
+        </form>
+      )}
     </div>
   );
 }
