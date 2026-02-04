@@ -14,7 +14,7 @@ function Charities() {
    return (
     <div className="min-h-screen bg-red-50 px-6 py-8">
       <h1 className="text-3xl font-bold text-red-600 mb-6 text-center">
-        Approved Charities
+        Approved Charities 
       </h1>
 
       {charities.length === 0 ? (
