@@ -1,89 +1,94 @@
 import { useEffect, useState } from "react";
+import {
+  getPendingApplications,
+  approveApplication,
+  rejectApplication,
+} from "../api"; // adjust path if needed
 
 function AdminDashboard() {
-  const [charities, setCharities] = useState([]);
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const fetchPending = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const data = await getPendingApplications();
+      setApplications(data);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load pending applications.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetch("/api/charities")
-      .then((res) => res.json())
-      .then((data) => setCharities(data))
-      .catch((err) => console.error(err));
+    fetchPending();
   }, []);
 
-  const handleApprove = (id) => {
-    fetch(`/api/charities/${id}/approve`, {
-      method: "PATCH",
-    }).then(() => {
-      setCharities((prev) =>
-        prev.map((charity) =>
-          charity.id === id
-            ? { ...charity, status: "approved" }
-            : charity
-        )
-      );
-    });
+  const handleApprove = async (id) => {
+    try {
+      await approveApplication(id);
+      // remove from pending list
+      setApplications((prev) => prev.filter((app) => app.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to approve application.");
+    }
   };
 
-  const handleReject = (id) => {
-    fetch(`/api/charities/${id}/reject`, {
-      method: "PATCH",
-    }).then(() => {
-      setCharities((prev) =>
-        prev.map((charity) =>
-          charity.id === id
-            ? { ...charity, status: "rejected" }
-            : charity
-        )
-      );
-    });
+  const handleReject = async (id) => {
+    try {
+      const reason = prompt("Enter rejection reason (optional):") || "";
+      await rejectApplication(id, reason);
+
+      // remove from pending list
+      setApplications((prev) => prev.filter((app) => app.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to reject application.");
+    }
   };
-
-  const handleDelete = (id) => {
-    fetch(`/api/charities/${id}`, {
-      method: "DELETE",
-    }).then(() => {
-      setCharities((prev) =>
-        prev.filter((charity) => charity.id !== id)
-      );
-    });
-  };
-
-  const pendingCharities = charities.filter(
-    (charity) => charity.status === "pending"
-  );
-
-  const approvedCharities = charities.filter(
-    (charity) => charity.status === "approved"
-  );
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <h1>Admin Dashboard</h1>
 
       <h2>Pending Charity Applications</h2>
-      {pendingCharities.map((charity) => (
-        <div key={charity.id}>
-          <h3>{charity.name}</h3>
-          <p>{charity.description}</p>
 
-          <button onClick={() => handleApprove(charity.id)}>
-            Approve
-          </button>
-          <button onClick={() => handleReject(charity.id)}>
-            Reject
-          </button>
-        </div>
-      ))}
+      {loading && <p>Loading applications...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <h2>Approved Charities</h2>
-      {approvedCharities.map((charity) => (
-        <div key={charity.id}>
-          <h3>{charity.name}</h3>
-          <p>{charity.description}</p>
+      {!loading && applications.length === 0 && <p>No pending applications.</p>}
 
-          <button onClick={() => handleDelete(charity.id)}>
-            Delete
-          </button>
+      {applications.map((app) => (
+        <div
+          key={app.id}
+          style={{
+            border: "1px solid #ccc",
+            padding: "12px",
+            borderRadius: "8px",
+            marginBottom: "12px",
+          }}
+        >
+          <h3>{app.name || app.charity_name || "Charity Application"}</h3>
+
+          <p>
+            <strong>Email:</strong> {app.email || "N/A"}
+          </p>
+
+          <p>
+            <strong>Description:</strong>{" "}
+            {app.description || app.mission || "No description provided"}
+          </p>
+
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button onClick={() => handleApprove(app.id)}>Approve</button>
+            <button onClick={() => handleReject(app.id)}>Reject</button>
+          </div>
         </div>
       ))}
     </div>
