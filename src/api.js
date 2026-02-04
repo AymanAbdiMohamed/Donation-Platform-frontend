@@ -7,7 +7,7 @@ const api = axios.create({
   },
 });
 
-//To attach token automatically on every request
+// To attach token automatically on every request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("access_token");
   if (token) {
@@ -32,6 +32,7 @@ export const getMe = async () => {
   const response = await api.get("/auth/me");
   return response.data; // expected { user }
 };
+
 // =========================
 // ADMIN: Charity Applications
 // =========================
