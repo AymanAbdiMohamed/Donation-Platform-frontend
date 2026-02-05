@@ -2,6 +2,34 @@
  * Charity Application Form Section Components
  * Extracted from CharityDashboard for maintainability
  */
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Upload } from "lucide-react";
+
+/**
+ * Reusable Form Field Component
+ */
+function FormField({ label, children, className = "" }) {
+  return (
+    <div className={`space-y-2 ${className}`}>
+      {label && <Label className="text-sm font-medium">{label}</Label>}
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Section Header Component
+ */
+function SectionHeader({ children }) {
+  return (
+    <h3 className="text-lg font-semibold mb-4 text-foreground border-b pb-2">
+      {children}
+    </h3>
+  );
+}
 
 /**
  * Organization Information Section
@@ -9,44 +37,48 @@
 export function OrganizationSection({ formData, handleChange }) {
   return (
     <section>
-      <h3 className="text-xl font-bold mb-6 text-gray-800">Organisation Information</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <input
-          type="text"
-          name="charityName"
-          placeholder="Charity Name"
-          value={formData.charityName}
-          onChange={handleChange}
-          className="w-full bg-gray-200 p-4 rounded-md focus:outline-none focus:ring-2 focus:ring-red-300 transition"
-          required
-        />
-        <input
-          type="text"
-          name="registrationNumber"
-          placeholder="Registration Number"
-          value={formData.registrationNumber}
-          onChange={handleChange}
-          className="w-full bg-gray-200 p-4 rounded-md focus:outline-none focus:ring-2 focus:ring-red-300 transition"
-          required
-        />
-        <input
-          type="text"
-          name="countryOfOperation"
-          placeholder="Country Of Operation"
-          value={formData.countryOfOperation}
-          onChange={handleChange}
-          className="w-full bg-gray-200 p-4 rounded-md focus:outline-none focus:ring-2 focus:ring-red-300 transition"
-          required
-        />
-        <input
-          type="text"
-          name="yearOfEstablishment"
-          placeholder="Year Established"
-          value={formData.yearOfEstablishment}
-          onChange={handleChange}
-          className="w-full bg-gray-200 p-4 rounded-md focus:outline-none focus:ring-2 focus:ring-red-300 transition"
-          required
-        />
+      <SectionHeader>Organisation Information</SectionHeader>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <FormField label="Charity Name">
+          <Input
+            type="text"
+            name="charityName"
+            placeholder="Enter charity name"
+            value={formData.charityName}
+            onChange={handleChange}
+            required
+          />
+        </FormField>
+        <FormField label="Registration Number">
+          <Input
+            type="text"
+            name="registrationNumber"
+            placeholder="Enter registration number"
+            value={formData.registrationNumber}
+            onChange={handleChange}
+            required
+          />
+        </FormField>
+        <FormField label="Country of Operation">
+          <Input
+            type="text"
+            name="countryOfOperation"
+            placeholder="Enter country"
+            value={formData.countryOfOperation}
+            onChange={handleChange}
+            required
+          />
+        </FormField>
+        <FormField label="Year Established">
+          <Input
+            type="text"
+            name="yearOfEstablishment"
+            placeholder="e.g., 2015"
+            value={formData.yearOfEstablishment}
+            onChange={handleChange}
+            required
+          />
+        </FormField>
       </div>
     </section>
   );
@@ -58,35 +90,38 @@ export function OrganizationSection({ formData, handleChange }) {
 export function ContactSection({ formData, handleChange }) {
   return (
     <section>
-      <h3 className="text-xl font-bold mb-6 text-gray-800">Contact Detail</h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <input
-          type="text"
-          name="primaryContactPerson"
-          placeholder="Primary Contact Person"
-          value={formData.primaryContactPerson}
-          onChange={handleChange}
-          className="w-full bg-gray-200 p-4 rounded-md"
-          required
-        />
-        <input
-          type="email"
-          name="emailAddress"
-          placeholder="Email Address"
-          value={formData.emailAddress}
-          onChange={handleChange}
-          className="w-full bg-gray-200 p-4 rounded-md"
-          required
-        />
-        <input
-          type="tel"
-          name="phoneNumber"
-          placeholder="Phone number"
-          value={formData.phoneNumber}
-          onChange={handleChange}
-          className="w-full bg-gray-200 p-4 rounded-md"
-          required
-        />
+      <SectionHeader>Contact Details</SectionHeader>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <FormField label="Primary Contact Person">
+          <Input
+            type="text"
+            name="primaryContactPerson"
+            placeholder="Full name"
+            value={formData.primaryContactPerson}
+            onChange={handleChange}
+            required
+          />
+        </FormField>
+        <FormField label="Email Address">
+          <Input
+            type="email"
+            name="emailAddress"
+            placeholder="email@example.com"
+            value={formData.emailAddress}
+            onChange={handleChange}
+            required
+          />
+        </FormField>
+        <FormField label="Phone Number">
+          <Input
+            type="tel"
+            name="phoneNumber"
+            placeholder="+1 234 567 8900"
+            value={formData.phoneNumber}
+            onChange={handleChange}
+            required
+          />
+        </FormField>
       </div>
     </section>
   );
@@ -98,44 +133,48 @@ export function ContactSection({ formData, handleChange }) {
 export function MissionSection({ formData, handleChange }) {
   return (
     <section>
-      <h3 className="text-xl font-bold mb-6 text-gray-800">Mission & Activities</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <input
-          type="text"
-          name="missionStatement"
-          placeholder="Mission Statement"
-          value={formData.missionStatement}
-          onChange={handleChange}
-          className="w-full bg-gray-200 p-4 rounded-md"
-          required
-        />
-        <input
-          type="text"
-          name="targetAgeGroup"
-          placeholder="Target Age Group"
-          value={formData.targetAgeGroup}
-          onChange={handleChange}
-          className="w-full bg-gray-200 p-4 rounded-md"
-          required
-        />
-        <input
-          type="text"
-          name="menstrualHealthProgramme"
-          placeholder="Menstrual Health Programme"
-          value={formData.menstrualHealthProgramme}
-          onChange={handleChange}
-          className="w-full bg-gray-200 p-4 rounded-md"
-          required
-        />
-        <input
-          type="text"
-          name="regionServed"
-          placeholder="Region Served"
-          value={formData.regionServed}
-          onChange={handleChange}
-          className="w-full bg-gray-200 p-4 rounded-md"
-          required
-        />
+      <SectionHeader>Mission & Activities</SectionHeader>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <FormField label="Mission Statement">
+          <Input
+            type="text"
+            name="missionStatement"
+            placeholder="Brief mission statement"
+            value={formData.missionStatement}
+            onChange={handleChange}
+            required
+          />
+        </FormField>
+        <FormField label="Target Age Group">
+          <Input
+            type="text"
+            name="targetAgeGroup"
+            placeholder="e.g., 10-18 years"
+            value={formData.targetAgeGroup}
+            onChange={handleChange}
+            required
+          />
+        </FormField>
+        <FormField label="Menstrual Health Programme">
+          <Input
+            type="text"
+            name="menstrualHealthProgramme"
+            placeholder="Programme description"
+            value={formData.menstrualHealthProgramme}
+            onChange={handleChange}
+            required
+          />
+        </FormField>
+        <FormField label="Region Served">
+          <Input
+            type="text"
+            name="regionServed"
+            placeholder="Geographic regions"
+            value={formData.regionServed}
+            onChange={handleChange}
+            required
+          />
+        </FormField>
       </div>
     </section>
   );
@@ -147,45 +186,60 @@ export function MissionSection({ formData, handleChange }) {
 export function ImpactSection({ formData, handleChange }) {
   return (
     <section>
-      <h3 className="text-xl font-bold mb-6 text-gray-800">Impact & Transparency</h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-        <input
-          type="text"
-          name="girlsReachedLastYear"
-          placeholder="Girls Reached Last Year"
-          value={formData.girlsReachedLastYear}
-          onChange={handleChange}
-          className="w-full bg-gray-200 p-4 rounded-md"
-          required
-        />
-        <div className="flex gap-4 items-center">
-          <label className="bg-gray-300 px-6 py-3 cursor-pointer rounded-md hover:bg-gray-400 transition text-sm font-semibold whitespace-nowrap">
-            Choose File
-            <input type="file" name="photos" onChange={handleChange} className="hidden" />
-          </label>
-          <div className="flex-1 bg-gray-200 p-4 rounded-md text-gray-500 truncate">
-            {formData.photos ? formData.photos.name : "Upload Photos or Testimonials"}
-          </div>
+      <SectionHeader>Impact & Transparency</SectionHeader>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-4">
+          <FormField label="Girls Reached Last Year">
+            <Input
+              type="text"
+              name="girlsReachedLastYear"
+              placeholder="Number of beneficiaries"
+              value={formData.girlsReachedLastYear}
+              onChange={handleChange}
+              required
+            />
+          </FormField>
+          <FormField label="Annual Budget">
+            <Input
+              type="text"
+              name="annualBudget"
+              placeholder="e.g., $50,000"
+              value={formData.annualBudget}
+              onChange={handleChange}
+              required
+            />
+          </FormField>
         </div>
-        <div className="hidden lg:block"></div>
-
-        <input
-          type="text"
-          name="annualBudget"
-          placeholder="Annual Budget"
-          value={formData.annualBudget}
-          onChange={handleChange}
-          className="w-full bg-gray-200 p-4 rounded-md"
-          required
-        />
-        <div className="flex gap-4 items-center">
-          <label className="bg-gray-300 px-6 py-3 cursor-pointer rounded-md hover:bg-gray-400 transition text-sm font-semibold whitespace-nowrap">
-            Choose File
-            <input type="file" name="evidenceFile" onChange={handleChange} className="hidden" />
-          </label>
-          <div className="flex-1 bg-gray-200 p-4 rounded-md text-gray-500 truncate">
-            {formData.evidenceFile ? formData.evidenceFile.name : "Upload Files or text evidences"}
-          </div>
+        
+        <div className="space-y-4">
+          <FormField label="Photos or Testimonials">
+            <div className="flex items-center gap-3">
+              <Button type="button" variant="outline" asChild className="cursor-pointer">
+                <label>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Choose File
+                  <input type="file" name="photos" onChange={handleChange} className="hidden" />
+                </label>
+              </Button>
+              <span className="text-sm text-muted-foreground truncate flex-1">
+                {formData.photos ? formData.photos.name : "No file selected"}
+              </span>
+            </div>
+          </FormField>
+          <FormField label="Evidence Files">
+            <div className="flex items-center gap-3">
+              <Button type="button" variant="outline" asChild className="cursor-pointer">
+                <label>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Choose File
+                  <input type="file" name="evidenceFile" onChange={handleChange} className="hidden" />
+                </label>
+              </Button>
+              <span className="text-sm text-muted-foreground truncate flex-1">
+                {formData.evidenceFile ? formData.evidenceFile.name : "No file selected"}
+              </span>
+            </div>
+          </FormField>
         </div>
       </div>
     </section>
@@ -198,32 +252,34 @@ export function ImpactSection({ formData, handleChange }) {
 export function ComplianceSection({ formData, handleChange }) {
   return (
     <section>
-      <h3 className="text-xl font-bold mb-6 text-gray-800">Compliance & Verification</h3>
+      <SectionHeader>Compliance & Verification</SectionHeader>
       <div className="space-y-4">
-        <label className="flex items-center gap-4 cursor-pointer group">
-          <input
-            type="checkbox"
+        <div className="flex items-center space-x-3">
+          <Checkbox
+            id="complyEducation"
             name="complyEducation"
             checked={formData.complyEducation}
-            onChange={handleChange}
-            className="w-5 h-5 accent-red-600"
+            onCheckedChange={(checked) => 
+              handleChange({ target: { name: "complyEducation", type: "checkbox", checked } })
+            }
           />
-          <span className="text-gray-700 font-medium group-hover:text-black transition">
-            Do you Follow Menstrual Health education guidelines?
-          </span>
-        </label>
-        <label className="flex items-center gap-4 cursor-pointer group">
-          <input
-            type="checkbox"
+          <Label htmlFor="complyEducation" className="cursor-pointer">
+            Do you follow Menstrual Health education guidelines?
+          </Label>
+        </div>
+        <div className="flex items-center space-x-3">
+          <Checkbox
+            id="partnerSchools"
             name="partnerSchools"
             checked={formData.partnerSchools}
-            onChange={handleChange}
-            className="w-5 h-5 accent-red-600"
+            onCheckedChange={(checked) => 
+              handleChange({ target: { name: "partnerSchools", type: "checkbox", checked } })
+            }
           />
-          <span className="text-gray-700 font-medium group-hover:text-black transition">
+          <Label htmlFor="partnerSchools" className="cursor-pointer">
             Do you partner with Schools or Clinics?
-          </span>
-        </label>
+          </Label>
+        </div>
       </div>
     </section>
   );
@@ -234,20 +290,23 @@ export function ComplianceSection({ formData, handleChange }) {
  */
 export function ConfirmationSection({ formData, handleChange }) {
   return (
-    <div className="pt-10 border-t-2 border-gray-100">
-      <label className="flex items-start gap-4 cursor-pointer group">
-        <input
-          type="checkbox"
+    <div className="pt-6 border-t">
+      <div className="flex items-start space-x-3">
+        <Checkbox
+          id="confirmAccuracy"
           name="confirmAccuracy"
           checked={formData.confirmAccuracy}
-          onChange={handleChange}
-          className="w-6 h-6 mt-1 accent-red-600"
+          onCheckedChange={(checked) => 
+            handleChange({ target: { name: "confirmAccuracy", type: "checkbox", checked } })
+          }
           required
+          className="mt-1"
         />
-        <span className="text-gray-700 font-medium group-hover:text-black transition text-lg">
-          Confirm that all the information provided is accurate and that our organisation agrees to the Platform's Terms and Values
-        </span>
-      </label>
+        <Label htmlFor="confirmAccuracy" className="cursor-pointer text-sm leading-relaxed">
+          I confirm that all the information provided is accurate and that our organisation agrees to 
+          the Platform's Terms and Values
+        </Label>
+      </div>
     </div>
   );
 }

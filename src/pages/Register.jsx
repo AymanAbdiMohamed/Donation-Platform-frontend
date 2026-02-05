@@ -1,24 +1,24 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { ROLES } from "../constants";
+import { ROLES, ROUTES } from "../constants";
+import { Heart, Loader2, User, Building2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 export default function Register() {
   const navigate = useNavigate();
   const { register, loading, error, clearError, getRedirectPath } = useAuth();
 
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
     email: "",
-    postalAddress: "",
     password: "",
     confirmPassword: "",
     role: ROLES.DONOR,
   });
-
-  // TODO: Implement remember me functionality when backend supports persistent sessions
-  const [rememberMe, setRememberMe] = useState(false);
 
   const handleChange = (e) => {
     clearError();
@@ -26,6 +26,10 @@ export default function Register() {
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handleRoleSelect = (role) => {
+    setFormData({ ...formData, role });
   };
 
   const handleSubmit = async (e) => {
@@ -39,7 +43,6 @@ export default function Register() {
 
     try {
       const user = await register(formData.email, formData.password, formData.role);
-      // Use centralized redirect path logic from AuthContext
       navigate(getRedirectPath(user.role));
     } catch (err) {
       // Error handled in AuthContext
@@ -47,126 +50,145 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-gray-500 via-gray-700 to-gray-900 p-4">
-      <div className="w-full max-w-4xl flex flex-col items-center">
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
+      <div className="w-full max-w-md flex flex-col items-center">
         {/* Logo Section */}
-        <div className="mb-6 flex items-center gap-2">
-            <svg className="w-12 h-12 text-red-500" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-            </svg>
-            <span className="text-4xl italic font-bold text-white tracking-tight">
-                <span className="text-red-500">She</span>Needs
-            </span>
+        <div className="mb-8 flex items-center gap-2">
+          <Heart className="w-10 h-10 text-primary fill-primary" />
+          <span className="text-3xl font-bold text-white tracking-tight">
+            <span className="text-primary">She</span>Needs
+          </span>
         </div>
 
         {/* Register Card */}
-        <div className="w-full bg-[#3d3d3d] rounded-3xl p-16 shadow-2xl border border-gray-600 flex flex-col items-center">
-          <h1 className="text-4xl font-bold text-red-600 mb-16">Register With us Today</h1>
+        <Card className="w-full bg-card/95 backdrop-blur border-border/50">
+          <CardHeader className="text-center pb-2">
+            <CardTitle className="text-3xl font-bold text-primary">Create Account</CardTitle>
+            <CardDescription>Join our community and make a difference</CardDescription>
+          </CardHeader>
 
-          {error && (
-            <div className="w-full bg-red-900/30 text-red-300 p-3 rounded-lg mb-8 text-center text-sm border border-red-800">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="w-full">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
-              <Input
-                name="firstName"
-                placeholder="First Name"
-                value={formData.firstName}
-                onChange={handleChange}
-              />
-              <Input
-                name="lastName"
-                placeholder="Last Name"
-                value={formData.lastName}
-                onChange={handleChange}
-              />
-              <Input
-                name="email"
-                type="email"
-                placeholder="Email Address"
-                value={formData.email}
-                onChange={handleChange}
-              />
-              <Input
-                name="postalAddress"
-                placeholder="Postal Address"
-                value={formData.postalAddress}
-                onChange={handleChange}
-              />
-              <Input
-                name="password"
-                type="password"
-                placeholder="Password"
-                value={formData.password}
-                onChange={handleChange}
-              />
-              <Input
-                name="confirmPassword"
-                type="password"
-                placeholder="Confirm Password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Role Selection (Add logic for selecting Charity if needed) */}
-            <div className="mt-8 flex justify-center">
-                 <select 
-                    name="role" 
-                    value={formData.role} 
-                    onChange={handleChange}
-                    className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-bold outline-none"
-                 >
-                    <option value="donor">Register as Donor</option>
-                    <option value="charity">Register as Charity</option>
-                 </select>
-            </div>
-
-            {/* Remember me */}
-            <div className="mt-8 flex items-center gap-4">
-              <div 
-                onClick={() => setRememberMe(!rememberMe)}
-                className={`w-6 h-6 rounded bg-gray-400 cursor-pointer flex items-center justify-center transition ${rememberMe ? 'bg-red-500' : ''}`}
-              >
-                {rememberMe && <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
+          <CardContent>
+            {error && (
+              <div className="bg-destructive/10 text-destructive p-3 rounded-lg mb-6 text-center text-sm border border-destructive/20">
+                {error}
               </div>
-              <span className="text-gray-300 text-sm">Remember me</span>
-            </div>
+            )}
 
-            <div className="mt-20 text-center space-y-4">
-              <p className="text-white text-sm">Ready to make an impactful Donation</p>
-              <button 
-                type="submit" 
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Role Selection */}
+              <div className="space-y-2">
+                <Label>I want to register as</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <RoleButton
+                    selected={formData.role === ROLES.DONOR}
+                    onClick={() => handleRoleSelect(ROLES.DONOR)}
+                    icon={User}
+                    label="Donor"
+                    description="Make donations"
+                  />
+                  <RoleButton
+                    selected={formData.role === ROLES.CHARITY}
+                    onClick={() => handleRoleSelect(ROLES.CHARITY)}
+                    icon={Building2}
+                    label="Charity"
+                    description="Receive donations"
+                  />
+                </div>
+              </div>
+
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  name="email"
+                  placeholder="you@example.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  className="h-11"
+                />
+              </div>
+
+              {/* Password */}
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  name="password"
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  className="h-11"
+                />
+              </div>
+
+              {/* Confirm Password */}
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  name="confirmPassword"
+                  placeholder="••••••••"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                  className="h-11"
+                />
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
                 disabled={loading}
-                className="text-red-500 font-bold text-lg hover:underline transition uppercase"
+                className="w-full h-11 text-base font-semibold"
+                size="lg"
               >
-                {loading ? "Processing..." : "Donate Now"}
-              </button>
-            </div>
-          </form>
-        </div>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating account...
+                  </>
+                ) : (
+                  "Create Account"
+                )}
+              </Button>
+            </form>
+          </CardContent>
 
-        <p className="mt-8 text-white/70">
-          Already have an account? <Link to="/login" className="text-white underline font-bold">Login</Link>
-        </p>
+          <CardFooter className="flex justify-center border-t pt-6">
+            <p className="text-sm text-muted-foreground">
+              Already have an account?{" "}
+              <Link to={ROUTES.LOGIN} className="text-primary font-semibold hover:underline">
+                Sign in
+              </Link>
+            </p>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );
 }
 
-function Input({ name, type = "text", placeholder, value, onChange }) {
+function RoleButton({ selected, onClick, icon: Icon, label, description }) {
   return (
-    <input
-      type={type}
-      name={name}
-      placeholder={placeholder}
-      value={value}
-      onChange={onChange}
-      className="w-full bg-[#bdbdbd] h-16 rounded-3xl px-6 text-gray-800 text-xl italic placeholder:text-gray-600 focus:outline-none focus:ring-4 focus:ring-red-500/20"
-      required
-    />
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "flex flex-col items-center p-4 rounded-lg border-2 transition-all",
+        selected
+          ? "border-primary bg-primary/10 text-primary"
+          : "border-border hover:border-primary/50 text-muted-foreground hover:text-foreground"
+      )}
+    >
+      <Icon className="w-6 h-6 mb-1" />
+      <span className="font-medium">{label}</span>
+      <span className="text-xs opacity-70">{description}</span>
+    </button>
   );
 }

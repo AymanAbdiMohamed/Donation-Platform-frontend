@@ -4,52 +4,86 @@
  * 
  * NOTE: This is currently a placeholder. Core functionality to be implemented.
  */
-import { useAuth } from "../../context/AuthContext";
-import DashboardLayout from "../../components/layout/DashboardLayout";
+import { useAuth } from "@/context/AuthContext";
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Heart, History, Star, RefreshCw, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ROUTES } from "@/constants";
 
 function DonorDashboard() {
   const { user } = useAuth();
 
   return (
     <DashboardLayout title="Donor Dashboard">
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="space-y-8">
         {/* Welcome Section */}
-        <div className="mb-8 p-6 bg-white rounded-lg shadow-sm border border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            Welcome, {user?.email || "Donor"}!
-          </h2>
-          <p className="text-gray-600">
-            Thank you for being part of the SheNeeds community.
-          </p>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl">
+              Welcome back!
+            </CardTitle>
+            <CardDescription>
+              Thank you for being part of the SheNeeds community. Your contributions make a real difference.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild>
+              <Link to={ROUTES.CHARITIES}>
+                <Heart className="mr-2 h-4 w-4" />
+                Browse Charities
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
 
-        {/* Quick Stats - Placeholder */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <StatCard title="Total Donated" value="$0.00" />
-          <StatCard title="Charities Supported" value="0" />
-          <StatCard title="Last Donation" value="--" />
+        {/* Quick Stats */}
+        <div className="grid gap-4 md:grid-cols-3">
+          <StatCard
+            title="Total Donated"
+            value="$0.00"
+            description="Lifetime contributions"
+            icon={Heart}
+          />
+          <StatCard
+            title="Charities Supported"
+            value="0"
+            description="Organizations helped"
+            icon={Star}
+          />
+          <StatCard
+            title="Last Donation"
+            value="--"
+            description="Most recent activity"
+            icon={History}
+          />
         </div>
 
         {/* Placeholder Sections */}
-        <div className="space-y-6">
+        <div className="grid gap-6 md:grid-cols-2">
           {/* TODO: FE1 - Implement donation history list */}
-          <PlaceholderSection 
+          <PlaceholderCard
             title="Donation History"
             description="Your recent donations will appear here."
+            icon={History}
           />
 
           {/* TODO: FE1 - Implement favorite charities feature */}
-          <PlaceholderSection 
+          <PlaceholderCard
             title="Favorite Charities"
             description="Save and track your favorite charities."
-          />
-
-          {/* TODO: FE1 - Implement recurring donations management */}
-          <PlaceholderSection 
-            title="Recurring Donations"
-            description="Manage your recurring donation subscriptions."
+            icon={Star}
           />
         </div>
+
+        {/* TODO: FE1 - Implement recurring donations management */}
+        <PlaceholderCard
+          title="Recurring Donations"
+          description="Set up and manage recurring donation subscriptions to support charities consistently."
+          icon={RefreshCw}
+        />
       </div>
     </DashboardLayout>
   );
@@ -59,26 +93,39 @@ function DonorDashboard() {
  * Stat Card Component
  * TODO: FE1 - Connect to actual donation data from backend
  */
-function StatCard({ title, value }) {
+function StatCard({ title, value, description, icon: Icon }) {
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <p className="text-sm text-gray-500 mb-1">{title}</p>
-      <p className="text-2xl font-bold text-gray-800">{value}</p>
-    </div>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <Icon className="h-4 w-4 text-muted-foreground" />
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value}</div>
+        <p className="text-xs text-muted-foreground">{description}</p>
+      </CardContent>
+    </Card>
   );
 }
 
 /**
- * Placeholder Section Component
+ * Placeholder Card Component
  * Used for sections that are not yet implemented
  */
-function PlaceholderSection({ title, description }) {
+function PlaceholderCard({ title, description, icon: Icon }) {
   return (
-    <div className="bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 p-8 text-center">
-      <h3 className="text-lg font-semibold text-gray-700 mb-2">{title}</h3>
-      <p className="text-gray-500 text-sm">{description}</p>
-      <p className="text-xs text-gray-400 mt-4">Coming soon</p>
-    </div>
+    <Card className="border-dashed">
+      <CardHeader>
+        <div className="flex items-center gap-2">
+          <Icon className="h-5 w-5 text-muted-foreground" />
+          <CardTitle className="text-lg">{title}</CardTitle>
+        </div>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <p className="text-xs text-muted-foreground">Coming soon</p>
+      </CardContent>
+    </Card>
   );
 }
 

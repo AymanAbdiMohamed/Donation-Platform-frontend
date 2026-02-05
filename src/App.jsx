@@ -1,17 +1,18 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { useAuth } from './context/AuthContext'
-import ProtectedRoute from './routes/ProtectedRoute'
-import { ROUTES, ROLES } from './constants'
+import { useAuth } from '@/context/AuthContext'
+import ProtectedRoute from '@/routes/ProtectedRoute'
+import { ROUTES, ROLES } from '@/constants'
+import { Loader2 } from 'lucide-react'
 
 // Pages
-import Login from './pages/Login'
-import Register from './pages/Register'
-import Charities from './pages/Charities'
+import Login from '@/pages/Login'
+import Register from '@/pages/Register'
+import Charities from '@/pages/Charities'
 
 // Dashboard Pages (refactored into subdirectories)
-import DonorDashboard from './pages/donor/Dashboard'
-import CharityDashboard from './pages/charity/Dashboard'
-import AdminDashboard from './pages/admin/Dashboard'
+import DonorDashboard from '@/pages/donor/Dashboard'
+import CharityDashboard from '@/pages/charity/Dashboard'
+import AdminDashboard from '@/pages/admin/Dashboard'
 
 /**
  * Main App component.
@@ -23,8 +24,8 @@ function App() {
   // Show loading state during initial auth check
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-500">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }

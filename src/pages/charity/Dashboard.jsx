@@ -3,10 +3,10 @@
  * Allows charity users to submit and track their application status
  */
 import { useState, useEffect, useCallback } from "react";
-import { useAuth } from "../../context/AuthContext";
-import { submitCharityApplication, getCharityApplication } from "../../api";
-import { APPLICATION_STATUS } from "../../constants";
-import DashboardLayout from "../../components/layout/DashboardLayout";
+import { useAuth } from "@/context/AuthContext";
+import { submitCharityApplication, getCharityApplication } from "@/api";
+import { APPLICATION_STATUS } from "@/constants";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 import {
   OrganizationSection,
   ContactSection,
@@ -14,7 +14,12 @@ import {
   ImpactSection,
   ComplianceSection,
   ConfirmationSection,
-} from "../../components/charity/ApplicationFormSections";
+} from "@/components/charity/ApplicationFormSections";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Heart, Loader2, CheckCircle, XCircle, Clock, Send, RotateCcw } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // Initial form state
 const INITIAL_FORM_STATE = {
@@ -138,33 +143,30 @@ function CharityDashboard() {
   if (loadingApp) {
     return (
       <DashboardLayout title="Charity Dashboard">
-        <div className="p-8 text-center text-gray-500">Loading Dashboard...</div>
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
       </DashboardLayout>
     );
   }
 
   return (
     <DashboardLayout title="Charity Dashboard">
-      <div className="max-w-[1200px] mx-auto p-12 bg-white min-h-screen">
+      <div className="space-y-8">
         {/* Header Section */}
-        <header className="flex flex-col items-center mb-12">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex items-center gap-1">
-              <span className="text-red-500 text-3xl font-bold flex items-center">
-                <svg className="w-8 h-8 mr-1" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                </svg>
-                SheNeeds
-              </span>
+        <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
+          <CardHeader className="text-center pb-4">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Heart className="h-8 w-8 text-primary fill-primary" />
+              <CardTitle className="text-3xl font-extrabold tracking-tight">
+                Join Our Mission to Help Our Girls
+              </CardTitle>
             </div>
-            <h1 className="text-5xl font-extrabold tracking-tight text-black">
-              Join Our Mission to Help Our Girls
-            </h1>
-          </div>
-          <p className="text-gray-500 text-lg">
-            Apply to become a verified Partner in ensuring our Girls get Access to essential Menstrual Hygiene Products
-          </p>
-        </header>
+            <CardDescription className="text-base max-w-2xl mx-auto">
+              Apply to become a verified Partner in ensuring our Girls get Access to essential Menstrual Hygiene Products
+            </CardDescription>
+          </CardHeader>
+        </Card>
 
         {/* Application Status Alert */}
         <ApplicationStatusAlert application={application} />
@@ -174,32 +176,53 @@ function CharityDashboard() {
           <SuccessMessage onSubmitAnother={handleSubmitAnother} />
         ) : (
           /* Application Form */
-          <form onSubmit={handleSubmit} className="space-y-16">
-            <OrganizationSection formData={formData} handleChange={handleChange} />
-            <ContactSection formData={formData} handleChange={handleChange} />
-            <MissionSection formData={formData} handleChange={handleChange} />
-            <ImpactSection formData={formData} handleChange={handleChange} />
-            <ComplianceSection formData={formData} handleChange={handleChange} />
-            <ConfirmationSection formData={formData} handleChange={handleChange} />
+          <Card>
+            <CardHeader>
+              <CardTitle>Charity Application Form</CardTitle>
+              <CardDescription>
+                Fill out all sections below to submit your organization for verification
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-12">
+                <OrganizationSection formData={formData} handleChange={handleChange} />
+                <ContactSection formData={formData} handleChange={handleChange} />
+                <MissionSection formData={formData} handleChange={handleChange} />
+                <ImpactSection formData={formData} handleChange={handleChange} />
+                <ComplianceSection formData={formData} handleChange={handleChange} />
+                <ConfirmationSection formData={formData} handleChange={handleChange} />
 
-            {/* Error Message */}
-            {errorMessage && (
-              <div className="bg-red-50 text-red-600 p-4 rounded-xl text-center font-bold">
-                {errorMessage}
-              </div>
-            )}
+                {/* Error Message */}
+                {errorMessage && (
+                  <div className="bg-destructive/10 text-destructive p-4 rounded-lg text-center font-medium">
+                    {errorMessage}
+                  </div>
+                )}
 
-            {/* Submit Button */}
-            <div className="flex justify-center pt-8 pb-20">
-              <button
-                type="submit"
-                disabled={status === SUBMISSION_STATUS.SUBMITTING}
-                className="bg-red-600 text-white text-3xl font-bold py-5 px-24 rounded-full hover:bg-red-700 transition duration-300 shadow-2xl hover:scale-105 active:scale-95 disabled:opacity-50"
-              >
-                {status === SUBMISSION_STATUS.SUBMITTING ? "Submitting..." : "Join Our Network"}
-              </button>
-            </div>
-          </form>
+                {/* Submit Button */}
+                <div className="flex justify-center pt-4">
+                  <Button
+                    type="submit"
+                    size="lg"
+                    disabled={status === SUBMISSION_STATUS.SUBMITTING}
+                    className="text-lg px-12 py-6 h-auto"
+                  >
+                    {status === SUBMISSION_STATUS.SUBMITTING ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="mr-2 h-5 w-5" />
+                        Join Our Network
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
         )}
       </div>
     </DashboardLayout>
@@ -212,27 +235,50 @@ function CharityDashboard() {
 function ApplicationStatusAlert({ application }) {
   if (!application) return null;
 
-  const statusStyles = {
-    [APPLICATION_STATUS.APPROVED]: "bg-green-100 text-green-800",
-    [APPLICATION_STATUS.REJECTED]: "bg-red-100 text-red-800",
-    [APPLICATION_STATUS.PENDING]: "bg-yellow-100 text-yellow-800",
+  const statusConfig = {
+    [APPLICATION_STATUS.APPROVED]: {
+      variant: "default",
+      icon: CheckCircle,
+      className: "bg-green-50 border-green-200 text-green-800",
+      iconClass: "text-green-600",
+    },
+    [APPLICATION_STATUS.REJECTED]: {
+      variant: "destructive",
+      icon: XCircle,
+      className: "bg-destructive/10 border-destructive/20 text-destructive",
+      iconClass: "text-destructive",
+    },
+    [APPLICATION_STATUS.PENDING]: {
+      variant: "outline",
+      icon: Clock,
+      className: "bg-yellow-50 border-yellow-200 text-yellow-800",
+      iconClass: "text-yellow-600",
+    },
   };
 
-  const styleClass = statusStyles[application.status] || statusStyles[APPLICATION_STATUS.PENDING];
+  const config = statusConfig[application.status] || statusConfig[APPLICATION_STATUS.PENDING];
+  const Icon = config.icon;
 
   return (
-    <div className={`mb-8 p-4 rounded-lg flex justify-between items-center ${styleClass}`}>
-      <div>
-        <span className="font-bold">Application Status: </span>
-        <span className="capitalize">{application.status}</span>
-        {application.rejection_reason && (
-          <p className="text-sm mt-1">Reason: {application.rejection_reason}</p>
-        )}
-      </div>
-      <p className="text-xs uppercase tracking-wider font-semibold opacity-70">
-        Case #{application.id}
-      </p>
-    </div>
+    <Card className={cn("border", config.className)}>
+      <CardContent className="flex items-center justify-between py-4">
+        <div className="flex items-center gap-3">
+          <Icon className={cn("h-5 w-5", config.iconClass)} />
+          <div>
+            <span className="font-semibold">Application Status: </span>
+            <Badge variant={config.variant} className="capitalize ml-2">
+              {application.status}
+            </Badge>
+            {application.rejection_reason && (
+              <p className="text-sm mt-1 opacity-80">Reason: {application.rejection_reason}</p>
+            )}
+          </div>
+        </div>
+        <Badge variant="outline" className="text-xs">
+          Case #{application.id}
+        </Badge>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -241,18 +287,19 @@ function ApplicationStatusAlert({ application }) {
  */
 function SuccessMessage({ onSubmitAnother }) {
   return (
-    <div className="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
-      <h2 className="text-3xl font-bold text-green-600 mb-4">Application Submitted!</h2>
-      <p className="text-gray-600 max-w-md mx-auto">
-        Thank you for applying. Our team will review your organization and get back to you shortly.
-      </p>
-      <button
-        onClick={onSubmitAnother}
-        className="mt-8 bg-red-600 text-white px-10 py-3 rounded-full hover:bg-red-700 transition font-bold"
-      >
-        Submit Another Application
-      </button>
-    </div>
+    <Card className="border-dashed">
+      <CardContent className="text-center py-16">
+        <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-green-600 mb-4">Application Submitted!</h2>
+        <p className="text-muted-foreground max-w-md mx-auto mb-8">
+          Thank you for applying. Our team will review your organization and get back to you shortly.
+        </p>
+        <Button onClick={onSubmitAnother} variant="outline">
+          <RotateCcw className="mr-2 h-4 w-4" />
+          Submit Another Application
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
 

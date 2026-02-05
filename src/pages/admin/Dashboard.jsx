@@ -3,9 +3,13 @@
  * Allows admins to review and approve/reject charity applications
  */
 import { useEffect, useState, useCallback } from "react";
-import { useAuth } from "../../context/AuthContext";
-import { getPendingApplications, approveApplication, rejectApplication } from "../../api";
-import DashboardLayout from "../../components/layout/DashboardLayout";
+import { useAuth } from "@/context/AuthContext";
+import { getPendingApplications, approveApplication, rejectApplication } from "@/api";
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, CheckCircle, XCircle, FileText, RefreshCw, Mail, ClipboardList } from "lucide-react";
 
 function AdminDashboard() {
   const { user } = useAuth();
@@ -65,62 +69,102 @@ function AdminDashboard() {
 
   return (
     <DashboardLayout title="Admin Dashboard">
-      <div className="max-w-4xl mx-auto p-6">
-        {/* User Info */}
-        <div className="mb-6 p-4 bg-gray-100 rounded-lg">
-          <p className="text-gray-600">
-            Logged in as: <span className="font-medium">{user?.email}</span>
-          </p>
-          <p className="text-gray-600">
-            Role: <span className="font-medium capitalize">{user?.role}</span>
-          </p>
+      <div className="space-y-8">
+        {/* Stats Overview */}
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Pending Reviews</CardTitle>
+              <ClipboardList className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{applications.length}</div>
+              <p className="text-xs text-muted-foreground">Applications awaiting review</p>
+            </CardContent>
+          </Card>
+          {/* TODO: FE2 - Add approved count from API */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Approved</CardTitle>
+              <CheckCircle className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">--</div>
+              <p className="text-xs text-muted-foreground">Total approved charities</p>
+            </CardContent>
+          </Card>
+          {/* TODO: FE2 - Add rejected count from API */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Rejected</CardTitle>
+              <XCircle className="h-4 w-4 text-destructive" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">--</div>
+              <p className="text-xs text-muted-foreground">Total rejected applications</p>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Pending Applications Section */}
-        <section>
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">
-            Pending Charity Applications
-          </h2>
-
-          {/* Loading State */}
-          {loading && (
-            <p className="text-gray-500">Loading applications...</p>
-          )}
-
-          {/* Error State */}
-          {error && (
-            <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-4">
-              {error}
-              <button
-                onClick={fetchPendingApplications}
-                className="ml-4 underline hover:no-underline"
-              >
-                Retry
-              </button>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Pending Charity Applications</CardTitle>
+                <CardDescription>Review and manage charity applications</CardDescription>
+              </div>
+              <Button variant="outline" size="sm" onClick={fetchPendingApplications} disabled={loading}>
+                <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+                Refresh
+              </Button>
             </div>
-          )}
+          </CardHeader>
+          <CardContent>
+            {/* Loading State */}
+            {loading && (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            )}
 
-          {/* Empty State */}
-          {!loading && !error && applications.length === 0 && (
-            <div className="bg-gray-50 text-gray-500 p-8 rounded-lg text-center">
-              <p>No pending applications at this time.</p>
-            </div>
-          )}
+            {/* Error State */}
+            {error && (
+              <div className="bg-destructive/10 text-destructive p-4 rounded-lg mb-4 flex items-center justify-between">
+                <span>{error}</span>
+                <Button variant="outline" size="sm" onClick={fetchPendingApplications}>
+                  Retry
+                </Button>
+              </div>
+            )}
 
-          {/* Applications List */}
-          <div className="space-y-4">
-            {applications.map((app) => (
-              <ApplicationCard
-                key={app.id}
-                application={app}
-                onApprove={handleApprove}
-                onReject={handleReject}
-              />
-            ))}
-          </div>
-        </section>
+            {/* Empty State */}
+            {!loading && !error && applications.length === 0 && (
+              <div className="text-center py-12">
+                <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">No pending applications</h3>
+                <p className="text-sm text-muted-foreground">
+                  All applications have been reviewed. Check back later for new submissions.
+                </p>
+              </div>
+            )}
 
-        {/* TODO: FE2 - Add admin statistics dashboard (total approved, rejected, pending counts) */}
+            {/* Applications List */}
+            {!loading && applications.length > 0 && (
+              <div className="space-y-4">
+                {applications.map((app) => (
+                  <ApplicationCard
+                    key={app.id}
+                    application={app}
+                    onApprove={handleApprove}
+                    onReject={handleReject}
+                  />
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* TODO: FE2 - Add pagination for applications list when volume increases */}
         {/* TODO: FE3 - Add search/filter functionality for applications */}
       </div>
@@ -138,34 +182,33 @@ function ApplicationCard({ application, onApprove, onReject }) {
   const displayDescription = description || mission || "No description provided";
 
   return (
-    <div className="border border-gray-200 rounded-lg p-6 bg-white shadow-sm">
+    <div className="border rounded-lg p-6 bg-card">
       <div className="flex justify-between items-start mb-4">
-        <h3 className="text-lg font-semibold text-gray-800">{displayName}</h3>
-        <span className="text-xs text-gray-400">ID: {id}</span>
+        <div>
+          <h3 className="text-lg font-semibold">{displayName}</h3>
+          <Badge variant="outline" className="mt-1">ID: {id}</Badge>
+        </div>
       </div>
 
-      <div className="space-y-2 mb-4">
-        <p className="text-gray-600">
-          <span className="font-medium">Email:</span> {email || "N/A"}
-        </p>
-        <p className="text-gray-600">
-          <span className="font-medium">Description:</span> {displayDescription}
+      <div className="space-y-3 mb-6">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Mail className="h-4 w-4" />
+          <span>{email || "N/A"}</span>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          {displayDescription}
         </p>
       </div>
 
       <div className="flex gap-3">
-        <button
-          onClick={() => onApprove(id)}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-        >
+        <Button onClick={() => onApprove(id)} size="sm" className="bg-green-600 hover:bg-green-700">
+          <CheckCircle className="h-4 w-4 mr-2" />
           Approve
-        </button>
-        <button
-          onClick={() => onReject(id)}
-          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-        >
+        </Button>
+        <Button onClick={() => onReject(id)} variant="destructive" size="sm">
+          <XCircle className="h-4 w-4 mr-2" />
           Reject
-        </button>
+        </Button>
       </div>
     </div>
   );
