@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
-import CharityCard from "../components/CharityCard";
-import { getCharities } from "../api";
-import { APPLICATION_STATUS } from "../constants";
+import { Link } from "react-router-dom";
+import CharityCard from "@/components/CharityCard";
+import { getCharities } from "@/api";
+import { APPLICATION_STATUS, ROUTES } from "@/constants";
+import { Button } from "@/components/ui/button";
+import { Heart, Loader2, AlertCircle, Building2, ArrowLeft } from "lucide-react";
 
 function Charities() {
   const [charities, setCharities] = useState([]);
@@ -28,37 +31,74 @@ function Charities() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-red-50 px-4 sm:px-6 py-8">
-        <p className="text-center text-gray-600">Loading charities...</p>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading charities...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-red-50 px-4 sm:px-6 py-8">
-        <p className="text-center text-red-600">{error}</p>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
+          <p className="text-destructive mb-4">{error}</p>
+          <Button variant="outline" onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-red-50 px-4 sm:px-6 py-8">
-      <h1 className="text-3xl font-bold text-red-600 mb-8 text-center">
-        Approved Charities
-      </h1>
-
-      {charities.length === 0 ? (
-        <p className="text-center text-gray-600">
-          No charities available at the moment.
-        </p>
-      ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {charities.map((charity) => (
-            <CharityCard key={charity.id} charity={charity} />
-          ))}
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b bg-card">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Heart className="h-8 w-8 text-primary fill-primary" />
+              <h1 className="text-2xl font-bold">SheNeeds</h1>
+            </div>
+            <Button variant="ghost" asChild>
+              <Link to={ROUTES.LOGIN}>
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Login
+              </Link>
+            </Button>
+          </div>
         </div>
-      )}
+      </header>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold mb-2">Approved Charities</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Support verified organizations that are making a difference in menstrual health education and access.
+          </p>
+        </div>
+
+        {charities.length === 0 ? (
+          <div className="text-center py-16">
+            <Building2 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium mb-2">No Charities Yet</h3>
+            <p className="text-muted-foreground">
+              No charities available at the moment. Check back soon!
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {charities.map((charity) => (
+              <CharityCard key={charity.id} charity={charity} />
+            ))}
+          </div>
+        )}
+      </main>
     </div>
   );
 }
