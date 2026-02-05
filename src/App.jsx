@@ -6,6 +6,8 @@ import ProtectedRoute from './routes/ProtectedRoute'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import DonorDashboard from './pages/DonorDashboard'
+import BrowseCharities from './pages/BrowseCharities'
+import DonationSuccess from './pages/DonationSuccess'
 import CharityDashboard from './pages/CharityDashboard'
 import AdminDashboard from './pages/AdminDashboard'
 
@@ -59,6 +61,22 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['donor']}>
               <DonorDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/browse-charities"
+          element={
+            <ProtectedRoute allowedRoles={['donor']}>
+              <BrowseCharities />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/donation/success"
+          element={
+            <ProtectedRoute allowedRoles={['donor']}>
+              <DonationSuccess />
             </ProtectedRoute>
           }
         />
