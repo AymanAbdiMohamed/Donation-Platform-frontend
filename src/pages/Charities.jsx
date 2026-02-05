@@ -1,15 +1,46 @@
 import { useEffect, useState } from "react";
 import CharityCard from "../components/CharityCard";
+import { getCharities } from "../api";
+import { APPLICATION_STATUS } from "../constants";
 
 function Charities() {
   const [charities, setCharities] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("/api/charities?status=approved")
-      .then((res) => res.json())
-      .then((data) => setCharities(data))
-      .catch((error) => console.error(error));
+    const fetchCharities = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await getCharities({ status: APPLICATION_STATUS.APPROVED });
+        setCharities(data);
+      } catch (err) {
+        console.error("Failed to fetch charities:", err);
+        setError("Failed to load charities. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCharities();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-red-50 px-4 sm:px-6 py-8">
+        <p className="text-center text-gray-600">Loading charities...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-red-50 px-4 sm:px-6 py-8">
+        <p className="text-center text-red-600">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-red-50 px-4 sm:px-6 py-8">

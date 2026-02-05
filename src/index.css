@@ -1,0 +1,28 @@
+/**
+ * Main stylesheet
+ * Imports Tailwind CSS directives
+ */
+
+/* Tailwind CSS base styles, components, and utilities */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom global styles can be added below */
+
+/* Base styles */
+@layer base {
+  body {
+    @apply antialiased;
+  }
+}
+
+/* Custom component styles */
+@layer components {
+  /* Add reusable component classes here if needed */
+}
+
+/* Custom utility styles */
+@layer utilities {
+  /* Add custom utilities here if needed */
+}

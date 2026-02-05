@@ -1,5 +1,15 @@
-import { createContext, useContext, useState, useEffect } from "react";
-import { loginUser, registerUser, getMe } from "../api";
+/**
+ * Authentication Context
+ * Provides auth state and methods throughout the application
+ * 
+ * Handles:
+ * - User session persistence across page refreshes
+ * - Login/logout/register flows
+ * - Token lifecycle management
+ */
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { loginUser, registerUser, getMe } from '../api';
+import { STORAGE_KEYS, ROUTES, ROLES } from '../constants';
 
 const AuthContext = createContext(null);
 
@@ -7,95 +17,153 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Track if initial auth check has completed to prevent race conditions
+  const [initialized, setInitialized] = useState(false);
 
-  // Run once when app loads: check token and fetch user
+  /**
+   * Validate existing token and restore user session
+   * Called on app mount to handle page refreshes
+   * Uses isMounted flag to prevent state updates on unmounted component
+   */
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      fetchUser();
-    } else {
-      setLoading(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    let isMounted = true;
+
+    const validateToken = async () => {
+      const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
+      
+      if (!token) {
+        if (isMounted) {
+          setLoading(false);
+          setInitialized(true);
+        }
+        return;
+      }
+
+      try {
+        const data = await getMe();
+        if (isMounted) {
+          setUser(data.user);
+        }
+      } catch (err) {
+        // Token is invalid or expired - clean up silently
+        console.warn('Token validation failed:', err.response?.status || err.message);
+        localStorage.removeItem(STORAGE_KEYS.TOKEN);
+        if (isMounted) {
+          setUser(null);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+          setInitialized(true);
+        }
+      }
+    };
+
+    validateToken();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const fetchUser = async () => {
-    try {
-      const data = await getMe(); // expected { user }
-      setUser(data.user);
-    } catch (err) {
-      localStorage.removeItem("access_token");
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const login = async (email, password) => {
+  /**
+   * Login user with credentials
+   */
+  const login = useCallback(async (email, password) => {
     setError(null);
     setLoading(true);
 
     try {
-      // api.js expects an object
-      const data = await loginUser({ email, password }); // expected { user, access_token }
-
-      localStorage.setItem("access_token", data.access_token);
+      const data = await loginUser({ email, password });
+      
+      localStorage.setItem(STORAGE_KEYS.TOKEN, data.access_token);
       setUser(data.user);
 
       return data.user;
     } catch (err) {
       const status = err.response?.status;
-
-      let message = err.response?.data?.error || "Login failed";
-      if (status === 401) message = "Invalid credentials";
+      let message = err.response?.data?.error || 'Login failed';
+      if (status === 401) message = 'Invalid credentials';
 
       setError(message);
       throw new Error(message);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const register = async (email, password, role = "donor") => {
+  /**
+   * Register new user
+   */
+  const register = useCallback(async (email, password, role = ROLES.DONOR) => {
     setError(null);
     setLoading(true);
 
     try {
-      // api.js expects an object
-      const data = await registerUser({ email, password, role }); // expected { user, access_token }
-
-      localStorage.setItem("access_token", data.access_token);
+      const data = await registerUser({ email, password, role });
+      
+      localStorage.setItem(STORAGE_KEYS.TOKEN, data.access_token);
       setUser(data.user);
 
       return data.user;
     } catch (err) {
       const status = err.response?.status;
-
-      let message = err.response?.data?.error || "Registration failed";
-      if (status === 422) message = "Validation error";
+      let message = err.response?.data?.error || 'Registration failed';
+      if (status === 422) message = 'Validation error';
 
       setError(message);
       throw new Error(message);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const logout = () => {
-    localStorage.removeItem("access_token");
+  /**
+   * Logout current user
+   */
+  const logout = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEYS.TOKEN);
     setUser(null);
     setError(null);
-  };
+  }, []);
+
+  /**
+   * Clear error state
+   */
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  /**
+   * Get redirect path based on user role
+   * @param {string} role 
+   * @returns {string} Route path
+   */
+  const getRedirectPath = useCallback((role) => {
+    switch (role) {
+      case ROLES.DONOR:
+        return ROUTES.DONOR_DASHBOARD;
+      case ROLES.CHARITY:
+        return ROUTES.CHARITY_DASHBOARD;
+      case ROLES.ADMIN:
+        return ROUTES.ADMIN_DASHBOARD;
+      default:
+        return ROUTES.HOME;
+    }
+  }, []);
 
   const value = {
     user,
     loading,
     error,
+    initialized,
     isAuthenticated: !!user,
     login,
     register,
     logout,
-    clearError: () => setError(null),
+    clearError,
+    getRedirectPath,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -104,7 +172,7 @@ export function AuthProvider({ children }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within AuthProvider");
+    throw new Error('useAuth must be used within AuthProvider');
   }
   return context;
 }

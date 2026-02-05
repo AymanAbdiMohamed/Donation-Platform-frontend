@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { ROLES } from "../constants";
 
 export default function Register() {
   const navigate = useNavigate();
-  const { register, loading, error, clearError } = useAuth();
+  const { register, loading, error, clearError, getRedirectPath } = useAuth();
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -13,9 +14,10 @@ export default function Register() {
     postalAddress: "",
     password: "",
     confirmPassword: "",
-    role: "donor",
+    role: ROLES.DONOR,
   });
 
+  // TODO: Implement remember me functionality when backend supports persistent sessions
   const [rememberMe, setRememberMe] = useState(false);
 
   const handleChange = (e) => {
@@ -37,12 +39,8 @@ export default function Register() {
 
     try {
       const user = await register(formData.email, formData.password, formData.role);
-      const dashboards = {
-        donor: "/donor/dashboard",
-        charity: "/charity/dashboard",
-        admin: "/admin/dashboard",
-      };
-      navigate(dashboards[user.role] || "/donor/dashboard");
+      // Use centralized redirect path logic from AuthContext
+      navigate(getRedirectPath(user.role));
     } catch (err) {
       // Error handled in AuthContext
     }
