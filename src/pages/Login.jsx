@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { ROUTES } from "../constants";
 
 function Login() {
   const navigate = useNavigate();
-  const { login, error, loading, clearError } = useAuth();
+  const { login, error, loading, clearError, getRedirectPath } = useAuth();
 
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    totp: "",
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -28,12 +28,8 @@ function Login() {
 
     try {
       const user = await login(formData.email, formData.password);
-      const dashboards = {
-        donor: "/donor/dashboard",
-        charity: "/charity/dashboard",
-        admin: "/admin/dashboard",
-      };
-      navigate(dashboards[user.role] || "/donor/dashboard");
+      // Use centralized redirect path logic from AuthContext
+      navigate(getRedirectPath(user.role));
     } catch (err) {
       // Error handled in AuthContext
     }
@@ -101,18 +97,7 @@ function Login() {
               </div>
             </div>
 
-            {/* 2FA Code */}
-            <div className="flex items-center">
-              <label className="text-white text-2xl w-40 font-medium">2FA Code</label>
-              <input
-                type="text"
-                name="totp"
-                placeholder="(TOTP)"
-                value={formData.totp}
-                onChange={handleChange}
-                className="flex-1 bg-white h-14 rounded-2xl px-4 text-gray-500 text-xl placeholder:text-gray-300 focus:outline-none"
-              />
-            </div>
+            {/* TODO: 2FA/TOTP support - implement when backend supports it */}
 
             {/* Forgot Password Link */}
             <div className="text-center">
