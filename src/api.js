@@ -58,6 +58,12 @@ export const submitCharityApplication = async (formData) => {
   return response.data;
 };
 
+// Get all approved charities (for donors to browse)
+export const getCharities = async () => {
+  const response = await api.get("/charities");
+  return response.data; // array of charities
+};
+
 /* =========================
    ADMIN
    ========================= */
