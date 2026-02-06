@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { submitCharityApplication, api } from "../api";
+import submitCharityApplication, { api } from "../api";
 import { useAuth } from "../context/AuthContext";
 
 function CharityDashboard() {

@@ -3,7 +3,7 @@ import axios from "axios";
 // Create a reusable Axios instance.
 // This centralizes backend configuration (base URL + headers)
 // so individual API calls stay clean.
-const api = axios.create({
+export const api = axios.create({
   baseURL: "http://127.0.0.1:5000",
   headers: {
     "Content-Type": "application/json",
