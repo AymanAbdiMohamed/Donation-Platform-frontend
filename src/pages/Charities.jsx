@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
-<<<<<<< HEAD
 import CharityCard from "../components/CharityCard";
 import { apiInstance as api } from "../api";
-=======
 import { Link } from "react-router-dom";
 import CharityCard from "@/components/CharityCard";
 import { getCharities } from "@/api";
 import { APPLICATION_STATUS, ROUTES } from "@/constants";
 import { Button } from "@/components/ui/button";
 import { Heart, Loader2, AlertCircle, Building2, ArrowLeft } from "lucide-react";
->>>>>>> 67dd7769553bd54682e13b60a753aed4c85755db
+
 
 function Charities() {
   const [charities, setCharities] = useState([]);
@@ -17,11 +15,10 @@ function Charities() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-<<<<<<< HEAD
     api.get("/charity?status=approved")
       .then((res) => setCharities(res.data))
       .catch((error) => console.error(error));
-=======
+
     const fetchCharities = async () => {
       try {
         setLoading(true);
@@ -37,7 +34,6 @@ function Charities() {
     };
 
     fetchCharities();
->>>>>>> 67dd7769553bd54682e13b60a753aed4c85755db
   }, []);
 
   if (loading) {
