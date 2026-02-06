@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
-import CharityCard from "../components/CharityCard";
-import { apiInstance as api } from "../api";
 import { Link } from "react-router-dom";
-import CharityCard from "@/components/CharityCard";
-import { getCharities } from "@/api";
-import { APPLICATION_STATUS, ROUTES } from "@/constants";
-import { Button } from "@/components/ui/button";
-import { Heart, Loader2, AlertCircle, Building2, ArrowLeft } from "lucide-react";
 
+import CharityCard from "../components/CharityCard";
+import { getCharities } from "../api";
+import { APPLICATION_STATUS, ROUTES } from "../constants";
+import { Button } from "../components/ui/button";
+
+import {
+  Heart,
+  Loader2,
+  AlertCircle,
+  Building2,
+  ArrowLeft,
+} from "lucide-react";
 
 function Charities() {
   const [charities, setCharities] = useState([]);
@@ -15,15 +20,15 @@ function Charities() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    api.get("/charity?status=approved")
-      .then((res) => setCharities(res.data))
-      .catch((error) => console.error(error));
-
     const fetchCharities = async () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await getCharities({ status: APPLICATION_STATUS.APPROVED });
+
+        const data = await getCharities({
+          status: APPLICATION_STATUS.APPROVED,
+        });
+
         setCharities(data);
       } catch (err) {
         console.error("Failed to fetch charities:", err);
@@ -71,6 +76,7 @@ function Charities() {
               <Heart className="h-8 w-8 text-primary fill-primary" />
               <h1 className="text-2xl font-bold">SheNeeds</h1>
             </div>
+
             <Button variant="ghost" asChild>
               <Link to={ROUTES.LOGIN}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
@@ -81,12 +87,13 @@ function Charities() {
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Main */}
       <main className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold mb-2">Approved Charities</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Support verified organizations that are making a difference in menstrual health education and access.
+            Support verified organizations making a difference in menstrual
+            health education and access.
           </p>
         </div>
 
