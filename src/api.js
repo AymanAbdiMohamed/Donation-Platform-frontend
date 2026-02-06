@@ -3,8 +3,8 @@ import axios from "axios";
 // Create a reusable Axios instance.
 // This centralizes backend configuration (base URL + headers)
 // so individual API calls stay clean.
-export const api = axios.create({
-  baseURL: "http://127.0.0.1:5000",
+const api = axios.create({
+  baseURL: "http://127.0.0.1:5001",
   headers: {
     "Content-Type": "application/json",
   },
@@ -21,6 +21,10 @@ api.interceptors.request.use((config) => {
 
   return config;
 });
+
+// Named export for api (also export as default)
+export { api as apiInstance };
+export default api;
 
 /* =========================
    AUTHENTICATION
