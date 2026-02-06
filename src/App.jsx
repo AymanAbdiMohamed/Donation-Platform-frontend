@@ -1,31 +1,30 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { useAuth } from '@/context/AuthContext'
-import ProtectedRoute from '@/routes/ProtectedRoute'
-import { ROUTES, ROLES } from '@/constants'
-import { Loader2 } from 'lucide-react'
-
-// Auth pages
-import Login from '@/pages/Login'
-import Register from '@/pages/Register'
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import { useAuth } from "./context/AuthContext"
+import ProtectedRoute from "./routes/ProtectedRoute"
+import { ROUTES, ROLES } from "./constants"
+import { Loader2 } from "lucide-react"
 
 // Public pages
-import Charities from '@/pages/Charities'
+import Home from "./pages/Home"
+import Charities from "./pages/Charities"
+import CharityProfile from "./pages/CharityProfile"
+import NotFound from "./pages/NotFound"
+
+// Auth pages
+import Login from "./pages/Login"
+import Register from "./pages/Register"
 
 // Donor pages
-import DonorDashboard from '@/pages/donor/Dashboard'
-import BrowseCharities from '@/pages/donor/BrowseCharities'
-import DonationSuccess from '@/pages/donor/DonationSuccess'
+import DonorDashboard from "./pages/donor/Dashboard"
+import BrowseCharities from "./pages/donor/BrowseCharities"
+import DonationSuccess from "./pages/donor/DonationSuccess"
 
 // Charity pages
-import CharityDashboard from '@/pages/charity/Dashboard'
+import CharityDashboard from "./pages/charity/Dashboard"
 
 // Admin pages
-import AdminDashboard from '@/pages/admin/Dashboard'
+import AdminDashboard from "./pages/admin/Dashboard"
 
-/**
- * Main App component.
- * Handles routing and authentication redirects.
- */
 function App() {
   const { user, isAuthenticated, loading, getRedirectPath } = useAuth()
 
@@ -44,9 +43,14 @@ function App() {
   }
 
   return (
-    <div className="app">
+    <BrowserRouter>
       <Routes>
-        {/* Public routes */}
+        {/* Public pages */}
+        <Route path={ROUTES.HOME} element={<Home />} />
+        <Route path={ROUTES.CHARITIES} element={<Charities />} />
+        <Route path="/charities/:id" element={<CharityProfile />} />
+
+        {/* Auth pages */}
         <Route
           path={ROUTES.LOGIN}
           element={
@@ -63,11 +67,6 @@ function App() {
               ? <Navigate to={getDefaultDashboard()} replace />
               : <Register />
           }
-        />
-
-        <Route
-          path={ROUTES.CHARITIES}
-          element={<Charities />}
         />
 
         {/* Donor routes */}
@@ -118,20 +117,10 @@ function App() {
           }
         />
 
-        {/* Default redirects */}
-        <Route
-          path={ROUTES.HOME}
-          element={
-            isAuthenticated
-              ? <Navigate to={getDefaultDashboard()} replace />
-              : <Navigate to={ROUTES.LOGIN} replace />
-          }
-        />
-
-        {/* 404 */}
-        <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
+        {/* Catch-all */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
-    </div>
+    </BrowserRouter>
   )
 }
 

@@ -20,16 +20,16 @@
  */
 
 // Axios instance
-export { default as api } from './api/axios'
+export { default as api } from "./api/axios"
 
 // Auth APIs
-export * from './api/auth'
+export * from "./api/auth"
 
 // Charity APIs
-export * from './api/charity'
+export * from "./api/charity"
 
 // Admin APIs
-export * from './api/admin'
+export * from "./api/admin"
 
 // Default export for legacy usage
-export { default } from './api/axios'
+export { default } from "./api/axios"
