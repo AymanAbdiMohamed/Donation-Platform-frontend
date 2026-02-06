@@ -1,105 +1,124 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { useAuth } from './context/AuthContext'
-import ProtectedRoute from './routes/ProtectedRoute'
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 // Pages
-import Login from './pages/Login'
-import Register from './pages/Register'
-import DonorDashboard from './pages/DonorDashboard'
-import CharityDashboard from './pages/CharityDashboard'
-import AdminDashboard from './pages/AdminDashboard'
+import Home from "./pages/Home";
+import Charities from "./pages/Charities";
+import CharityProfile from "./pages/CharityProfile";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import DonorDashboard from "./pages/DonorDashboard";
+import CharityDashboard from "./pages/CharityDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import NotFound from "./pages/NotFound";
 
 /**
- * Main App component.
+ * Optional wrapper for public routes like login/register.
+ * Redirects authenticated users to their dashboard.
  */
+function PublicRoute({ children }) {
+  const { isAuthenticated, user } = useAuth();
+  if (isAuthenticated) {
+    const dashboards = {
+      donor: "/donor",
+      charity: "/charity",
+      admin: "/admin",
+    };
+    return <Navigate to={dashboards[user?.role] || "/"} replace />;
+  }
+  return children;
+}
+
 function App() {
-  const { user, isAuthenticated, loading } = useAuth()
+  const { user, isAuthenticated, loading } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>
-  }
-
-  const getDefaultDashboard = () => {
-    const dashboards = {
-      donor: '/donor',
-      charity: '/charity',
-      admin: '/admin',
-    }
-    return dashboards[user?.role] || '/login'
+    return (
+      <div className="flex items-center justify-center min-h-screen text-xl font-bold">
+        Loading...
+      </div>
+    );
   }
 
   return (
-    <div className="app">
+    <BrowserRouter>
       <Routes>
-        {/* Public routes */}
+        {/* Public pages */}
+        <Route path="/" element={<Home />} />
+        <Route path="/charities" element={<Charities />} />
+        <Route path="/charities/:id" element={<CharityProfile />} />
+
+        {/* Authentication pages */}
         <Route
           path="/login"
           element={
-            isAuthenticated ? (
-              <Navigate to={getDefaultDashboard()} replace />
-            ) : (
+            <PublicRoute>
               <Login />
-            )
+            </PublicRoute>
           }
         />
         <Route
           path="/register"
           element={
-            isAuthenticated ? (
-              <Navigate to={getDefaultDashboard()} replace />
-            ) : (
+            <PublicRoute>
               <Register />
-            )
+            </PublicRoute>
           }
         />
 
-        {/* Donor routes */}
+        {/* Protected dashboards */}
         <Route
           path="/donor"
           element={
-            <ProtectedRoute allowedRoles={['donor']}>
+            <ProtectedRoute allowedRoles={["donor"]}>
               <DonorDashboard />
             </ProtectedRoute>
           }
         />
-
-        {/* Charity routes */}
         <Route
           path="/charity"
           element={
-            <ProtectedRoute allowedRoles={['charity']}>
+            <ProtectedRoute allowedRoles={["charity"]}>
               <CharityDashboard />
             </ProtectedRoute>
           }
         />
-
-        {/* Admin routes */}
         <Route
           path="/admin"
           element={
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedRoute allowedRoles={["admin"]}>
               <AdminDashboard />
             </ProtectedRoute>
           }
         />
 
-        {/* Default redirect */}
+        {/* Default redirect for / based on authentication */}
         <Route
           path="/"
           element={
             isAuthenticated ? (
-              <Navigate to={getDefaultDashboard()} replace />
+              <Navigate
+                to={
+                  {
+                    donor: "/donor",
+                    charity: "/charity",
+                    admin: "/admin",
+                  }[user?.role] || "/"
+                }
+                replace
+              />
             ) : (
-              <Navigate to="/login" replace />
+              <Home />
             )
           }
         />
 
-        {/* 404 */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* 404 Page */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
-    </div>
-  )
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
