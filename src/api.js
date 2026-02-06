@@ -23,7 +23,7 @@ api.interceptors.request.use((config) => {
 });
 
 // Named export for api (also export as default)
-export { api as apiInstance };
+export { api, api as apiInstance };
 export default api;
 
 /* =========================
@@ -88,6 +88,3 @@ export const rejectApplication = async (applicationId, reason = "") => {
   );
   return response.data;
 };
-
-// Default export for direct api access if needed
-export default api;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import submitCharityApplication, { api } from "../api";
+import submitCharityApplication, { apiInstance as api } from "../api";
 import { useAuth } from "../context/AuthContext";
 
 function CharityDashboard() {
@@ -13,7 +13,6 @@ function CharityDashboard() {
     charityName: "",
     registrationNumber: "",
     countryOfOperation: "",
-    yearOfEstablishment: "", // matches "Year Established" in image
     primaryContactPerson: "",
     emailAddress: "",
     phoneNumber: "",

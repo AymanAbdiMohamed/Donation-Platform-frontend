@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import CharityCard from "../components/CharityCard";
-import { api } from "../api";
+import { apiInstance as api } from "../api";
 
 function Charities() {
   const [charities, setCharities] = useState([]);
