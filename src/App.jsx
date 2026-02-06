@@ -1,6 +1,8 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import { ROUTES, ROLES } from "./constants";
+import { Loader2 } from "lucide-react";
 
 // Pages
 import Home from "./pages/Home";
@@ -8,15 +10,11 @@ import Charities from "./pages/Charities";
 import CharityProfile from "./pages/CharityProfile";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import DonorDashboard from "./pages/DonorDashboard";
-import CharityDashboard from "./pages/CharityDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
+import DonorDashboard from "./pages/donor/Dashboard";
+import CharityDashboard from "./pages/charity/Dashboard";
+import AdminDashboard from "./pages/admin/Dashboard";
 import NotFound from "./pages/NotFound";
 
-/**
- * Optional wrapper for public routes like login/register.
- * Redirects authenticated users to their dashboard.
- */
 function PublicRoute({ children }) {
   const { isAuthenticated, user } = useAuth();
   if (isAuthenticated) {
@@ -31,12 +29,13 @@ function PublicRoute({ children }) {
 }
 
 function App() {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading, getRedirectPath } = useAuth();
 
+  // Show loading state during initial auth check
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-xl font-bold">
-        Loading...
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -51,7 +50,7 @@ function App() {
 
         {/* Authentication pages */}
         <Route
-          path="/login"
+          path={ROUTES.LOGIN}
           element={
             <PublicRoute>
               <Login />
@@ -59,7 +58,7 @@ function App() {
           }
         />
         <Route
-          path="/register"
+          path={ROUTES.REGISTER}
           element={
             <PublicRoute>
               <Register />
@@ -69,25 +68,25 @@ function App() {
 
         {/* Protected dashboards */}
         <Route
-          path="/donor"
+          path={ROUTES.DONOR_DASHBOARD}
           element={
-            <ProtectedRoute allowedRoles={["donor"]}>
+            <ProtectedRoute allowedRoles={[ROLES.DONOR]}>
               <DonorDashboard />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/charity"
+          path={ROUTES.CHARITY_DASHBOARD}
           element={
-            <ProtectedRoute allowedRoles={["charity"]}>
+            <ProtectedRoute allowedRoles={[ROLES.CHARITY]}>
               <CharityDashboard />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/admin"
+          path={ROUTES.ADMIN_DASHBOARD}
           element={
-            <ProtectedRoute allowedRoles={["admin"]}>
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
               <AdminDashboard />
             </ProtectedRoute>
           }
@@ -95,7 +94,7 @@ function App() {
 
         {/* Default redirect for / based on authentication */}
         <Route
-          path="/"
+          path={ROUTES.HOME}
           element={
             isAuthenticated ? (
               <Navigate
@@ -109,7 +108,7 @@ function App() {
                 replace
               />
             ) : (
-              <Home />
+              <Navigate to={ROUTES.LOGIN} replace />
             )
           }
         />
