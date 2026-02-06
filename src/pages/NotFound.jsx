@@ -13,7 +13,7 @@ function NotFound() {
         to="/"
         className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition"
       >
-        Go back home
+        Go back to home 
       </Link>
     </div>
   );
