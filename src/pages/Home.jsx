@@ -26,7 +26,7 @@ function Home() {
             to="/register"
             className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
           >
-            Register
+            Register 
           </Link>
         </nav>
       </header>
@@ -47,7 +47,7 @@ function Home() {
             to="/login"
             className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition"
           >
-            Get Started
+            Get Started today
           </Link>
 
           <Link
