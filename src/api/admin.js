@@ -10,7 +10,7 @@ import { API_ENDPOINTS } from '../constants';
  * @returns {Promise<Array>} Array of pending applications
  */
 export const getPendingApplications = async () => {
-  const response = await api.get(API_ENDPOINTS.ADMIN_PENDING_APPLICATIONS);
+  const response = await api.get('/admin/applications', { params: { status: 'pending' } });
   return response.data;
 };
 
@@ -34,5 +34,14 @@ export const approveApplication = async (applicationId) => {
  */
 export const rejectApplication = async (applicationId, reason = '') => {
   const response = await api.post(API_ENDPOINTS.ADMIN_REJECT_APPLICATION(applicationId), { reason });
+  return response.data;
+};
+
+/**
+ * Get platform statistics
+ * @returns {Promise<Object>} Platform stats
+ */
+export const getPlatformStats = async () => {
+  const response = await api.get('/admin/stats');
   return response.data;
 };

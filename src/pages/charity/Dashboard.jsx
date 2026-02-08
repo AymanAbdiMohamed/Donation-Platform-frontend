@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { submitCharityApplication, getCharityApplication } from "@/api";
 import { APPLICATION_STATUS } from "@/constants";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { ApprovedCharityDashboard } from "@/components/charity/ApprovedDashboard";
 import {
   OrganizationSection,
   ContactSection,
@@ -111,14 +112,7 @@ function CharityDashboard() {
     setErrorMessage("");
 
     try {
-      const data = new FormData();
-      Object.keys(formData).forEach((key) => {
-        if (formData[key] !== null) {
-          data.append(key, formData[key]);
-        }
-      });
-
-      await submitCharityApplication(data);
+      await submitCharityApplication(formData);
       setStatus(SUBMISSION_STATUS.SUCCESS);
       
       // Refresh application status
@@ -127,7 +121,7 @@ function CharityDashboard() {
       console.error("Application submission failed:", err);
       setStatus(SUBMISSION_STATUS.ERROR);
       setErrorMessage(
-        err.response?.data?.error || "Failed to submit application. Please try again."
+        err.response?.data?.message || err.response?.data?.error || "Failed to submit application. Please try again."
       );
     }
   };
@@ -146,6 +140,15 @@ function CharityDashboard() {
         <div className="flex items-center justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
+      </DashboardLayout>
+    );
+  }
+
+  // If application is approved, show the approved dashboard
+  if (application && application.status === APPLICATION_STATUS.APPROVED) {
+    return (
+      <DashboardLayout title="Charity Dashboard">
+        <ApprovedCharityDashboard />
       </DashboardLayout>
     );
   }
