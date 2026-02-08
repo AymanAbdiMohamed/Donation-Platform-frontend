@@ -1,22 +1,35 @@
 /**
- * API Module - Backwards Compatibility Layer
- * 
- * DEPRECATED: This file is maintained for backwards compatibility.
- * New code should import from './api/index.js' or specific service modules:
- * 
- * import { loginUser, registerUser, getMe } from './api';
- * import { getCharities, submitCharityApplication } from './api';
- * import { getPendingApplications, approveApplication, rejectApplication } from './api';
- * 
- * The old pages (CharityDashboard.jsx, AdminDashboard.jsx, etc.) in /pages/
- * will be removed once the new pages in /pages/{role}/ are verified working.
+ * API Module – Backwards Compatibility Layer
+ *
+ * ⚠️ DEPRECATED
+ * This file exists ONLY to support legacy imports.
+ *
+ * New code MUST import from:
+ *   - ./api/axios
+ *   - ./api/auth
+ *   - ./api/charity
+ *   - ./api/admin
+ *
+ * Example:
+ *   import { loginUser } from '@/api/auth'
+ *   import { getCharities } from '@/api/charity'
+ *   import { approveApplication } from '@/api/admin'
+ *
+ * Old pages in /pages/ will be removed once
+ * /pages/{role}/ dashboards are fully stable.
  */
 
-// Re-export everything from the new API modules
-export { default as api } from './api/axios';
-export * from './api/auth';
-export * from './api/charity';
-export * from './api/admin';
+// Axios instance
+export { default as api } from "./api/axios"
 
-// Default export for direct api access
-export { default } from './api/axios';
+// Auth APIs
+export * from "./api/auth"
+
+// Charity APIs
+export * from "./api/charity"
+
+// Admin APIs
+export * from "./api/admin"
+
+// Default export for legacy usage
+export { default } from "./api/axios"

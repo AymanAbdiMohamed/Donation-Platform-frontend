@@ -1,27 +1,34 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { useAuth } from '@/context/AuthContext'
-import ProtectedRoute from '@/routes/ProtectedRoute'
-import { ROUTES, ROLES } from '@/constants'
-import { Loader2 } from 'lucide-react'
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import { useAuth } from "./context/AuthContext"
+import ProtectedRoute from "./routes/ProtectedRoute"
+import { ROUTES, ROLES } from "./constants"
+import { Loader2 } from "lucide-react"
 
-// Pages
-import Login from '@/pages/Login'
-import Register from '@/pages/Register'
-import Charities from '@/pages/Charities'
+// Public pages
+import Home from "./pages/Home"
+import Charities from "./pages/Charities"
+import CharityProfile from "./pages/CharityProfile"
+import NotFound from "./pages/NotFound"
 
-// Dashboard Pages (refactored into subdirectories)
-import DonorDashboard from '@/pages/donor/Dashboard'
-import CharityDashboard from '@/pages/charity/Dashboard'
-import AdminDashboard from '@/pages/admin/Dashboard'
+// Auth pages
+import Login from "./pages/Login"
+import Register from "./pages/Register"
 
-/**
- * Main App component.
- * Handles routing and authentication redirects.
- */
+// Donor pages
+import DonorDashboard from "./pages/donor/Dashboard"
+import BrowseCharities from "./pages/donor/BrowseCharities"
+import DonationSuccess from "./pages/donor/DonationSuccess"
+
+// Charity pages
+import CharityDashboard from "./pages/charity/Dashboard"
+
+// Admin pages
+import AdminDashboard from "./pages/admin/Dashboard"
+
 function App() {
   const { user, isAuthenticated, loading, getRedirectPath } = useAuth()
 
-  // Show loading state during initial auth check
+  // Initial auth loading state
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -30,41 +37,36 @@ function App() {
     )
   }
 
-  /**
-   * Get the default dashboard route based on user role
-   */
   const getDefaultDashboard = () => {
     if (!user) return ROUTES.LOGIN
     return getRedirectPath(user.role)
   }
 
   return (
-    <div className="app">
+    <BrowserRouter>
       <Routes>
-        {/* Public routes */}
+        {/* Public pages */}
+        <Route path={ROUTES.HOME} element={<Home />} />
+        <Route path={ROUTES.CHARITIES} element={<Charities />} />
+        <Route path="/charities/:id" element={<CharityProfile />} />
+
+        {/* Auth pages */}
         <Route
           path={ROUTES.LOGIN}
           element={
-            isAuthenticated ? (
-              <Navigate to={getDefaultDashboard()} replace />
-            ) : (
-              <Login />
-            )
+            isAuthenticated
+              ? <Navigate to={getDefaultDashboard()} replace />
+              : <Login />
           }
         />
+
         <Route
           path={ROUTES.REGISTER}
           element={
-            isAuthenticated ? (
-              <Navigate to={getDefaultDashboard()} replace />
-            ) : (
-              <Register />
-            )
+            isAuthenticated
+              ? <Navigate to={getDefaultDashboard()} replace />
+              : <Register />
           }
-        />
-        <Route
-          path={ROUTES.CHARITIES}
-          element={<Charities />}
         />
 
         {/* Donor routes */}
@@ -73,6 +75,24 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={[ROLES.DONOR]}>
               <DonorDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/browse-charities"
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.DONOR]}>
+              <BrowseCharities />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/donation/success"
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.DONOR]}>
+              <DonationSuccess />
             </ProtectedRoute>
           }
         />
@@ -97,22 +117,10 @@ function App() {
           }
         />
 
-        {/* Default redirect */}
-        <Route
-          path={ROUTES.HOME}
-          element={
-            isAuthenticated ? (
-              <Navigate to={getDefaultDashboard()} replace />
-            ) : (
-              <Navigate to={ROUTES.LOGIN} replace />
-            )
-          }
-        />
-
-        {/* 404 - Redirect to home */}
-        <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
+        {/* Catch-all */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
-    </div>
+    </BrowserRouter>
   )
 }
 

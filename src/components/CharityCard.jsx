@@ -1,32 +1,73 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Heart, MapPin, Users } from "lucide-react";
 import { DonationModal } from "./DonationModal";
 
-function CharityCard({ charity }) {
+/**
+ * Reusable Charity Card
+ *
+ * Props:
+ * - charity: charity object
+ * - onDonate?: optional override for donate action
+ */
+function CharityCard({ charity, onDonate }) {
   const [showModal, setShowModal] = useState(false);
 
+  const handleDonate = () => {
+    if (onDonate) {
+      onDonate(charity);
+    } else {
+      setShowModal(true);
+    }
+  };
+
   const handleDonationSuccess = () => {
-    // Could add a toast notification here
+    // Replace with toast if available
     alert("Thank you for your donation!");
   };
+
+  const description =
+    charity.missionStatement ||
+    charity.mission ||
+    charity.description ||
+    "No description provided.";
+
+  const girlsReached =
+    charity.girlsReachedLastYear || charity.girls_reached;
 
   return (
     <>
       <Card className="overflow-hidden flex flex-col hover:shadow-lg transition-shadow">
-        {/* Image placeholder */}
+        {/* Image / Placeholder */}
         <div className="h-32 bg-primary/10 flex items-center justify-center">
-          <Heart className="h-12 w-12 text-primary/40" />
+          {charity.image ? (
+            <img
+              src={charity.image}
+              alt={charity.name}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <Heart className="h-12 w-12 text-primary/40" />
+          )}
         </div>
 
-        {/* Content */}
         <CardHeader className="pb-2">
-          <div className="flex items-start justify-between">
+          <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-lg">{charity.name}</CardTitle>
-            <Badge variant="secondary" className="ml-2">Verified</Badge>
+            {charity.verified && (
+              <Badge variant="secondary">Verified</Badge>
+            )}
           </div>
+
           {charity.region && (
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <MapPin className="h-3 w-3" />
@@ -37,31 +78,33 @@ function CharityCard({ charity }) {
 
         <CardContent className="flex-grow">
           <CardDescription className="line-clamp-3">
-            {charity.description || charity.mission || "Helping girls access essential menstrual hygiene products."}
+            {description}
           </CardDescription>
-          
-          {charity.girls_reached && (
+
+          {girlsReached && (
             <div className="flex items-center gap-1 text-sm text-muted-foreground mt-3">
               <Users className="h-3 w-3" />
-              <span>{charity.girls_reached} girls reached</span>
+              <span>{girlsReached} girls reached</span>
             </div>
           )}
         </CardContent>
 
         <CardFooter>
-          <Button className="w-full" onClick={() => setShowModal(true)}>
+          <Button className="w-full" onClick={handleDonate}>
             <Heart className="h-4 w-4 mr-2" />
             Donate
           </Button>
         </CardFooter>
       </Card>
 
-      <DonationModal
-        charity={charity}
-        open={showModal}
-        onClose={() => setShowModal(false)}
-        onSuccess={handleDonationSuccess}
-      />
+      {!onDonate && (
+        <DonationModal
+          charity={charity}
+          open={showModal}
+          onClose={() => setShowModal(false)}
+          onSuccess={handleDonationSuccess}
+        />
+      )}
     </>
   );
 }

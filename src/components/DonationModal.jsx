@@ -1,11 +1,8 @@
-/**
- * Donation Modal Component
- * Allows donors to make donations to charities
- */
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -13,15 +10,32 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Heart, Loader2 } from "lucide-react";
 
-export function DonationModal({ charity, open, onClose, onSuccess }) {
+/**
+ * Donation Modal
+ *
+ * Props:
+ * - charity: Charity object
+ * - open: Boolean to show/hide modal
+ * - onClose: Function to close modal
+ * - onSuccess: Callback after successful donation
+ * - onConfirm?: Optional override to handle donation (parent can handle API)
+ */
+export function DonationModal({
+  charity,
+  open,
+  onClose,
+  onSuccess,
+  onConfirm,
+}) {
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const quickAmounts = [10, 25, 50, 100];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,19 +50,22 @@ export function DonationModal({ charity, open, onClose, onSuccess }) {
     setLoading(true);
 
     try {
-      // Import here to avoid circular dependencies
-      const { createDonation } = await import("@/api/donor");
-      
-      await createDonation({
-        charity_id: charity.id,
-        amount: Math.floor(amountNum * 100), // Convert to cents
-        message: message.trim() || null,
-        is_anonymous: isAnonymous,
-      });
+      if (onConfirm) {
+        await onConfirm(amountNum, message, isAnonymous);
+      } else {
+        // fallback internal API call
+        const { createDonation } = await import("@/api/donor");
+        await createDonation({
+          charity_id: charity.id,
+          amount: Math.floor(amountNum * 100), // cents
+          message: message.trim() || null,
+          is_anonymous: isAnonymous,
+        });
+      }
 
       if (onSuccess) onSuccess();
       onClose();
-      
+
       // Reset form
       setAmount("");
       setMessage("");
@@ -75,9 +92,24 @@ export function DonationModal({ charity, open, onClose, onSuccess }) {
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Amount */}
+          {/* Quick Amounts */}
+          <div className="grid grid-cols-4 gap-2">
+            {quickAmounts.map((amt) => (
+              <Button
+                key={amt}
+                type="button"
+                variant={amount == amt ? "default" : "outline"}
+                onClick={() => setAmount(amt.toString())}
+                disabled={loading}
+              >
+                ${amt}
+              </Button>
+            ))}
+          </div>
+
+          {/* Custom Amount */}
           <div className="space-y-2">
-            <Label htmlFor="amount">Donation Amount ($)</Label>
+            <Label htmlFor="amount">Custom Amount ($)</Label>
             <Input
               id="amount"
               type="number"
@@ -116,16 +148,22 @@ export function DonationModal({ charity, open, onClose, onSuccess }) {
             </Label>
           </div>
 
-          {/* Error message */}
+          {/* Error */}
           {error && (
             <div className="bg-destructive/10 text-destructive p-3 rounded text-sm">
               {error}
             </div>
           )}
 
-          {/* Submit */}
+          {/* Actions */}
           <div className="flex gap-3">
-            <Button type="button" variant="outline" onClick={onClose} disabled={loading} className="flex-1">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={loading}
+              className="flex-1"
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={loading} className="flex-1">
