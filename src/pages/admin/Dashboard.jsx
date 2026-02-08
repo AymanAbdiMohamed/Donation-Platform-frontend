@@ -4,7 +4,7 @@
  */
 import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { getPendingApplications, approveApplication, rejectApplication } from "@/api";
+import { getPendingApplications, approveApplication, rejectApplication, getPlatformStats } from "@/api";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,8 +14,28 @@ import { Loader2, CheckCircle, XCircle, FileText, RefreshCw, Mail, ClipboardList
 function AdminDashboard() {
   const { user } = useAuth();
   const [applications, setApplications] = useState([]);
+  const [stats, setStats] = useState({
+    total_charities: 0,
+    approved_count: 0,
+    rejected_count: 0,
+    pending_count: 0,
+    total_donations: 0,
+    total_amount: 0
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  /**
+   * Fetch platform statistics from API
+   */
+  const fetchStats = useCallback(async () => {
+    try {
+      const data = await getPlatformStats();
+      setStats(data);
+    } catch (err) {
+      console.error("Failed to fetch platform stats:", err);
+    }
+  }, []);
 
   /**
    * Fetch pending applications from API
@@ -35,8 +55,9 @@ function AdminDashboard() {
   }, []);
 
   useEffect(() => {
+    fetchStats();
     fetchPendingApplications();
-  }, [fetchPendingApplications]);
+  }, [fetchStats, fetchPendingApplications]);
 
   /**
    * Handle application approval
@@ -82,25 +103,23 @@ function AdminDashboard() {
               <p className="text-xs text-muted-foreground">Applications awaiting review</p>
             </CardContent>
           </Card>
-          {/* TODO: FE2 - Add approved count from API */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Approved</CardTitle>
               <CheckCircle className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">--</div>
+              <div className="text-2xl font-bold">{stats.approved_count}</div>
               <p className="text-xs text-muted-foreground">Total approved charities</p>
             </CardContent>
           </Card>
-          {/* TODO: FE2 - Add rejected count from API */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Rejected</CardTitle>
               <XCircle className="h-4 w-4 text-destructive" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">--</div>
+              <div className="text-2xl font-bold">{stats.rejected_count}</div>
               <p className="text-xs text-muted-foreground">Total rejected applications</p>
             </CardContent>
           </Card>
