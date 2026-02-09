@@ -1,16 +1,17 @@
 /**
  * Axios instance configuration
  * Single source of truth for HTTP client setup
- * 
- * Note: In development, Vite proxy forwards /api/* to http://localhost:5000/*
- * The baseURL is empty because backend routes don't have /api prefix
+ *
+ * Development: Vite proxy forwards all backend paths to http://localhost:5000
+ *   → set baseURL to '' (empty) so requests go through the proxy
+ * Production: set VITE_API_URL to your deployed backend (e.g. https://api.example.com)
  */
 import axios from 'axios';
 import { STORAGE_KEYS, ROUTES } from '../constants';
 
-// Determine base URL based on environment
-// In production, this should be configured via environment variable
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// In development, an empty string lets Vite proxy handle routing.
+// In production, VITE_API_URL must point to the deployed backend.
+const BASE_URL = import.meta.env.VITE_API_URL || '';
 
 // Create axios instance with base configuration
 const api = axios.create({
@@ -68,7 +69,7 @@ api.interceptors.response.use(
 
       error.userMessage = isTokenExpired
         ? 'Your session has expired. Please sign in again.'
-        : error.response?.data?.message || 'Authentication required.';
+        : error.response?.data?.message || error.response?.data?.error || 'Authentication required.';
     }
 
     // Rate limited
