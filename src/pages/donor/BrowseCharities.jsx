@@ -31,12 +31,15 @@ function BrowseCharities() {
   const [selectedCharity, setSelectedCharity] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Fetch charities when the user enters this page
   useEffect(() => {
     const fetchCharities = async () => {
       try {
+        console.log("Fetching charities...");
         const data = await getCharities();
-        setCharities(data || []);
+        console.log("API Response data:", data);
+        const charitiesList = data.charities || data || [];
+        console.log("Calculated charities list:", charitiesList);
+        setCharities(Array.isArray(charitiesList) ? charitiesList : []);
       } catch (err) {
         console.error("Failed to fetch charities:", err);
         setError("Could not load charities. Please try again later.");
@@ -52,8 +55,10 @@ function BrowseCharities() {
    * @param {Object} charity - The charity object the user wants to donate to
    */
   const handleOpenModal = (charity) => {
+    console.log("BrowseCharities: handleOpenModal called for", charity?.name);
     setSelectedCharity(charity); // Remember which charity was picked
     setIsModalOpen(true);        // Show the modal
+    console.log("BrowseCharities: isModalOpen set to true");
   };
 
   /**
@@ -61,13 +66,16 @@ function BrowseCharities() {
    * This is called by the Modal when the user clicks 'Confirm'
    * @param {Number} amount - The dollar amount chosen
    */
-  const handleConfirmDonation = async (amount) => {
+  const handleConfirmDonation = async (amount, message, isAnonymous) => {
+    console.log("BrowseCharities: handleConfirmDonation called with amount:", amount, "message:", message, "isAnonymous:", isAnonymous);
     try {
       // 1. Tell the server to create a new donation record
       // We send the charity ID, selected amount, and a mock payment method
       const response = await createDonation({
         charity_id: selectedCharity.id,
         amount: amount,
+        message: message,
+        is_anonymous: isAnonymous,
         payment_method: "credit_card" // In a real app, this would come from a payment provider like Stripe
       });
 
@@ -115,12 +123,12 @@ function BrowseCharities() {
         </div>
       ) : (
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {charities.length === 0 ? (
+          {Array.isArray(charities) && charities.length === 0 ? (
             <div className="col-span-full py-20 text-center">
               <p className="text-gray-400 text-xl font-medium">No charities found. Check back later!</p>
             </div>
           ) : (
-            charities.map((charity) => (
+            Array.isArray(charities) && charities.map((charity) => (
               <CharityCard 
                 key={charity.id} 
                 charity={charity} 
@@ -134,7 +142,7 @@ function BrowseCharities() {
       {/* Donation Modal */}
       <DonationModal 
         charity={selectedCharity}
-        isOpen={isModalOpen}
+        open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmDonation}
       />
