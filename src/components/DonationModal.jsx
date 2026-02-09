@@ -10,76 +10,102 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Heart, Loader2 } from "lucide-react";
-import { createDonation } from "@/api/donor";
+import { Heart, Loader2, Phone, Smartphone } from "lucide-react";
 
 /**
- * Donation Modal
+ * Donation Modal — M-Pesa STK Push flow.
  *
  * Props:
  * - charity: Charity object
  * - open: Boolean to show/hide modal
  * - onClose: Function to close modal
- * - onSuccess: Callback after successful donation
- * - onConfirm?: Optional override to handle donation (parent can handle API)
+ * - onConfirm: (amount, phoneNumber, message, isAnonymous) => Promise
  */
 export default function DonationModal({
   charity,
   open,
   onClose,
-  onSuccess,
   onConfirm,
 }) {
   const [amount, setAmount] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [message, setMessage] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const quickAmounts = [10, 25, 50, 100];
+  // KES quick amounts relevant for Kenyan donations
+  const quickAmounts = [100, 250, 500, 1000];
+
+  /**
+   * Normalise a Kenyan phone number to 254XXXXXXXXX.
+   * Accepts: 0712345678, +254712345678, 254712345678
+   */
+  const normalisePhone = (raw) => {
+    let cleaned = raw.replace(/[\s\-()]/g, "");
+    if (cleaned.startsWith("+")) cleaned = cleaned.slice(1);
+    if (cleaned.startsWith("0")) cleaned = "254" + cleaned.slice(1);
+    return cleaned;
+  };
+
+  const isValidPhone = (raw) => /^254\d{9}$/.test(normalisePhone(raw));
+
+  const resetForm = () => {
+    setAmount("");
+    setPhoneNumber("");
+    setMessage("");
+    setIsAnonymous(false);
+    setError("");
+  };
+
+  const handleClose = () => {
+    if (!loading) {
+      resetForm();
+      onClose();
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    const amountNum = parseFloat(amount);
-    if (!amountNum || amountNum <= 0) {
-      setError("Please enter a valid amount");
+    const amountNum = parseInt(amount, 10);
+    if (!amountNum || amountNum < 1) {
+      setError("Please enter a valid amount (minimum KES 1)");
+      return;
+    }
+
+    if (!phoneNumber.trim()) {
+      setError("Please enter your M-Pesa phone number");
+      return;
+    }
+
+    if (!isValidPhone(phoneNumber)) {
+      setError("Invalid phone number. Use format 07XXXXXXXX or 254XXXXXXXXX");
       return;
     }
 
     setLoading(true);
 
     try {
-      if (onConfirm) {
-        await onConfirm(amountNum, message, isAnonymous);
-      } else {
-        // Fallback: call the API directly when no onConfirm handler is provided
-        await createDonation({
-          charity_id: charity.id,
-          amount: Math.floor(amountNum * 100), // cents
-          message: message.trim() || null,
-          is_anonymous: isAnonymous,
-        });
-      }
-
-      if (onSuccess) onSuccess();
-      onClose();
-
-      // Reset form
-      setAmount("");
-      setMessage("");
-      setIsAnonymous(false);
+      await onConfirm(amountNum, normalisePhone(phoneNumber), message, isAnonymous);
+      resetForm();
     } catch (err) {
       console.error("Donation failed:", err);
-      setError(err.response?.data?.message || "Donation failed. Please try again.");
+      // Backend returns { error: "...", message: "..." } on failure
+      const serverMsg =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        err.userMessage ||
+        "Donation failed. Please try again.";
+      setError(serverMsg);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -89,12 +115,13 @@ export default function DonationModal({
             Donate to {charity?.name}
           </DialogTitle>
           <DialogDescription>
-            Your contribution helps provide essential menstrual hygiene products to girls in need.
+            Your contribution helps provide essential menstrual hygiene products
+            to girls in need. Payment via M-Pesa.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Quick Amounts */}
+          {/* Quick Amounts (KES) */}
           <div className="grid grid-cols-4 gap-2">
             {quickAmounts.map((amt) => (
               <Button
@@ -105,25 +132,45 @@ export default function DonationModal({
                 onClick={() => setAmount(amt.toString())}
                 disabled={loading}
               >
-                ${amt}
+                KES {amt}
               </Button>
             ))}
           </div>
 
           {/* Custom Amount */}
           <div className="space-y-2">
-            <Label htmlFor="amount">Custom Amount ($)</Label>
+            <Label htmlFor="amount">Amount (KES)</Label>
             <Input
               id="amount"
               type="number"
-              placeholder="50.00"
+              placeholder="500"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required
               min="1"
-              step="0.01"
+              step="1"
               disabled={loading}
             />
+          </div>
+
+          {/* Phone Number */}
+          <div className="space-y-2">
+            <Label htmlFor="phone" className="flex items-center gap-1.5">
+              <Phone className="h-3.5 w-3.5" />
+              M-Pesa Phone Number
+            </Label>
+            <Input
+              id="phone"
+              type="tel"
+              placeholder="0712345678"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              required
+              disabled={loading}
+            />
+            <p className="text-xs text-muted-foreground">
+              You&apos;ll receive an STK push on this number to confirm payment.
+            </p>
           </div>
 
           {/* Message */}
@@ -146,7 +193,10 @@ export default function DonationModal({
               onCheckedChange={setIsAnonymous}
               disabled={loading}
             />
-            <Label htmlFor="anonymous" className="text-sm font-normal cursor-pointer">
+            <Label
+              htmlFor="anonymous"
+              className="text-sm font-normal cursor-pointer"
+            >
               Make this donation anonymous
             </Label>
           </div>
@@ -163,7 +213,7 @@ export default function DonationModal({
             <Button
               type="button"
               variant="outline"
-              onClick={onClose}
+              onClick={handleClose}
               disabled={loading}
               className="flex-1"
             >
@@ -173,12 +223,12 @@ export default function DonationModal({
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
+                  Sending STK Push...
                 </>
               ) : (
                 <>
-                  <Heart className="mr-2 h-4 w-4" />
-                  Donate ${amount || "0"}
+                  <Smartphone className="mr-2 h-4 w-4" />
+                  Pay KES {amount || "0"}
                 </>
               )}
             </Button>

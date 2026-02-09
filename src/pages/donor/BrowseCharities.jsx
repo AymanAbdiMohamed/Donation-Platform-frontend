@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCharities } from "../../api/charity";
-import { createDonation } from "../../api/donor";
+import { initiateMpesaDonation } from "../../api/donor";
 import CharityCard from "../../components/CharityCard";
 import DonationModal from "../../components/DonationModal";
 import DashboardLayout from "../../components/layout/DashboardLayout";
@@ -10,7 +10,7 @@ import { Loader2, Heart, AlertCircle, Search } from "lucide-react";
 /**
  * BROWSE CHARITIES PAGE
  *
- * Allows donors to explore registered charities and make donations.
+ * Allows donors to explore registered charities and make M-Pesa donations.
  */
 function BrowseCharities() {
   const navigate = useNavigate();
@@ -57,29 +57,29 @@ function BrowseCharities() {
   };
 
   /**
-   * Confirm donation submission
+   * Confirm M-Pesa donation submission.
+   * Fires the STK Push, then navigates to the success/pending page.
    */
-  const handleConfirmDonation = async (amount, message, isAnonymous) => {
+  const handleConfirmDonation = async (amount, phoneNumber, message, isAnonymous) => {
     if (!selectedCharity) return;
 
-    try {
-      const response = await createDonation({
-        charity_id: selectedCharity.id,
-        amount: Number(amount),
-        message: message || "",
-        is_anonymous: Boolean(isAnonymous),
-      });
+    const response = await initiateMpesaDonation({
+      charity_id: selectedCharity.id,
+      amount,
+      phone_number: phoneNumber,
+      message: message || "",
+      is_anonymous: Boolean(isAnonymous),
+    });
 
-      navigate("/donation/success", {
-        state: {
-          donation: response?.donation,
-          charity: selectedCharity,
-        },
-      });
-    } catch (err) {
-      console.error("Donation submission failed:", err);
-      throw err;
-    }
+    setIsModalOpen(false);
+
+    navigate("/donation/success", {
+      state: {
+        donation: response?.donation,
+        charity: selectedCharity,
+        stkMessage: response?.message,
+      },
+    });
   };
 
   if (loading) {

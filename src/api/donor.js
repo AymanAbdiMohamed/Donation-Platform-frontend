@@ -6,7 +6,39 @@
 import api from "./axios";
 
 /**
- * Create a donation (simple flow — amount in cents)
+ * Initiate an M-Pesa STK Push donation (primary flow)
+ * @param {Object} params - { charity_id, amount, phone_number, message?, is_anonymous? }
+ * @returns {Promise<Object>} { message, donation, checkout_request_id, customer_message }
+ */
+export const initiateMpesaDonation = async ({
+  charity_id,
+  amount,
+  phone_number,
+  message,
+  is_anonymous = false,
+}) => {
+  const response = await api.post("/api/donations/mpesa", {
+    charity_id,
+    amount,
+    phone_number,
+    message: message || "",
+    is_anonymous,
+  });
+  return response.data;
+};
+
+/**
+ * Poll donation status (used after STK Push to check if payment completed)
+ * @param {number} donationId - ID of the donation
+ * @returns {Promise<Object>} { id, status, mpesa_receipt_number, amount, amount_dollars, charity_name }
+ */
+export const getDonationStatus = async (donationId) => {
+  const response = await api.get(`/api/donations/${donationId}/status`);
+  return response.data;
+};
+
+/**
+ * Create a donation (simple flow — amount in cents, no M-Pesa)
  * @param {Object} donationData - { charity_id, amount, message, is_anonymous }
  * @returns {Promise<Object>} { message, donation }
  */
