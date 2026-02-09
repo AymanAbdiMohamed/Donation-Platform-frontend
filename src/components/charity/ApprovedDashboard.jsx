@@ -83,16 +83,19 @@ export function ApprovedCharityDashboard() {
           title="Total Donations"
           value={`$${((stats.total_donations || 0) / 100).toFixed(2)}`}
           icon={DollarSign}
+          color="emerald"
         />
         <StatCard
           title="Donations Received"
           value={stats.donation_count || 0}
           icon={Heart}
+          color="primary"
         />
         <StatCard
           title="Active Status"
           value={charity.is_active ? "Active" : "Inactive"}
           icon={Users}
+          color="violet"
         />
       </div>
 
@@ -169,7 +172,7 @@ export function ApprovedCharityDashboard() {
               {donations.map((donation) => (
                 <div
                   key={donation.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
+                  className="flex items-center justify-between p-4 border rounded-xl hover:border-primary/20 hover:shadow-sm transition-all"
                 >
                   <div>
                     <p className="font-medium">
@@ -197,12 +200,20 @@ export function ApprovedCharityDashboard() {
   );
 }
 
-function StatCard({ title, value, icon: Icon }) {
+function StatCard({ title, value, icon: Icon, color = "primary" }) {
+  const colorMap = {
+    emerald: "bg-emerald-100 text-emerald-600",
+    primary: "bg-primary/10 text-primary",
+    violet: "bg-violet-100 text-violet-600",
+  };
+  
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
+        <div className={`rounded-lg p-2 ${colorMap[color] || colorMap.primary}`}>
+          <Icon className="h-4 w-4" />
+        </div>
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>

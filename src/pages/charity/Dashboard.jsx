@@ -6,11 +6,18 @@ import { useAuth } from "../../context/AuthContext";
 import { ROUTES } from "../../constants";
 import { ApprovedCharityDashboard } from "../../components/charity/ApprovedDashboard";
 import DashboardLayout from "../../components/layout/DashboardLayout";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Heart, Loader2, Upload, CheckCircle, AlertCircle, FileText } from "lucide-react";
 
 function CharityDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [status, setStatus] = useState("idle"); // idle, submitting, success, error
+  const [status, setStatus] = useState("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [application, setApplication] = useState(null);
   const [loadingApp, setLoadingApp] = useState(false);
@@ -36,12 +43,10 @@ function CharityDashboard() {
     confirmAccuracy: false,
   });
 
-  // Fetch charity profile or application status
   useEffect(() => {
     const fetchStatus = async () => {
       setLoadingApp(true);
       try {
-        // Check if user already has an approved charity
         try {
           const profileRes = await api.get("/charity/profile");
           if (profileRes.data?.charity) {
@@ -50,10 +55,9 @@ function CharityDashboard() {
             return;
           }
         } catch {
-          // 404 means no charity yet — continue to check application
+          // 404 means no charity yet
         }
 
-        // Check application status
         const response = await api.get("/charity/application");
         if (response.data?.application) {
           setApplication(response.data.application);
@@ -81,7 +85,7 @@ function CharityDashboard() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.confirmAccuracy) {
-      alert("Please confirm the accuracy of provide information.");
+      alert("Please confirm the accuracy of provided information.");
       return;
     }
 
@@ -99,7 +103,6 @@ function CharityDashboard() {
       await submitCharityApplication(data);
       setStatus("success");
       
-      // Refresh to show updated application status
       setTimeout(() => {
         window.location.reload();
       }, 2000);
@@ -111,10 +114,16 @@ function CharityDashboard() {
   };
 
   if (loadingApp) {
-    return <div className="p-8 text-center text-gray-500">Loading Dashboard...</div>;
+    return (
+      <DashboardLayout title="Charity Dashboard">
+        <div className="flex flex-col items-center justify-center py-32">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+          <p className="text-muted-foreground">Loading Dashboard...</p>
+        </div>
+      </DashboardLayout>
+    );
   }
 
-  // Show approved dashboard if charity exists
   if (hasCharity) {
     return (
       <DashboardLayout title="Charity Dashboard">
@@ -122,296 +131,256 @@ function CharityDashboard() {
       </DashboardLayout>
     );
   }
-
-  // If already has a charity profile (approved), we might want a different view, 
-  // but for now, we'll show status or form.
   
   return (
     <DashboardLayout title="Charity Application">
-    <div className="max-w-[1200px] mx-auto p-12 bg-white min-h-screen">
-      {/* Header Section from Image */}
-      <header className="flex flex-col items-center mb-12">
-        <div className="flex items-center gap-3 mb-4">
-            {/* Simple representation of the logo */}
-            <div className="flex items-center gap-1">
-                <span className="text-red-500 text-3xl font-bold flex items-center">
-                    <svg className="w-8 h-8 mr-1" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                    </svg>
-                    SheNeeds
-                </span>
-            </div>
-            <h1 className="text-5xl font-extrabold tracking-tight text-black">
-                Join Our Mission to Help Our Girls
-            </h1>
-        </div>
-        <p className="text-gray-500 text-lg">
-          Apply to become a verified Partner in ensuring our Girls get Access to essential Menstrual Hygiene Products
-        </p>
-      </header>
-
-      {/* Application Status Alert */}
-      {application && (
-        <div className={`mb-8 p-4 rounded-lg flex justify-between items-center ${
-          application.status === 'approved' ? 'bg-green-100 text-green-800' :
-          application.status === 'rejected' ? 'bg-red-100 text-red-800' :
-          'bg-yellow-100 text-yellow-800'
-        }`}>
-          <div>
-            <span className="font-bold">Application Status: </span>
-            <span className="capitalize">{application.status}</span>
-            {application.rejection_reason && (
-                <p className="text-sm mt-1">Reason: {application.rejection_reason}</p>
-            )}
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 mb-4">
+            <Heart className="h-7 w-7 text-primary" />
           </div>
-          <p className="text-xs uppercase tracking-wider font-semibold opacity-70">Case #{application.id}</p>
-        </div>
-      )}
-
-      {status === "success" ? (
-        <div className="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
-          <h2 className="text-3xl font-bold text-green-600 mb-4">Application Submitted!</h2>
-          <p className="text-gray-600 max-w-md mx-auto">
-            Thank you for applying. Our team will review your organization and get back to you shortly.
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
+            Join Our Mission
+          </h1>
+          <p className="text-muted-foreground mt-2 max-w-xl mx-auto">
+            Apply to become a verified partner in ensuring girls get access to essential menstrual hygiene products.
           </p>
-          <button 
-            onClick={() => setStatus("idle")}
-            className="mt-8 bg-red-600 text-white px-10 py-3 rounded-full hover:bg-red-700 transition font-bold"
-          >
-            Submit Another Application
-          </button>
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-16">
-          
-          {/* SECTION 1: Organisation Information */}
-          <section>
-            <h3 className="text-xl font-bold mb-6 text-gray-800">Organisation Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <input
-                type="text"
-                name="charityName"
-                placeholder="Charity Name"
-                value={formData.charityName}
-                onChange={handleChange}
-                className="w-full bg-gray-200 p-4 rounded-md focus:outline-none focus:ring-2 focus:ring-red-300 transition"
-                required
-              />
-              <input
-                type="text"
-                name="registrationNumber"
-                placeholder="Registration Number"
-                value={formData.registrationNumber}
-                onChange={handleChange}
-                className="w-full bg-gray-200 p-4 rounded-md focus:outline-none focus:ring-2 focus:ring-red-300 transition"
-                required
-              />
-              <input
-                type="text"
-                name="countryOfOperation"
-                placeholder="Country Of Operation"
-                value={formData.countryOfOperation}
-                onChange={handleChange}
-                className="w-full bg-gray-200 p-4 rounded-md focus:outline-none focus:ring-2 focus:ring-red-300 transition"
-                required
-              />
-              <input
-                type="text"
-                name="yearOfEstablishment"
-                placeholder="Year Established"
-                value={formData.yearOfEstablishment}
-                onChange={handleChange}
-                className="w-full bg-gray-200 p-4 rounded-md focus:outline-none focus:ring-2 focus:ring-red-300 transition"
-                required
-              />
-            </div>
-          </section>
 
-          {/* SECTION 2: Contact Detail */}
-          <section>
-            <h3 className="text-xl font-bold mb-6 text-gray-800">Contact Detail</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <input
-                type="text"
-                name="primaryContactPerson"
-                placeholder="Primary Contact Person"
-                value={formData.primaryContactPerson}
-                onChange={handleChange}
-                className="w-full bg-gray-200 p-4 rounded-md"
-                required
-              />
-              <input
-                type="email"
-                name="emailAddress"
-                placeholder="Email Address"
-                value={formData.emailAddress}
-                onChange={handleChange}
-                className="w-full bg-gray-200 p-4 rounded-md"
-                required
-              />
-              <input
-                type="tel"
-                name="phoneNumber"
-                placeholder="Phone number"
-                value={formData.phoneNumber}
-                onChange={handleChange}
-                className="w-full bg-gray-200 p-4 rounded-md"
-                required
-              />
+        {/* Application Status Alert */}
+        {application && (
+          <div className={`mb-8 p-4 rounded-xl flex items-start gap-3 ${
+            application.status === 'approved' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' :
+            application.status === 'rejected' ? 'bg-destructive/10 text-destructive border border-destructive/20' :
+            'bg-amber-50 text-amber-800 border border-amber-200'
+          }`}>
+            {application.status === 'approved' ? <CheckCircle className="h-5 w-5 mt-0.5 flex-shrink-0" /> :
+             application.status === 'rejected' ? <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" /> :
+             <Loader2 className="h-5 w-5 mt-0.5 flex-shrink-0 animate-spin" />}
+            <div className="flex-1">
+              <p className="font-semibold">
+                Application Status: <span className="capitalize">{application.status}</span>
+              </p>
+              {application.rejection_reason && (
+                <p className="text-sm mt-1 opacity-80">Reason: {application.rejection_reason}</p>
+              )}
             </div>
-          </section>
+            <Badge variant="outline" className="flex-shrink-0">#{application.id}</Badge>
+          </div>
+        )}
 
-          {/* SECTION 3: Mission & Activities */}
-          <section>
-            <h3 className="text-xl font-bold mb-6 text-gray-800">Mission & Activities</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <input
-                type="text"
-                name="missionStatement"
-                placeholder="Mission Statement"
-                value={formData.missionStatement}
-                onChange={handleChange}
-                className="w-full bg-gray-200 p-4 rounded-md"
-                required
-              />
-              <input
-                type="text"
-                name="targetAgeGroup"
-                placeholder="Target Age Group"
-                value={formData.targetAgeGroup}
-                onChange={handleChange}
-                className="w-full bg-gray-200 p-4 rounded-md"
-                required
-              />
-              <input
-                type="text"
-                name="menstrualHealthProgramme"
-                placeholder="Menstrual Health Programme"
-                value={formData.menstrualHealthProgramme}
-                onChange={handleChange}
-                className="w-full bg-gray-200 p-4 rounded-md"
-                required
-              />
-               <input
-                type="text"
-                name="regionServed"
-                placeholder="Region Served"
-                value={formData.regionServed}
-                onChange={handleChange}
-                className="w-full bg-gray-200 p-4 rounded-md"
-                required
-              />
-            </div>
-          </section>
+        {status === "success" ? (
+          <Card className="text-center py-16 border-dashed border-2">
+            <CardContent>
+              <CheckCircle className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-foreground mb-2">Application Submitted!</h2>
+              <p className="text-muted-foreground max-w-md mx-auto">
+                Thank you for applying. Our team will review your organization and get back to you shortly.
+              </p>
+              <Button className="mt-6" onClick={() => setStatus("idle")}>
+                Submit Another Application
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-8">
+            
+            {/* SECTION 1: Organisation Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-primary" />
+                  Organisation Information
+                </CardTitle>
+                <CardDescription>Basic details about your organization</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="charityName">Charity Name *</Label>
+                    <Input id="charityName" name="charityName" placeholder="e.g. Hope Foundation" value={formData.charityName} onChange={handleChange} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="registrationNumber">Registration Number *</Label>
+                    <Input id="registrationNumber" name="registrationNumber" placeholder="e.g. NGO-12345" value={formData.registrationNumber} onChange={handleChange} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="countryOfOperation">Country of Operation *</Label>
+                    <Input id="countryOfOperation" name="countryOfOperation" placeholder="e.g. Kenya" value={formData.countryOfOperation} onChange={handleChange} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="yearOfEstablishment">Year Established *</Label>
+                    <Input id="yearOfEstablishment" name="yearOfEstablishment" placeholder="e.g. 2015" value={formData.yearOfEstablishment} onChange={handleChange} required />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-          {/* SECTION 4: impact & Transparency */}
-          <section>
-            <h3 className="text-xl font-bold mb-6 text-gray-800">impact & Transparency</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-              <input
-                type="text"
-                name="girlsReachedLastYear"
-                placeholder="Girls Reached Last Year"
-                value={formData.girlsReachedLastYear}
-                onChange={handleChange}
-                className="w-full bg-gray-200 p-4 rounded-md"
-                required
-              />
-              <div className="flex gap-4 items-center">
-                   <label className="bg-gray-300 px-6 py-3 cursor-pointer rounded-md hover:bg-gray-400 transition text-sm font-semibold whitespace-nowrap">
-                      Choose File
+            {/* SECTION 2: Contact Detail */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Contact Details</CardTitle>
+                <CardDescription>How can we reach your organization?</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="primaryContactPerson">Primary Contact *</Label>
+                    <Input id="primaryContactPerson" name="primaryContactPerson" placeholder="Full name" value={formData.primaryContactPerson} onChange={handleChange} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="emailAddress">Email Address *</Label>
+                    <Input id="emailAddress" name="emailAddress" type="email" placeholder="contact@charity.org" value={formData.emailAddress} onChange={handleChange} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phoneNumber">Phone Number *</Label>
+                    <Input id="phoneNumber" name="phoneNumber" type="tel" placeholder="+254 700 000000" value={formData.phoneNumber} onChange={handleChange} required />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* SECTION 3: Mission & Activities */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Mission & Activities</CardTitle>
+                <CardDescription>Tell us about your work and impact</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="missionStatement">Mission Statement *</Label>
+                    <Input id="missionStatement" name="missionStatement" placeholder="Your organization's mission" value={formData.missionStatement} onChange={handleChange} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="targetAgeGroup">Target Age Group *</Label>
+                    <Input id="targetAgeGroup" name="targetAgeGroup" placeholder="e.g. 10-18 years" value={formData.targetAgeGroup} onChange={handleChange} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="menstrualHealthProgramme">Menstrual Health Programme *</Label>
+                    <Input id="menstrualHealthProgramme" name="menstrualHealthProgramme" placeholder="Describe your programme" value={formData.menstrualHealthProgramme} onChange={handleChange} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="regionServed">Region Served *</Label>
+                    <Input id="regionServed" name="regionServed" placeholder="e.g. Western Kenya" value={formData.regionServed} onChange={handleChange} required />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* SECTION 4: Impact & Transparency */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Impact & Transparency</CardTitle>
+                <CardDescription>Demonstrate your organization&apos;s impact</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="girlsReachedLastYear">Girls Reached Last Year *</Label>
+                    <Input id="girlsReachedLastYear" name="girlsReachedLastYear" placeholder="e.g. 5000" value={formData.girlsReachedLastYear} onChange={handleChange} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="annualBudget">Annual Budget *</Label>
+                    <Input id="annualBudget" name="annualBudget" placeholder="e.g. $50,000" value={formData.annualBudget} onChange={handleChange} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Photos or Testimonials</Label>
+                    <label className="flex items-center gap-3 border border-input rounded-lg px-3 py-2.5 cursor-pointer hover:bg-secondary/50 transition-colors">
+                      <Upload className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground truncate flex-1">
+                        {formData.photos ? formData.photos.name : "Choose file..."}
+                      </span>
                       <input type="file" name="photos" onChange={handleChange} className="hidden" />
-                   </label>
-                   <div className="flex-1 bg-gray-200 p-4 rounded-md text-gray-500 truncate">
-                      {formData.photos ? formData.photos.name : "Upload Photos or Testimonials"}
-                   </div>
-              </div>
-              <div className="hidden lg:block"></div> {/* Spacer for alignment if needed */}
-
-              <input
-                type="text"
-                name="annualBudget"
-                placeholder="Annual Budget"
-                value={formData.annualBudget}
-                onChange={handleChange}
-                className="w-full bg-gray-200 p-4 rounded-md"
-                required
-              />
-               <div className="flex gap-4 items-center">
-                   <label className="bg-gray-300 px-6 py-3 cursor-pointer rounded-md hover:bg-gray-400 transition text-sm font-semibold whitespace-nowrap">
-                      Choose File
+                    </label>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Evidence Files</Label>
+                    <label className="flex items-center gap-3 border border-input rounded-lg px-3 py-2.5 cursor-pointer hover:bg-secondary/50 transition-colors">
+                      <Upload className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground truncate flex-1">
+                        {formData.evidenceFile ? formData.evidenceFile.name : "Choose file..."}
+                      </span>
                       <input type="file" name="evidenceFile" onChange={handleChange} className="hidden" />
-                   </label>
-                   <div className="flex-1 bg-gray-200 p-4 rounded-md text-gray-500 truncate">
-                      {formData.evidenceFile ? formData.evidenceFile.name : "Upload Files or text evidences"}
-                   </div>
-              </div>
-            </div>
-          </section>
+                    </label>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-          {/* SECTION 5: Compliance & Verification */}
-          <section>
-            <h3 className="text-xl font-bold mb-6 text-gray-800">Compliance & Verification</h3>
-            <div className="space-y-4">
-              <label className="flex items-center gap-4 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  name="complyEducation"
-                  checked={formData.complyEducation}
-                  onChange={handleChange}
-                  className="w-5 h-5 accent-red-600"
-                />
-                <span className="text-gray-700 font-medium group-hover:text-black transition">Do you Follow Menstrual Health education guidlines ?</span>
-              </label>
-              <label className="flex items-center gap-4 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  name="partnerSchools"
-                  checked={formData.partnerSchools}
-                  onChange={handleChange}
-                  className="w-5 h-5 accent-red-600"
-                />
-                <span className="text-gray-700 font-medium group-hover:text-black transition">Do you patner with Schools or Clinics</span>
-              </label>
-            </div>
-          </section>
+            {/* SECTION 5: Compliance & Verification */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Compliance & Verification</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <Checkbox
+                    id="complyEducation"
+                    checked={formData.complyEducation}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, complyEducation: checked }))}
+                  />
+                  <Label htmlFor="complyEducation" className="font-normal cursor-pointer">
+                    We follow menstrual health education guidelines
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Checkbox
+                    id="partnerSchools"
+                    checked={formData.partnerSchools}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, partnerSchools: checked }))}
+                  />
+                  <Label htmlFor="partnerSchools" className="font-normal cursor-pointer">
+                    We partner with schools or clinics
+                  </Label>
+                </div>
+              </CardContent>
+            </Card>
 
-          {/* SECTION 6: Final Confirmation */}
-          <div className="pt-10 border-t-2 border-gray-100">
-               <label className="flex items-start gap-4 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  name="confirmAccuracy"
-                  checked={formData.confirmAccuracy}
-                  onChange={handleChange}
-                  className="w-6 h-6 mt-1 accent-red-600"
-                  required
-                />
-                <span className="text-gray-700 font-medium group-hover:text-black transition text-lg">
-                    Confirm That all the information provided is accurate and that our organisation agrees to the Platform's Terms and Values
-                </span>
-              </label>
-          </div>
+            {/* Final Confirmation */}
+            <Card className="border-primary/20 bg-primary/5">
+              <CardContent className="pt-6">
+                <div className="flex items-start space-x-3">
+                  <Checkbox
+                    id="confirmAccuracy"
+                    checked={formData.confirmAccuracy}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, confirmAccuracy: checked }))}
+                    required
+                  />
+                  <Label htmlFor="confirmAccuracy" className="font-normal cursor-pointer leading-relaxed">
+                    I confirm that all the information provided is accurate and that our organisation agrees to the Platform&apos;s Terms and Values.
+                  </Label>
+                </div>
+              </CardContent>
+            </Card>
           
-          {errorMessage && (
-            <div className="bg-red-50 text-red-600 p-4 rounded-xl text-center font-bold">
+            {errorMessage && (
+              <div className="bg-destructive/10 text-destructive p-4 rounded-xl text-center text-sm border border-destructive/20">
                 {errorMessage}
-            </div>
-          )}
+              </div>
+            )}
 
-          <div className="flex justify-center pt-8 pb-20">
-              <button
-                  type="submit"
-                  disabled={status === 'submitting'}
-                  className="bg-red-600 text-white text-3xl font-bold py-5 px-24 rounded-full hover:bg-red-700 transition duration-300 shadow-2xl hover:scale-105 active:scale-95 disabled:opacity-50"
+            <div className="flex justify-center pb-8">
+              <Button
+                type="submit"
+                disabled={status === 'submitting'}
+                size="lg"
+                className="h-12 px-12 text-base rounded-xl shadow-lg shadow-primary/20"
               >
-                  {status === 'submitting' ? 'Submitting...' : 'Join Our Network'}
-              </button>
-          </div>
-
-        </form>
-      )}
-    </div>
+                {status === 'submitting' ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  'Join Our Network'
+                )}
+              </Button>
+            </div>
+          </form>
+        )}
+      </div>
     </DashboardLayout>
   );
 }
