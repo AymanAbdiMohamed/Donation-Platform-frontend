@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
-import CharityCard from "../components/CharityCard";
-import { apiInstance as api } from "../api";
 import { Link } from "react-router-dom";
 import CharityCard from "@/components/CharityCard";
 import { getCharities } from "@/api";
-import { APPLICATION_STATUS, ROUTES } from "@/constants";
+import { ROUTES } from "@/constants";
 import { Button } from "@/components/ui/button";
 import { Heart, Loader2, AlertCircle, Building2, ArrowLeft } from "lucide-react";
 
@@ -15,10 +13,6 @@ function Charities() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    api.get("/charity?status=approved")
-      .then((res) => setCharities(res.data))
-      .catch((error) => console.error(error));
-
     const fetchCharities = async () => {
       try {
         setLoading(true);

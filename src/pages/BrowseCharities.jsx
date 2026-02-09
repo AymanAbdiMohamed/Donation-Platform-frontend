@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getCharities } from "../api";
 import { createDonation } from "../api/donor";
 import CharityCard from "../components/CharityCard";
-import DonationModal from "../components/DonationModal";
+import { DonationModal } from "../components/DonationModal";
 
 /**
  * BROWSE CHARITIES PAGE
