@@ -23,9 +23,12 @@ function CharityCard({ charity, onDonate }) {
   const [showModal, setShowModal] = useState(false);
 
   const handleDonate = () => {
+    console.log("CharityCard: handleDonate clicked for", charity.name);
     if (onDonate) {
+      console.log("CharityCard: Calling onDonate prop");
       onDonate(charity);
     } else {
+      console.log("CharityCard: Using internal modal state");
       setShowModal(true);
     }
   };

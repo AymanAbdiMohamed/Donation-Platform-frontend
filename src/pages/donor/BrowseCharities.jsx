@@ -48,8 +48,10 @@ function BrowseCharities() {
    * @param {Object} charity - The charity object the user wants to donate to
    */
   const handleOpenModal = (charity) => {
+    console.log("BrowseCharities: handleOpenModal called for", charity?.name);
     setSelectedCharity(charity); // Remember which charity was picked
     setIsModalOpen(true);        // Show the modal
+    console.log("BrowseCharities: isModalOpen set to true");
   };
 
   /**
@@ -57,13 +59,16 @@ function BrowseCharities() {
    * This is called by the Modal when the user clicks 'Confirm'
    * @param {Number} amount - The dollar amount chosen
    */
-  const handleConfirmDonation = async (amount) => {
+  const handleConfirmDonation = async (amount, message, isAnonymous) => {
+    console.log("BrowseCharities: handleConfirmDonation called with amount:", amount, "message:", message, "isAnonymous:", isAnonymous);
     try {
       // 1. Tell the server to create a new donation record
       // We send the charity ID, selected amount, and a mock payment method
       const response = await createDonation({
         charity_id: selectedCharity.id,
         amount: amount,
+        message: message,
+        is_anonymous: isAnonymous,
         payment_method: "credit_card" // In a real app, this would come from a payment provider like Stripe
       });
 
@@ -130,7 +135,7 @@ function BrowseCharities() {
       {/* Donation Modal */}
       <DonationModal 
         charity={selectedCharity}
-        isOpen={isModalOpen}
+        open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmDonation}
       />
