@@ -1,9 +1,16 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+<<<<<<< HEAD:src/pages/BrowseCharities.jsx
 import { getCharities } from "../api";
 import { createDonation } from "../api/donor";
 import CharityCard from "../components/CharityCard";
 import { DonationModal } from "../components/DonationModal";
+=======
+import { getCharities } from "../../api";
+import { createDonation } from "../../api/donor";
+import CharityCard from "../../components/CharityCard";
+import DonationModal from "../../components/DonationModal";
+>>>>>>> 57ae4e226f439ef1f822eb6c358f2d10aea5887f:src/pages/donor/BrowseCharities.jsx
 
 /**
  * BROWSE CHARITIES PAGE

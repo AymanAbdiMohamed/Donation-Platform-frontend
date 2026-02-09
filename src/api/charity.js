@@ -29,14 +29,11 @@ export const getCharityApplication = async () => {
  * @param {Object} applicationData - Application data object
  * @returns {Promise<Object>} Created application
  */
-export const submitCharityApplication = async (applicationData) => {
-  const response = await api.post('/charity/apply', {
-    name: applicationData.charityName,
-    description: applicationData.missionStatement || applicationData.description,
-    contact_email: applicationData.emailAddress,
-    contact_phone: applicationData.phoneNumber,
-    registration_number: applicationData.registrationNumber,
-    country: applicationData.countryOfOperation
+export const submitCharityApplication = async (formData) => {
+  const response = await api.post('/charity/apply', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
   });
   return response.data;
 };
