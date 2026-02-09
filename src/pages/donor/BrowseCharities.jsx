@@ -24,12 +24,15 @@ function BrowseCharities() {
   const [selectedCharity, setSelectedCharity] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Fetch charities when the user enters this page
   useEffect(() => {
     const fetchCharities = async () => {
       try {
+        console.log("Fetching charities...");
         const data = await getCharities();
-        setCharities(data.charities || []);
+        console.log("API Response data:", data);
+        const charitiesList = data.charities || data || [];
+        console.log("Calculated charities list:", charitiesList);
+        setCharities(Array.isArray(charitiesList) ? charitiesList : []);
       } catch (err) {
         console.error("Failed to fetch charities:", err);
         setError("Could not load charities. Please try again later.");
@@ -108,12 +111,12 @@ function BrowseCharities() {
         </div>
       ) : (
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {charities.length === 0 ? (
+          {Array.isArray(charities) && charities.length === 0 ? (
             <div className="col-span-full py-20 text-center">
               <p className="text-gray-400 text-xl font-medium">No charities found. Check back later!</p>
             </div>
           ) : (
-            charities.map((charity) => (
+            Array.isArray(charities) && charities.map((charity) => (
               <CharityCard 
                 key={charity.id} 
                 charity={charity} 
