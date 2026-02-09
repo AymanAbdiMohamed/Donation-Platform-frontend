@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { submitCharityApplication, api } from "../../api";
 import { useAuth } from "../../context/AuthContext";
 import { ROUTES } from "../../constants";
+import { ApprovedCharityDashboard } from "../../components/charity/ApprovedDashboard";
+import DashboardLayout from "../../components/layout/DashboardLayout";
 
 function CharityDashboard() {
   const { user } = useAuth();
@@ -11,6 +13,7 @@ function CharityDashboard() {
   const [errorMessage, setErrorMessage] = useState("");
   const [application, setApplication] = useState(null);
   const [loadingApp, setLoadingApp] = useState(false);
+  const [hasCharity, setHasCharity] = useState(false);
 
   const [formData, setFormData] = useState({
     charityName: "",
@@ -32,24 +35,37 @@ function CharityDashboard() {
     confirmAccuracy: false,
   });
 
-  // Fetch application status if it exists
+  // Fetch charity profile or application status
   useEffect(() => {
-    const fetchAppStatus = async () => {
+    const fetchStatus = async () => {
       setLoadingApp(true);
       try {
+        // Check if user already has an approved charity
+        try {
+          const profileRes = await api.get("/charity/profile");
+          if (profileRes.data?.charity) {
+            setHasCharity(true);
+            setLoadingApp(false);
+            return;
+          }
+        } catch {
+          // 404 means no charity yet — continue to check application
+        }
+
+        // Check application status
         const response = await api.get("/charity/application");
-        if (response.data && response.data.application) {
+        if (response.data?.application) {
           setApplication(response.data.application);
         }
       } catch (err) {
-        console.error("Error fetching application status:", err);
+        console.error("Error fetching status:", err);
       } finally {
         setLoadingApp(false);
       }
     };
 
     if (user) {
-      fetchAppStatus();
+      fetchStatus();
     }
   }, [user]);
 
@@ -82,9 +98,9 @@ function CharityDashboard() {
       await submitCharityApplication(data);
       setStatus("success");
       
-      // Auto-redirect after a short delay for UX
+      // Refresh to show updated application status
       setTimeout(() => {
-        navigate(ROUTES.CHARITIES);
+        window.location.reload();
       }, 2000);
     } catch (err) {
       console.error(err);
@@ -97,10 +113,20 @@ function CharityDashboard() {
     return <div className="p-8 text-center text-gray-500">Loading Dashboard...</div>;
   }
 
+  // Show approved dashboard if charity exists
+  if (hasCharity) {
+    return (
+      <DashboardLayout title="Charity Dashboard">
+        <ApprovedCharityDashboard />
+      </DashboardLayout>
+    );
+  }
+
   // If already has a charity profile (approved), we might want a different view, 
   // but for now, we'll show status or form.
   
   return (
+    <DashboardLayout title="Charity Application">
     <div className="max-w-[1200px] mx-auto p-12 bg-white min-h-screen">
       {/* Header Section from Image */}
       <header className="flex flex-col items-center mb-12">
@@ -385,6 +411,7 @@ function CharityDashboard() {
         </form>
       )}
     </div>
+    </DashboardLayout>
   );
 }
 

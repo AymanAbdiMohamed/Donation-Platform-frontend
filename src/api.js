@@ -31,5 +31,8 @@ export * from "./api/charity"
 // Admin APIs
 export * from "./api/admin"
 
+// Donor APIs
+export * from "./api/donor"
+
 // Default export for legacy usage
 export { default } from "./api/axios"

@@ -1,16 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-<<<<<<< HEAD:src/pages/BrowseCharities.jsx
-import { getCharities } from "../api";
-import { createDonation } from "../api/donor";
-import CharityCard from "../components/CharityCard";
-import { DonationModal } from "../components/DonationModal";
-=======
 import { getCharities } from "../../api";
 import { createDonation } from "../../api/donor";
 import CharityCard from "../../components/CharityCard";
 import DonationModal from "../../components/DonationModal";
->>>>>>> 57ae4e226f439ef1f822eb6c358f2d10aea5887f:src/pages/donor/BrowseCharities.jsx
+import DashboardLayout from "../../components/layout/DashboardLayout";
 
 /**
  * BROWSE CHARITIES PAGE
@@ -36,7 +30,7 @@ function BrowseCharities() {
     const fetchCharities = async () => {
       try {
         const data = await getCharities();
-        setCharities(data || []);
+        setCharities(data.charities || []);
       } catch (err) {
         console.error("Failed to fetch charities:", err);
         setError("Could not load charities. Please try again later.");
@@ -61,18 +55,15 @@ function BrowseCharities() {
    * This is called by the Modal when the user clicks 'Confirm'
    * @param {Number} amount - The dollar amount chosen
    */
-  const handleConfirmDonation = async (amount) => {
+  const handleConfirmDonation = async (amount, message, isAnonymous) => {
     try {
-      // 1. Tell the server to create a new donation record
-      // We send the charity ID, selected amount, and a mock payment method
       const response = await createDonation({
         charity_id: selectedCharity.id,
-        amount: amount,
-        payment_method: "credit_card" // In a real app, this would come from a payment provider like Stripe
+        amount: Math.floor(amount * 100),
+        message: message || "",
+        is_anonymous: isAnonymous || false,
       });
 
-      // 2. If the API call worked, take the user to the Success Page
-      // We pass the new donation details so the success page can show a receipt
       navigate("/donation/success", { 
         state: { 
           donation: response.donation, 
@@ -81,7 +72,6 @@ function BrowseCharities() {
       });
     } catch (err) {
       console.error("Donation submission failed:", err);
-      // We throw the error so the Modal knows to stop its 'Submitting' state
       throw err; 
     }
   };
@@ -95,18 +85,13 @@ function BrowseCharities() {
   }
 
   return (
+    <DashboardLayout title="Browse Charities">
     <div className="min-h-screen bg-gray-50 p-8 md:p-12">
-      <header className="max-w-7xl mx-auto mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <header className="max-w-7xl mx-auto mb-12">
         <div>
           <h1 className="text-4xl font-black text-gray-900">Explore Charities</h1>
           <p className="text-gray-500 mt-2 text-lg">Find a cause that speaks to you and make a difference today.</p>
         </div>
-        <button 
-          onClick={() => navigate("/donor")}
-          className="bg-white text-gray-600 font-bold px-6 py-3 rounded-xl border border-gray-200 hover:bg-gray-50 transition"
-        >
-          Back to Dashboard
-        </button>
       </header>
 
       {error ? (
@@ -134,11 +119,12 @@ function BrowseCharities() {
       {/* Donation Modal */}
       <DonationModal 
         charity={selectedCharity}
-        isOpen={isModalOpen}
+        open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmDonation}
       />
     </div>
+    </DashboardLayout>
   );
 }
 

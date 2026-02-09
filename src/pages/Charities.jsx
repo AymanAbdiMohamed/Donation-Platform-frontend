@@ -1,15 +1,8 @@
 import { useEffect, useState } from "react";
-<<<<<<< HEAD
 import { Link } from "react-router-dom";
 import CharityCard from "@/components/CharityCard";
 import { getCharities } from "@/api";
 import { ROUTES } from "@/constants";
-=======
-import CharityCard from "@/components/CharityCard";
-import { getCharities } from "@/api";
-import { Link } from "react-router-dom";
-import { APPLICATION_STATUS, ROUTES } from "@/constants";
->>>>>>> 57ae4e226f439ef1f822eb6c358f2d10aea5887f
 import { Button } from "@/components/ui/button";
 import { Heart, Loader2, AlertCircle, Building2, ArrowLeft } from "lucide-react";
 
@@ -65,19 +58,26 @@ function Charities() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-6">
+      <header className="border-b bg-card sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
+            <Link to={ROUTES.HOME} className="flex items-center gap-2">
+              <Heart className="h-6 w-6 text-primary fill-primary" />
+              <span className="text-xl font-bold"><span className="text-primary">She</span>Needs</span>
+            </Link>
             <div className="flex items-center gap-3">
-              <Heart className="h-8 w-8 text-primary fill-primary" />
-              <h1 className="text-2xl font-bold">SheNeeds</h1>
+              <Button variant="ghost" asChild>
+                <Link to={ROUTES.HOME}>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Home
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link to={ROUTES.LOGIN}>
+                  Sign In
+                </Link>
+              </Button>
             </div>
-            <Button variant="ghost" asChild>
-              <Link to={ROUTES.LOGIN}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Login
-              </Link>
-            </Button>
           </div>
         </div>
       </header>
