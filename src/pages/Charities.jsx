@@ -18,7 +18,7 @@ function Charities() {
         setLoading(true);
         setError(null);
         const data = await getCharities();
-        setCharities(data.charities || []);
+        setCharities(data || []);
       } catch (err) {
         console.error("Failed to fetch charities:", err);
         setError("Failed to load charities. Please try again later.");

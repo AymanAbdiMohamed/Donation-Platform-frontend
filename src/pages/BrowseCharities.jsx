@@ -53,14 +53,18 @@ function BrowseCharities() {
    * Action: Finalize the donation
    * This is called by the Modal when the user clicks 'Confirm'
    * @param {Number} amount - The dollar amount chosen
+   * @param {String} message - Optional message from the donor
+   * @param {Boolean} isAnonymous - Whether the donation is anonymous
    */
-  const handleConfirmDonation = async (amount) => {
+  const handleConfirmDonation = async (amount, message, isAnonymous) => {
     try {
       // 1. Tell the server to create a new donation record
-      // We send the charity ID, selected amount, and a mock payment method
+      // We send the charity ID, amount in cents, message, and anonymous flag
       const response = await createDonation({
         charity_id: selectedCharity.id,
-        amount: amount,
+        amount: Math.floor(amount * 100), // Convert dollars to cents
+        message: message?.trim() || null,
+        is_anonymous: isAnonymous,
         payment_method: "credit_card" // In a real app, this would come from a payment provider like Stripe
       });
 
@@ -127,7 +131,7 @@ function BrowseCharities() {
       {/* Donation Modal */}
       <DonationModal 
         charity={selectedCharity}
-        isOpen={isModalOpen}
+        open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmDonation}
       />
