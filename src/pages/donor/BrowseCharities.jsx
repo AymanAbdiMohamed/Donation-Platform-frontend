@@ -29,7 +29,7 @@ function BrowseCharities() {
     const fetchCharities = async () => {
       try {
         const data = await getCharities();
-        setCharities(data || []);
+        setCharities(data.charities || []);
       } catch (err) {
         console.error("Failed to fetch charities:", err);
         setError("Could not load charities. Please try again later.");
