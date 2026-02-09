@@ -4,7 +4,7 @@ import {
   getPendingApplications,
   approveApplication,
   rejectApplication,
-} from "../../api";
+} from "../../api/admin";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -73,10 +73,25 @@ function AdminDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Pending Reviews</CardTitle>
-              <Inbox className="h-4 w-4 text-muted-foreground" />
+              <div className="rounded-lg bg-amber-100 p-2">
+                <Inbox className="h-4 w-4 text-amber-600" />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{applications.length}</div>
+              <p className="text-xs text-muted-foreground mt-1">Awaiting your decision</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Approved Today</CardTitle>
+              <div className="rounded-lg bg-emerald-100 p-2">
+                <CheckCircle className="h-4 w-4 text-emerald-600" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">—</div>
+              <p className="text-xs text-muted-foreground mt-1">Keep reviewing applications</p>
             </CardContent>
           </Card>
           <Card>
@@ -84,7 +99,7 @@ function AdminDashboard() {
               <CardTitle className="text-sm font-medium">Your Role</CardTitle>
             </CardHeader>
             <CardContent>
-              <Badge variant="secondary" className="capitalize">{user?.role}</Badge>
+              <Badge className="capitalize bg-primary/10 text-primary hover:bg-primary/20">{user?.role}</Badge>
             </CardContent>
           </Card>
         </div>
@@ -123,7 +138,7 @@ function AdminDashboard() {
               {applications.map((app) => (
                 <div
                   key={app.id}
-                  className="border rounded-lg p-5 space-y-3 hover:border-primary/30 transition"
+                  className="border rounded-xl p-5 space-y-3 hover:border-primary/30 hover:shadow-md transition-all"
                 >
                   <div className="flex items-start justify-between">
                     <div>
@@ -134,16 +149,17 @@ function AdminDashboard() {
                         Contact: {app.contact_email || "N/A"}
                       </p>
                     </div>
-                    <Badge variant="outline">#{app.id}</Badge>
+                    <Badge variant="outline" className="font-mono">#{app.id}</Badge>
                   </div>
 
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     {app.description || app.mission || "No description provided"}
                   </p>
 
                   <div className="flex gap-3 pt-2">
                     <Button
                       size="sm"
+                      className="bg-emerald-600 hover:bg-emerald-700 shadow-sm"
                       onClick={() => handleApprove(app.id)}
                       disabled={actionLoading === app.id}
                     >
@@ -157,6 +173,7 @@ function AdminDashboard() {
                     <Button
                       size="sm"
                       variant="destructive"
+                      className="shadow-sm"
                       onClick={() => handleReject(app.id)}
                       disabled={actionLoading === app.id}
                     >

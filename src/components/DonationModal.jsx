@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Heart, Loader2 } from "lucide-react";
+import { createDonation } from "@/api/donor";
 
 /**
  * Donation Modal
@@ -53,8 +54,7 @@ export default function DonationModal({
       if (onConfirm) {
         await onConfirm(amountNum, message, isAnonymous);
       } else {
-        // fallback internal API call
-        const { createDonation } = await import("@/api/donor");
+        // Fallback: call the API directly when no onConfirm handler is provided
         await createDonation({
           charity_id: charity.id,
           amount: Math.floor(amountNum * 100), // cents
@@ -83,7 +83,9 @@ export default function DonationModal({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Heart className="h-5 w-5 text-primary" />
+            <div className="rounded-lg bg-primary/10 p-1.5">
+              <Heart className="h-4 w-4 text-primary" />
+            </div>
             Donate to {charity?.name}
           </DialogTitle>
           <DialogDescription>
@@ -99,6 +101,7 @@ export default function DonationModal({
                 key={amt}
                 type="button"
                 variant={amount == amt ? "default" : "outline"}
+                className={amount == amt ? "shadow-md shadow-primary/20" : ""}
                 onClick={() => setAmount(amt.toString())}
                 disabled={loading}
               >
@@ -150,7 +153,7 @@ export default function DonationModal({
 
           {/* Error */}
           {error && (
-            <div className="bg-destructive/10 text-destructive p-3 rounded text-sm">
+            <div className="bg-destructive/10 text-destructive p-3 rounded-xl text-sm border border-destructive/20">
               {error}
             </div>
           )}

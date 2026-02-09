@@ -39,18 +39,48 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Handle 401 Unauthorized - token expired or invalid
-    if (error.response?.status === 401) {
-      // Clear invalid token
-      localStorage.removeItem(STORAGE_KEYS.TOKEN);
-      
-      // Only redirect if not already on auth pages
-      const currentPath = window.location.pathname;
-      if (!currentPath.includes(ROUTES.LOGIN) && !currentPath.includes(ROUTES.REGISTER)) {
-        window.location.href = ROUTES.LOGIN;
-      }
+    // Network error (server unreachable, no internet)
+    if (!error.response) {
+      error.isNetworkError = true;
+      error.userMessage = 'Unable to reach the server. Please check your connection and try again.';
+      return Promise.reject(error);
     }
-    
+
+    const status = error.response?.status;
+    const serverError = error.response?.data?.error || '';
+
+    // Handle 401 Unauthorized
+    if (status === 401) {
+      const isTokenExpired = serverError === 'Token expired';
+      const isTokenInvalid = ['Invalid token', 'Token revoked'].includes(serverError);
+
+      if (isTokenExpired || isTokenInvalid) {
+        // Session ended — clear token and redirect
+        localStorage.removeItem(STORAGE_KEYS.TOKEN);
+
+        const currentPath = window.location.pathname;
+        if (!currentPath.includes(ROUTES.LOGIN) && !currentPath.includes(ROUTES.REGISTER)) {
+          // Preserve where the user wanted to go
+          const dest = `${ROUTES.LOGIN}?expired=1`;
+          window.location.href = dest;
+        }
+      }
+
+      error.userMessage = isTokenExpired
+        ? 'Your session has expired. Please sign in again.'
+        : error.response?.data?.message || 'Authentication required.';
+    }
+
+    // Rate limited
+    if (status === 429) {
+      error.userMessage = 'Too many attempts. Please wait a moment and try again.';
+    }
+
+    // Server errors
+    if (status >= 500) {
+      error.userMessage = 'Something went wrong on our end. Please try again later.';
+    }
+
     return Promise.reject(error);
   }
 );

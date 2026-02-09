@@ -27,16 +27,18 @@ function CharityProfile() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-card sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
+      <header className="border-b border-border/50 bg-white/80 backdrop-blur-lg sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <Link to={ROUTES.HOME} className="flex items-center gap-2">
-              <Heart className="h-6 w-6 text-primary fill-primary" />
+            <Link to={ROUTES.HOME} className="flex items-center gap-2.5">
+              <div className="bg-primary/10 rounded-xl p-1.5">
+                <Heart className="h-5 w-5 text-primary fill-primary" />
+              </div>
               <span className="text-xl font-bold"><span className="text-primary">She</span>Needs</span>
             </Link>
-            <Button variant="ghost" asChild>
+            <Button variant="ghost" size="sm" asChild>
               <Link to={ROUTES.CHARITIES}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
+                <ArrowLeft className="h-4 w-4 mr-1.5" />
                 All Charities
               </Link>
             </Button>

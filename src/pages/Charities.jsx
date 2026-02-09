@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CharityCard from "@/components/CharityCard";
-import { getCharities } from "@/api";
+import { getCharities } from "@/api/charity";
 import { ROUTES } from "@/constants";
 import { Button } from "@/components/ui/button";
 import { Heart, Loader2, AlertCircle, Building2, ArrowLeft } from "lucide-react";
@@ -58,21 +58,23 @@ function Charities() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-card sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
+      <header className="border-b border-border/50 bg-white/80 backdrop-blur-lg sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <Link to={ROUTES.HOME} className="flex items-center gap-2">
-              <Heart className="h-6 w-6 text-primary fill-primary" />
+            <Link to={ROUTES.HOME} className="flex items-center gap-2.5">
+              <div className="bg-primary/10 rounded-xl p-1.5">
+                <Heart className="h-5 w-5 text-primary fill-primary" />
+              </div>
               <span className="text-xl font-bold"><span className="text-primary">She</span>Needs</span>
             </Link>
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" asChild>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" asChild>
                 <Link to={ROUTES.HOME}>
-                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  <ArrowLeft className="h-4 w-4 mr-1.5" />
                   Home
                 </Link>
               </Button>
-              <Button asChild>
+              <Button size="sm" className="rounded-xl shadow-sm" asChild>
                 <Link to={ROUTES.LOGIN}>
                   Sign In
                 </Link>
@@ -83,9 +85,12 @@ function Charities() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold mb-2">Approved Charities</h2>
+      <main className="container mx-auto px-4 py-10">
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 mb-4">
+            <Building2 className="h-6 w-6 text-primary" />
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">Approved Charities</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Support verified organizations that are making a difference in menstrual health education and access.
           </p>
