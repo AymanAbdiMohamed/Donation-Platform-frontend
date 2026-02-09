@@ -62,8 +62,8 @@ function BrowseCharities() {
       // We send the charity ID, amount in cents, message, and anonymous flag
       const response = await createDonation({
         charity_id: selectedCharity.id,
-        amount: Math.floor(amount * 100), // Convert dollars to cents
-        message: message?.trim() || null,
+        amount: Math.round(amount * 100), // Convert dollars to cents with proper rounding
+        message: message?.trim() || undefined,
         is_anonymous: isAnonymous,
         payment_method: "credit_card" // In a real app, this would come from a payment provider like Stripe
       });
