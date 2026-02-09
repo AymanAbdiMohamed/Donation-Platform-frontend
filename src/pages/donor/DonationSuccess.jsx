@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import DashboardLayout from "../../components/layout/DashboardLayout";
 
 /**
  * DONATION SUCCESS PAGE
@@ -19,6 +20,7 @@ function DonationSuccess() {
   // we won't have any data. In that case, we show a nice error message.
   if (!donation) {
     return (
+      <DashboardLayout title="Donation">
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
         <div className="bg-white p-12 rounded-3xl shadow-xl text-center max-w-md">
           <div className="text-red-600 mb-6 font-black text-6xl">!</div>
@@ -29,10 +31,12 @@ function DonationSuccess() {
           </Link>
         </div>
       </div>
+      </DashboardLayout>
     );
   }
 
   return (
+    <DashboardLayout title="Donation Successful">
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-700">
         
@@ -60,7 +64,7 @@ function DonationSuccess() {
             </div>
             <div className="flex justify-between items-center border-t border-gray-100 pt-4">
               <span className="text-gray-500 font-medium">Amount</span>
-              <span className="text-green-600 font-black text-2xl">${(donation.amount || 0).toFixed(2)}</span>
+              <span className="text-green-600 font-black text-2xl">${(donation.amount_dollars || donation.amount / 100 || 0).toFixed(2)}</span>
             </div>
           </div>
 
@@ -88,6 +92,7 @@ function DonationSuccess() {
 
       </div>
     </div>
+    </DashboardLayout>
   );
 }
 

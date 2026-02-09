@@ -16,8 +16,8 @@ import Register from "./pages/Register"
 
 // Donor pages
 import DonorDashboard from "./pages/donor/Dashboard"
-import BrowseCharities from "./pages/BrowseCharities"
-import DonationSuccess from "./pages/DonationSuccess"
+import BrowseCharities from "./pages/donor/BrowseCharities"
+import DonationSuccess from "./pages/donor/DonationSuccess"
 
 // Charity pages
 import CharityDashboard from "./pages/charity/Dashboard"
