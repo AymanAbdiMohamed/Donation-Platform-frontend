@@ -62,7 +62,7 @@ function BrowseCharities() {
       // Convert amount to cents (API expects cents, not dollars)
       const response = await createDonation({
         charity_id: selectedCharity.id,
-        amount: Math.floor(amount * 100), // Convert dollars to cents
+        amount: Math.round(amount * 100), // Convert dollars to cents
         payment_method: "credit_card", // In a real app, this would come from a payment provider like Stripe
         message: message?.trim() || null,
         is_anonymous: isAnonymous
