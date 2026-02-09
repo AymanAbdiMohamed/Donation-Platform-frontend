@@ -37,16 +37,8 @@ export const API_ENDPOINTS = {
   CHARITY_APPLICATION: '/charity/application',
   
   // Admin
-  ADMIN_PENDING_APPLICATIONS: '/admin/applications/pending',
   ADMIN_APPROVE_APPLICATION: (id) => `/admin/applications/${id}/approve`,
   ADMIN_REJECT_APPLICATION: (id) => `/admin/applications/${id}/reject`,
-};
-
-// Application status values
-export const APPLICATION_STATUS = {
-  PENDING: 'pending',
-  APPROVED: 'approved',
-  REJECTED: 'rejected',
 };
 
 // Local storage keys

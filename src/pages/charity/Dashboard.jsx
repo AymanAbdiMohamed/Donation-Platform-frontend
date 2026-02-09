@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { submitCharityApplication, api } from "../../api";
+import { submitCharityApplication } from "../../api/charity";
+import api from "../../api/axios";
 import { useAuth } from "../../context/AuthContext";
 import { ROUTES } from "../../constants";
 import { ApprovedCharityDashboard } from "../../components/charity/ApprovedDashboard";

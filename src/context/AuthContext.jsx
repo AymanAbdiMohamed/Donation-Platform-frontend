@@ -8,7 +8,7 @@
  * - Token lifecycle management
  */
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { loginUser, registerUser, getMe } from '../api';
+import { loginUser, registerUser, getMe } from '../api/auth';
 import { STORAGE_KEYS, ROUTES, ROLES } from '../constants';
 
 const AuthContext = createContext(null);
@@ -82,9 +82,15 @@ export function AuthProvider({ children }) {
 
       return data.user;
     } catch (err) {
-      const status = err.response?.status;
-      let message = err.response?.data?.error || 'Login failed';
-      if (status === 401) message = 'Invalid credentials';
+      let message;
+      if (err.isNetworkError) {
+        message = err.userMessage;
+      } else {
+        const status = err.response?.status;
+        message = err.response?.data?.message || err.userMessage || 'Login failed';
+        if (status === 401) message = err.response?.data?.message || 'Invalid email or password';
+        if (status === 429) message = 'Too many login attempts. Please wait and try again.';
+      }
 
       setError(message);
       throw new Error(message);
@@ -108,9 +114,15 @@ export function AuthProvider({ children }) {
 
       return data.user;
     } catch (err) {
-      const status = err.response?.status;
-      let message = err.response?.data?.error || 'Registration failed';
-      if (status === 422) message = 'Validation error';
+      let message;
+      if (err.isNetworkError) {
+        message = err.userMessage;
+      } else {
+        const status = err.response?.status;
+        message = err.response?.data?.message || err.userMessage || 'Registration failed';
+        if (status === 409) message = 'An account with this email already exists.';
+        if (status === 429) message = 'Too many attempts. Please wait and try again.';
+      }
 
       setError(message);
       throw new Error(message);

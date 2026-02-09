@@ -53,3 +53,23 @@ export const getDonorCharities = async () => {
   const response = await api.get("/donor/charities");
   return response.data;
 };
+
+/**
+ * Get receipt for a specific donation
+ * @param {number} donationId - ID of the donation
+ * @returns {Promise<Object>} { receipt: {...} }
+ */
+export const getDonationReceipt = async (donationId) => {
+  const response = await api.get(`/donor/donations/${donationId}/receipt`);
+  return response.data;
+};
+
+/**
+ * Email receipt for a specific donation to the donor
+ * @param {number} donationId - ID of the donation
+ * @returns {Promise<Object>} { message: "..." }
+ */
+export const emailDonationReceipt = async (donationId) => {
+  const response = await api.post(`/donor/donations/${donationId}/receipt/email`);
+  return response.data;
+};

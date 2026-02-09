@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Heart, Loader2 } from "lucide-react";
+import { createDonation } from "@/api/donor";
 
 /**
  * Donation Modal
@@ -53,8 +54,7 @@ export default function DonationModal({
       if (onConfirm) {
         await onConfirm(amountNum, message, isAnonymous);
       } else {
-        // fallback internal API call
-        const { createDonation } = await import("@/api/donor");
+        // Fallback: call the API directly when no onConfirm handler is provided
         await createDonation({
           charity_id: charity.id,
           amount: Math.floor(amountNum * 100), // cents

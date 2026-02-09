@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { getDonationReceipt } from "../../api/donor";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 
 /**
@@ -77,6 +78,40 @@ function DonationSuccess() {
               Back to Dashboard
             </Link>
             
+            {donation.id && (
+              <button
+                onClick={async () => {
+                  try {
+                    const data = await getDonationReceipt(donation.id);
+                    const r = data.receipt;
+                    const lines = [
+                      "DONATION RECEIPT",
+                      `Receipt Number: ${r.receipt_number}`,
+                      `Date: ${r.date}`,
+                      "",
+                      `Amount: $${(r.amount_dollars || 0).toFixed(2)}`,
+                      `Charity: ${r.charity?.name}`,
+                      `Donor: ${r.is_anonymous ? "Anonymous" : r.donor?.name}`,
+                      "",
+                      `Generated: ${r.generated_at}`,
+                    ].join("\n");
+                    const blob = new Blob([lines], { type: "text/plain" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `${r.receipt_number}.txt`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  } catch {
+                    alert("Could not download receipt.");
+                  }
+                }}
+                className="block w-full text-red-600 font-bold py-3 hover:text-red-800 transition"
+              >
+                Download Receipt
+              </button>
+            )}
+
             <button 
               onClick={() => window.print()}
               className="block w-full text-gray-400 font-bold py-3 hover:text-gray-600 transition"

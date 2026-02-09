@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CharityCard from "@/components/CharityCard";
-import { getCharities } from "@/api";
+import { getCharities } from "@/api/charity";
 import { ROUTES } from "@/constants";
 import { Button } from "@/components/ui/button";
 import { Heart, Loader2, AlertCircle, Building2, ArrowLeft } from "lucide-react";

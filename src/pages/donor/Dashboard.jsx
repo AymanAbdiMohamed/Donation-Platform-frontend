@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { getDonorDashboard } from "../../api/donor";
+import { getDonorDashboard, getDonationReceipt } from "../../api/donor";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 
 /**
@@ -53,6 +53,46 @@ function DonorDashboard() {
       </div>
     );
   }
+
+  const handleDownloadReceipt = async (donationId) => {
+    try {
+      const data = await getDonationReceipt(donationId);
+      const receipt = data.receipt;
+
+      // Build a plain-text receipt and trigger download
+      const lines = [
+        `DONATION RECEIPT`,
+        `Receipt Number: ${receipt.receipt_number}`,
+        `Date: ${receipt.date}`,
+        ``,
+        `Amount: $${(receipt.amount_dollars || 0).toFixed(2)}`,
+        `Charity: ${receipt.charity?.name}`,
+        `Donor: ${receipt.is_anonymous ? "Anonymous" : receipt.donor?.name}`,
+        ``,
+        `Anonymous: ${receipt.is_anonymous ? "Yes" : "No"}`,
+        `Recurring: ${receipt.is_recurring ? "Yes" : "No"}`,
+        receipt.message ? `Message: ${receipt.message}` : "",
+        ``,
+        `Charity Email: ${receipt.charity?.contact_email || "N/A"}`,
+        `Charity Address: ${receipt.charity?.address || "N/A"}`,
+        ``,
+        `Generated: ${receipt.generated_at}`,
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      const blob = new Blob([lines], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${receipt.receipt_number}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Failed to download receipt:", err);
+      alert("Could not download receipt. Please try again.");
+    }
+  };
 
   if (error) {
     return (
@@ -142,6 +182,7 @@ function DonorDashboard() {
                     <th className="px-6 py-4">Charity</th>
                     <th className="px-6 py-4">Amount</th>
                     <th className="px-6 py-4 text-center">Date</th>
+                    <th className="px-6 py-4 text-center">Receipt</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -163,6 +204,14 @@ function DonorDashboard() {
                               donation.created_at
                             ).toLocaleDateString()
                           : "N/A"}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <button
+                          onClick={() => handleDownloadReceipt(donation.id)}
+                          className="text-red-600 hover:text-red-800 font-semibold text-sm hover:underline transition"
+                        >
+                          Download
+                        </button>
                       </td>
                     </tr>
                   ))}

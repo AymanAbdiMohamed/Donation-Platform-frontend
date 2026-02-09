@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCharities } from "../../api";
+import { getCharities } from "../../api/charity";
 import { createDonation } from "../../api/donor";
 import CharityCard from "../../components/CharityCard";
 import DonationModal from "../../components/DonationModal";
