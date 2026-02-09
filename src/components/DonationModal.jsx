@@ -22,7 +22,7 @@ import { Heart, Loader2 } from "lucide-react";
  * - onSuccess: Callback after successful donation
  * - onConfirm?: Optional override to handle donation (parent can handle API)
  */
-export function DonationModal({
+export default function DonationModal({
   charity,
   open,
   onClose,
