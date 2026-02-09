@@ -1,8 +1,15 @@
 import { useEffect, useState } from "react";
+<<<<<<< HEAD
+import { Link } from "react-router-dom";
+import CharityCard from "@/components/CharityCard";
+import { getCharities } from "@/api";
+import { ROUTES } from "@/constants";
+=======
 import CharityCard from "@/components/CharityCard";
 import { getCharities } from "@/api";
 import { Link } from "react-router-dom";
 import { APPLICATION_STATUS, ROUTES } from "@/constants";
+>>>>>>> 57ae4e226f439ef1f822eb6c358f2d10aea5887f
 import { Button } from "@/components/ui/button";
 import { Heart, Loader2, AlertCircle, Building2, ArrowLeft } from "lucide-react";
 
