@@ -61,7 +61,7 @@ export default function Register() {
         </div>
 
         {/* Register Card */}
-        <Card className="w-full bg-card/95 backdrop-blur border-border/50">
+        <Card className="w-full bg-card/95 backdrop-blur border/50">
           <CardHeader className="text-center pb-2">
             <CardTitle className="text-3xl font-bold text-primary">Create Account</CardTitle>
             <CardDescription>Join our community and make a difference</CardDescription>
@@ -183,7 +183,7 @@ function RoleButton({ selected, onClick, icon: Icon, label, description }) {
         "flex flex-col items-center p-4 rounded-lg border-2 transition-all",
         selected
           ? "border-primary bg-primary/10 text-primary"
-          : "border-border hover:border-primary/50 text-muted-foreground hover:text-foreground"
+          : "border hover:border-primary/50 text-muted-foreground hover:text-foreground"
       )}
     >
       <Icon className="w-6 h-6 mb-1" />
