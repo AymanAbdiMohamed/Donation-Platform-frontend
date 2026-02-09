@@ -3,7 +3,7 @@
 export default {
   plugins: {
     // Tailwind CSS: Scans your files for class names (like 'text-center') and generates the corresponding CSS.
-    tailwindcss: {},
+    "@tailwindcss/postcss": {},
     
     // Autoprefixer: Automatically adds vendor prefixes (like -webkit-, -moz-) to CSS rules 
     // so that your styles work correctly across different browsers.

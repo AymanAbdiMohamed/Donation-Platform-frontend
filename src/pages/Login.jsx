@@ -51,7 +51,7 @@ function Login() {
         </div>
 
         {/* Login Card */}
-        <Card className="w-full bg-card/95 backdrop-blur border-border/50">
+        <Card className="w-full bg-card/95 backdrop-blur border/50">
           <CardHeader className="text-center pb-2">
             <CardTitle className="text-3xl font-bold text-primary">Welcome Back</CardTitle>
             <CardDescription>Sign in to your account to continue</CardDescription>

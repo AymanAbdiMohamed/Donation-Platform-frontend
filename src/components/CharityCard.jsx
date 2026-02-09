@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Heart, MapPin, Users } from "lucide-react";
-import { DonationModal } from "./DonationModal";
+import DonationModal from "./DonationModal";
 
 /**
  * Reusable Charity Card
