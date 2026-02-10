@@ -97,7 +97,7 @@ function DonationSuccess() {
       <DashboardLayout title="Completing Payment">
         <div className="flex items-center justify-center py-12">
           <Card className="w-full max-w-xl overflow-hidden animate-fade-in-up">
-            <div className="bg-gradient-to-br from-amber-500 to-amber-600 p-10 text-center text-white">
+            <div className="bg-gradient-to-br from-[#F59E0B] to-amber-600 p-10 text-center text-white">
               <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-5 backdrop-blur-sm">
                 <Smartphone className="w-8 h-8" />
               </div>
@@ -121,7 +121,7 @@ function DonationSuccess() {
                   <span className="text-muted-foreground font-medium text-sm">
                     Amount
                   </span>
-                  <span className="text-amber-600 font-extrabold text-2xl">
+                  <span className="text-[#F59E0B] font-extrabold text-2xl">
                     {amountDisplay}
                   </span>
                 </div>
@@ -191,7 +191,7 @@ function DonationSuccess() {
       <div className="flex items-center justify-center py-12">
         <Card className="w-full max-w-xl overflow-hidden animate-fade-in-up">
           {/* Success Header */}
-          <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 p-10 text-center text-white">
+          <div className="bg-gradient-to-br from-[#22C55E] to-[#16a34a] p-10 text-center text-white">
             <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-5 backdrop-blur-sm">
               <CheckCircle className="w-8 h-8" />
             </div>
@@ -232,7 +232,7 @@ function DonationSuccess() {
                 <span className="text-muted-foreground font-medium text-sm">
                   Amount
                 </span>
-                <span className="text-emerald-600 font-extrabold text-2xl">
+                <span className="text-[#22C55E] font-extrabold text-2xl">
                   {amountDisplay}
                 </span>
               </div>

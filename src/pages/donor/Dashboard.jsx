@@ -118,8 +118,8 @@ function DonorDashboard() {
       label: "Total Donated",
       value: `$${(stats.total_donated_dollars || 0).toFixed(2)}`,
       icon: DollarSign,
-      color: "text-emerald-600",
-      bg: "bg-emerald-50",
+      color: "text-[#22C55E]",
+      bg: "bg-[#dcfce7]",
     },
     {
       label: "Donations Made",
@@ -132,8 +132,8 @@ function DonorDashboard() {
       label: "Charities Supported",
       value: stats.charities_supported || 0,
       icon: Users,
-      color: "text-violet-600",
-      bg: "bg-violet-50",
+      color: "text-[#2DD4BF]",
+      bg: "bg-[#f0fdfa]",
     },
   ];
 
@@ -220,7 +220,7 @@ function DonorDashboard() {
                             </span>
                           </td>
                           <td className="px-4 py-3.5">
-                            <span className="font-bold text-emerald-600">
+                            <span className="font-bold text-[#22C55E]">
                               ${(donation.amount_dollars || 0).toFixed(2)}
                             </span>
                           </td>

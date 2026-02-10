@@ -52,7 +52,7 @@ export default function Register() {
   return (
     <div className="min-h-screen w-full flex">
       {/* Left branding panel */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-primary via-rose-600 to-rose-700 p-12 flex-col justify-between text-white overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-[#1E3A8A] via-[#1e40af] to-[#1d4ed8] p-12 flex-col justify-between text-white overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-white/10 blur-3xl translate-x-20 -translate-y-20" />
         <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-white/5 blur-3xl -translate-x-20 translate-y-20" />
 
