@@ -76,21 +76,23 @@ export function AuthProvider({ children }) {
 
     try {
       const data = await loginUser({ email, password });
-      
+
+      // Validate response shape — prevents storing garbage from wrong server
+      if (!data?.access_token || !data?.user) {
+        throw { userMessage: 'Login failed — unexpected server response.' };
+      }
+
       localStorage.setItem(STORAGE_KEYS.TOKEN, data.access_token);
       setUser(data.user);
 
       return data.user;
     } catch (err) {
-      let message;
-      if (err.isNetworkError) {
-        message = err.userMessage;
-      } else {
-        const status = err.response?.status;
-        message = err.response?.data?.message || err.userMessage || 'Login failed';
-        if (status === 401) message = err.response?.data?.message || 'Invalid email or password';
-        if (status === 429) message = 'Too many login attempts. Please wait and try again.';
-      }
+      const message =
+        err.isNetworkError || err.isConfigError
+          ? err.userMessage
+          : err.response?.data?.message ||
+            err.userMessage ||
+            'Login failed';
 
       setError(message);
       throw new Error(message);
@@ -108,21 +110,23 @@ export function AuthProvider({ children }) {
 
     try {
       const data = await registerUser({ email, password, role });
-      
+
+      // Validate response shape — prevents storing garbage from wrong server
+      if (!data?.access_token || !data?.user) {
+        throw { userMessage: 'Registration failed — unexpected server response.' };
+      }
+
       localStorage.setItem(STORAGE_KEYS.TOKEN, data.access_token);
       setUser(data.user);
 
       return data.user;
     } catch (err) {
-      let message;
-      if (err.isNetworkError) {
-        message = err.userMessage;
-      } else {
-        const status = err.response?.status;
-        message = err.response?.data?.message || err.userMessage || 'Registration failed';
-        if (status === 409) message = 'An account with this email already exists.';
-        if (status === 429) message = 'Too many attempts. Please wait and try again.';
-      }
+      const message =
+        err.isNetworkError || err.isConfigError
+          ? err.userMessage
+          : err.response?.data?.message ||
+            err.userMessage ||
+            'Registration failed';
 
       setError(message);
       throw new Error(message);
