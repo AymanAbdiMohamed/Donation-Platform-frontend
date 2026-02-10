@@ -49,12 +49,12 @@ function CharityCard({ charity, onDonate }) {
   // Generate a soft gradient based on charity name for the placeholder
   const nameHash = (charity.name || "").split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
   const gradients = [
-    "from-rose-100 to-pink-50",
-    "from-amber-100 to-orange-50",
-    "from-emerald-100 to-teal-50",
-    "from-violet-100 to-purple-50",
+    "from-blue-100 to-sky-50",
+    "from-teal-100 to-cyan-50",
+    "from-slate-100 to-blue-50",
+    "from-indigo-100 to-blue-50",
     "from-sky-100 to-cyan-50",
-    "from-fuchsia-100 to-pink-50",
+    "from-teal-100 to-cyan-50",
   ];
   const gradient = gradients[nameHash % gradients.length];
 
@@ -77,7 +77,7 @@ function CharityCard({ charity, onDonate }) {
           )}
           {charity.verified && (
             <div className="absolute top-3 right-3">
-              <Badge className="bg-white/90 text-emerald-600 border-0 shadow-sm gap-1 font-medium">
+              <Badge className="bg-white/90 text-[#22C55E] border-0 shadow-sm gap-1 font-medium">
                 <Shield className="h-3 w-3" />
                 Verified
               </Badge>
@@ -104,7 +104,7 @@ function CharityCard({ charity, onDonate }) {
           </CardDescription>
 
           {girlsReached && (
-            <div className="flex items-center gap-1.5 text-sm font-medium text-emerald-600 bg-emerald-50 rounded-lg px-2.5 py-1.5 w-fit">
+            <div className="flex items-center gap-1.5 text-sm font-medium text-[#22C55E] bg-[#dcfce7] rounded-lg px-2.5 py-1.5 w-fit">
               <Users className="h-3.5 w-3.5" />
               <span>{girlsReached} girls reached</span>
             </div>

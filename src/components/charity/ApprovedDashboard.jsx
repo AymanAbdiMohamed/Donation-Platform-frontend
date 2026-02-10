@@ -202,9 +202,9 @@ export function ApprovedCharityDashboard() {
 
 function StatCard({ title, value, icon: Icon, color = "primary" }) {
   const colorMap = {
-    emerald: "bg-emerald-100 text-emerald-600",
+    emerald: "bg-[#dcfce7] text-[#22C55E]",
     primary: "bg-primary/10 text-primary",
-    violet: "bg-violet-100 text-violet-600",
+    violet: "bg-[#f0fdfa] text-[#2DD4BF]",
   };
   
   return (

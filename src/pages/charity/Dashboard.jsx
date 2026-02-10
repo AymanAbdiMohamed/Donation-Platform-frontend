@@ -151,9 +151,9 @@ function CharityDashboard() {
         {/* Application Status Alert */}
         {application && (
           <div className={`mb-8 p-4 rounded-xl flex items-start gap-3 ${
-            application.status === 'approved' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' :
+            application.status === 'approved' ? 'bg-[#dcfce7] text-[#166534] border border-[#22C55E]/20' :
             application.status === 'rejected' ? 'bg-destructive/10 text-destructive border border-destructive/20' :
-            'bg-amber-50 text-amber-800 border border-amber-200'
+            'bg-[#fffbeb] text-[#92400e] border border-[#F59E0B]/20'
           }`}>
             {application.status === 'approved' ? <CheckCircle className="h-5 w-5 mt-0.5 flex-shrink-0" /> :
              application.status === 'rejected' ? <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" /> :
@@ -173,7 +173,7 @@ function CharityDashboard() {
         {status === "success" ? (
           <Card className="text-center py-16 border-dashed border-2">
             <CardContent>
-              <CheckCircle className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
+              <CheckCircle className="h-12 w-12 text-[#22C55E] mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-foreground mb-2">Application Submitted!</h2>
               <p className="text-muted-foreground max-w-md mx-auto">
                 Thank you for applying. Our team will review your organization and get back to you shortly.

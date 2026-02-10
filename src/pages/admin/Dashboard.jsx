@@ -73,8 +73,8 @@ function AdminDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Pending Reviews</CardTitle>
-              <div className="rounded-lg bg-amber-100 p-2">
-                <Inbox className="h-4 w-4 text-amber-600" />
+              <div className="rounded-lg bg-[#fffbeb] p-2">
+                <Inbox className="h-4 w-4 text-[#F59E0B]" />
               </div>
             </CardHeader>
             <CardContent>
@@ -85,8 +85,8 @@ function AdminDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Approved Today</CardTitle>
-              <div className="rounded-lg bg-emerald-100 p-2">
-                <CheckCircle className="h-4 w-4 text-emerald-600" />
+              <div className="rounded-lg bg-[#dcfce7] p-2">
+                <CheckCircle className="h-4 w-4 text-[#22C55E]" />
               </div>
             </CardHeader>
             <CardContent>
@@ -159,7 +159,7 @@ function AdminDashboard() {
                   <div className="flex gap-3 pt-2">
                     <Button
                       size="sm"
-                      className="bg-emerald-600 hover:bg-emerald-700 shadow-sm"
+                      className="bg-[#22C55E] hover:bg-[#16a34a] shadow-sm"
                       onClick={() => handleApprove(app.id)}
                       disabled={actionLoading === app.id}
                     >

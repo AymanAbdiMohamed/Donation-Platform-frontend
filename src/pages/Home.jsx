@@ -7,7 +7,7 @@ function Home() {
   const { isAuthenticated, user, logout, getRedirectPath } = useAuth();
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F8FAFC]">
       {/* HEADER */}
       <header className="sticky top-0 z-50 border-b border-border/40 bg-white/80 backdrop-blur-lg">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -68,8 +68,8 @@ function Home() {
         {/* Background decorations */}
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-white to-white" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-primary/5 blur-3xl -translate-y-1/2" />
-        <div className="absolute top-40 right-0 w-72 h-72 rounded-full bg-rose-100/50 blur-3xl" />
-        <div className="absolute top-60 left-0 w-72 h-72 rounded-full bg-amber-50 blur-3xl" />
+        <div className="absolute top-40 right-0 w-72 h-72 rounded-full bg-teal-100/40 blur-3xl" />
+        <div className="absolute top-60 left-0 w-72 h-72 rounded-full bg-primary/5 blur-3xl" />
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-24 sm:pt-28 sm:pb-32">
           <div className="mx-auto max-w-3xl text-center">
@@ -107,15 +107,15 @@ function Home() {
             {/* Trust indicators */}
             <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground animate-fade-in-up animation-delay-600">
               <div className="flex items-center gap-1.5">
-                <Shield className="h-4 w-4 text-emerald-500" />
+                <Shield className="h-4 w-4 text-[#22C55E]" />
                 <span>Verified Charities</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Heart className="h-4 w-4 text-primary" />
+                <Heart className="h-4 w-4 text-[#2DD4BF]" />
                 <span>100% Goes to Cause</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Globe className="h-4 w-4 text-blue-500" />
+                <Globe className="h-4 w-4 text-primary" />
                 <span>Active in 12+ Countries</span>
               </div>
             </div>
@@ -166,21 +166,21 @@ function Home() {
                 icon: BookOpen,
                 title: "Choose a Charity",
                 desc: "Browse verified organizations making a real impact in menstrual health education and access.",
-                color: "bg-rose-50 text-primary",
+                color: "bg-primary/10 text-primary",
               },
               {
                 step: "02",
                 icon: Heart,
                 title: "Make a Donation",
                 desc: "Contribute any amount — every dollar helps provide essential products and support.",
-                color: "bg-amber-50 text-amber-600",
+                color: "bg-[#f0fdfa] text-[#2DD4BF]",
               },
               {
                 step: "03",
                 icon: TrendingUp,
                 title: "Track Your Impact",
                 desc: "See exactly how your donations help girls stay in school and change lives.",
-                color: "bg-emerald-50 text-emerald-600",
+                color: "bg-[#fffbeb] text-[#F59E0B]",
               },
             ].map((item) => (
               <div
@@ -255,7 +255,7 @@ function Home() {
       {/* CTA SECTION */}
       <section className="py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-rose-600 to-rose-700 p-10 sm:p-16 text-center text-white">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1E3A8A] via-[#1e40af] to-[#1d4ed8] p-10 sm:p-16 text-center text-white">
             {/* Background pattern */}
             <div className="absolute inset-0 opacity-10">
               <div className="absolute top-0 left-0 w-40 h-40 rounded-full bg-white blur-3xl" />
