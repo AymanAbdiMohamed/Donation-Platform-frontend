@@ -1,27 +1,81 @@
-# Render Blueprint – Donation Platform Frontend (React + Vite)
-# https://render.com/docs/blueprint-spec
+# render.yaml — Render Blueprint (Infrastructure as Code)
+#
+# Donation Platform Frontend (React 18 + Vite 5 + Tailwind CSS)
+# Deploy: https://render.com/deploy → connect your repo → Render reads this file
+#
+# Documentation: https://render.com/docs/blueprint-spec
+# Updated: February 10, 2026
 
 services:
-  - type: web
+  - type: static_site
     name: donation-platform-frontend
-    runtime: static
+    branch: ayman/dev  # Auto-deploy from this branch
+    
+    # Build Configuration
     buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
+    staticPublishPath: ./dist  # Vite output directory
+    
+    # Environment Variables (Available at BUILD TIME via import.meta.env)
     envVars:
+      # ==================== Backend API Configuration ====================
+      # CRITICAL: Set this to your backend URL (no trailing slash)
+      # Replace <your-backend> with actual Render service name
+      # Example: https://donation-platform-api.onrender.com
       - key: VITE_API_URL
-        value: "https://donation-platform-api.onrender.com"
+        sync: false  # MUST set in Render dashboard after backend is deployed
+      
+      # ==================== Currency Configuration ====================
+      - key: VITE_CURRENCY_CODE
+        value: KES  # Kenyan Shilling (platform is KES-only)
+      
+      - key: VITE_CURRENCY_SYMBOL
+        value: KSh
+      
+      # ==================== Environment ====================
+      - key: VITE_ENV
+        value: production
+      
+      # ==================== Feature Flags ====================
+      - key: VITE_ENABLE_ANALYTICS
+        value: "true"  # Enable analytics in production
+    
+    # SPA Routing Configuration
     routes:
-      # SPA catch-all: send all paths to index.html so React Router works
+      # Catch-all: Send all paths to index.html for React Router
       - type: rewrite
         source: /*
         destination: /index.html
+    
+    # Security & Performance Headers
     headers:
+      # Security Headers (All Routes)
       - path: /*
         name: X-Frame-Options
-        value: DENY
+        value: DENY  # Prevent clickjacking
+      
       - path: /*
         name: X-Content-Type-Options
-        value: nosniff
+        value: nosniff  # Prevent MIME sniffing
+      
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      
+      - path: /*
+        name: Permissions-Policy
+        value: geolocation=(), microphone=(), camera=()
+      
+      # Content Security Policy (Adjust if using external CDNs)
+      - path: /*
+        name: Content-Security-Policy
+        value: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://*.onrender.com
+      
+      # Cache Control for Static Assets (Vite uses content hashes)
       - path: /assets/*
         name: Cache-Control
-        value: public, max-age=31536000, immutable
+        value: public, max-age=31536000, immutable  # 1 year cache
+      
+      # Cache Control for HTML (Always revalidate)
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache, no-store, must-revalidate
