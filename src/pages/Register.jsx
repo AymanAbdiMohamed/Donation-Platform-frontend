@@ -4,11 +4,10 @@ import { useAuth } from "../context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Heart, Mail, Lock, User, ArrowRight, Sparkles, HandHeart, Building2 } from "lucide-react";
+import { Heart, Mail, Lock, ArrowRight, Sparkles, HandHeart, Building2 } from "lucide-react";
 
 function Register() {
   const [formData, setFormData] = useState({
-    username: "",
     email: "",
     password: "",
     role: "donor",
@@ -28,7 +27,6 @@ function Register() {
     setLoading(true);
     try {
       const response = await registerUser(
-        formData.username,
         formData.email,
         formData.password,
         formData.role
@@ -158,25 +156,6 @@ function Register() {
                     </button>
                   );
                 })}
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="username" className="text-sm font-medium text-[#1F2937]">
-                Username
-              </Label>
-              <div className="relative">
-                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9CA3AF]" />
-                <Input
-                  id="username"
-                  name="username"
-                  type="text"
-                  required
-                  placeholder="Choose a username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  className="h-11 pl-10 rounded-xl border-[#FBB6CE]/30 focus:border-[#EC4899] focus:ring-[#EC4899]/20 bg-white"
-                />
               </div>
             </div>
 
