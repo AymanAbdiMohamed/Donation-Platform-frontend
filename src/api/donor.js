@@ -30,7 +30,7 @@ export const initiateMpesaDonation = async ({
 /**
  * Poll donation status (used after STK Push to check if payment completed)
  * @param {number} donationId - ID of the donation
- * @returns {Promise<Object>} { id, status, mpesa_receipt_number, amount, amount_dollars, charity_name }
+ * @returns {Promise<Object>} { id, status, mpesa_receipt_number, amount, amount_kes, charity_name }
  */
 export const getDonationStatus = async (donationId) => {
   const response = await api.get(`/api/donations/${donationId}/status`);

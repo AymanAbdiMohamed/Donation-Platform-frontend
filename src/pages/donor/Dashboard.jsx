@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { getDonorDashboard, getDonationReceipt } from "../../api/donor";
 import DashboardLayout from "../../components/layout/DashboardLayout";
@@ -7,12 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DollarSign, Heart, Users, Download, ArrowRight, Search, Loader2, FileText, Sparkles } from "lucide-react";
+import { formatCurrency, formatCurrencyCompact } from "@/lib/currency";
 
 function DonorDashboard() {
   const { user } = useAuth();
 
   const [stats, setStats] = useState({
-    total_donated_dollars: 0,
+    total_donated_kes: 0,
     donation_count: 0,
     charities_supported: 0,
   });
@@ -47,7 +49,7 @@ function DonorDashboard() {
         `Receipt Number: ${receipt.receipt_number}`,
         `Date: ${receipt.date}`,
         ``,
-        `Amount: $${(receipt.amount_dollars || 0).toFixed(2)}`,
+        `Amount: ${formatCurrency(receipt.amount_kes || 0)}`,
         `Charity: ${receipt.charity?.name}`,
         `Donor: ${receipt.is_anonymous ? "Anonymous" : receipt.donor?.name}`,
         ``,
@@ -105,7 +107,7 @@ function DonorDashboard() {
   const statCards = [
     {
       label: "Total Donated",
-      value: `$${(stats.total_donated_dollars || 0).toFixed(2)}`,
+      value: formatCurrencyCompact(stats.total_donated_kes || 0),
       icon: DollarSign,
       color: "text-[#22C55E]",
       bg: "bg-[#dcfce7]",
@@ -217,7 +219,7 @@ function DonorDashboard() {
                           </td>
                           <td className="px-4 py-3.5">
                             <span className="font-bold text-[#22C55E]">
-                              ${(donation.amount_dollars || 0).toFixed(2)}
+                              {formatCurrency(donation.amount_kes || 0)}
                             </span>
                           </td>
                           <td className="px-4 py-3.5 text-[#9CA3AF] text-sm text-center hidden sm:table-cell">

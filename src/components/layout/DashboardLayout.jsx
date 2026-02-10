@@ -4,8 +4,9 @@
  */
 import { useAuth } from '@/context/AuthContext';
 import { ROUTES } from '@/constants';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Heart, LogOut, User, LayoutDashboard, Search, Home } from 'lucide-react';
+import { Heart, LogOut, User, LayoutDashboard, Search, Home, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -23,6 +24,8 @@ function DashboardLayout({ children, title }) {
   const location = useLocation();
 
   const handleLogout = () => { logout(); };
+
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const getInitials = (email) => {
     return email ? email.substring(0, 2).toUpperCase() : 'U';
@@ -44,7 +47,21 @@ function DashboardLayout({ children, title }) {
       <header className="sticky top-0 z-50 w-full border-b border-[#FBB6CE]/20 bg-white/80 backdrop-blur-lg">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
+            {/* Mobile hamburger */}
+            <button
+              type="button"
+              className="md:hidden flex items-center justify-center h-9 w-9 rounded-lg hover:bg-[#FDF2F8] transition-colors"
+              onClick={() => setMobileNavOpen((prev) => !prev)}
+              aria-label="Toggle navigation"
+            >
+              {mobileNavOpen ? (
+                <X className="h-5 w-5 text-[#4B5563]" />
+              ) : (
+                <Menu className="h-5 w-5 text-[#4B5563]" />
+              )}
+            </button>
+
             <Link to={ROUTES.HOME} className="flex items-center gap-2 group">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#EC4899] to-[#DB2777] shadow-pink group-hover:shadow-pink-lg transition-shadow duration-300">
                 <Heart className="h-4 w-4 text-white fill-white" />
@@ -119,6 +136,28 @@ function DashboardLayout({ children, title }) {
           </div>
         </div>
       </header>
+
+      {/* Mobile nav panel */}
+      {mobileNavOpen && (
+        <div className="md:hidden border-b border-[#FBB6CE]/20 bg-white px-4 py-3 space-y-1 animate-fade-in">
+          {navLinks.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              onClick={() => setMobileNavOpen(false)}
+              className={cn(
+                "flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+                location.pathname === link.to
+                  ? "bg-[#FDF2F8] text-[#EC4899]"
+                  : "text-[#4B5563] hover:text-[#EC4899] hover:bg-[#FDF2F8]"
+              )}
+            >
+              <link.icon className="h-4 w-4" />
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      )}
 
       {/* Mobile title */}
       {title && (

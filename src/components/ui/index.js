@@ -17,3 +17,14 @@ export {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from './dropdown-menu';
+export {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from './dialog';
+export { Textarea } from './textarea';
+export { Tabs, TabsList, TabsTrigger, TabsContent } from './tabs';

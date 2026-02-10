@@ -188,7 +188,55 @@ export function ApprovedCharityDashboard() {
 
       {/* Recent Donations */}
       <Card className="border-[#FBB6CE]/10 animate-fade-in-up animation-delay-400">
-        {/* ... rest of your donations JSX remains unchanged ... */}
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#FDF2F8] flex items-center justify-center">
+              <DollarSign className="h-5 w-5 text-[#EC4899]" />
+            </div>
+            <div>
+              <CardTitle className="text-[#1F2937]">Recent Donations</CardTitle>
+              <CardDescription className="text-[#4B5563]">Latest contributions received</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {donations.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-14 h-14 rounded-2xl bg-[#FDF2F8] flex items-center justify-center mx-auto mb-3">
+                <Heart className="h-7 w-7 text-[#FBB6CE]" />
+              </div>
+              <p className="text-[#1F2937] font-semibold mb-1">No donations yet</p>
+              <p className="text-sm text-[#9CA3AF]">Donations will appear here once received</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {donations.map((donation, i) => (
+                <div
+                  key={donation.id}
+                  className="flex items-center justify-between p-4 border border-[#FBB6CE]/10 rounded-xl hover:border-[#EC4899]/20 hover:shadow-pink transition-all duration-300 animate-slide-up"
+                  style={{ animationDelay: `${i * 80}ms` }}
+                >
+                  <div>
+                    <p className="font-medium text-[#1F2937]">
+                      {donation.is_anonymous ? "Anonymous Donor" : `Donor #${donation.donor_id}`}
+                    </p>
+                    {donation.message && (
+                      <p className="text-sm text-[#4B5563] mt-1 italic">
+                        &quot;{donation.message}&quot;
+                      </p>
+                    )}
+                    <p className="text-xs text-[#9CA3AF] mt-1">
+                      {new Date(donation.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <p className="font-bold text-lg text-[#EC4899]">
+                    KES {donation.amount_kes.toFixed(2)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
       </Card>
     </div>
   );
