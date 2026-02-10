@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { submitCharityApplication } from "../../api/charity";
 import api from "../../api/axios";
 import { useAuth } from "../../context/AuthContext";
+import { LogOut } from "lucide-react";
 import { ROUTES } from "../../constants";
 import { ApprovedCharityDashboard } from "../../components/charity/ApprovedDashboard";
 import DashboardLayout from "../../components/layout/DashboardLayout";
@@ -15,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Heart, Loader2, Upload, CheckCircle, AlertCircle, FileText, Sparkles, Users, Globe } from "lucide-react";
 
 function CharityDashboard() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [status, setStatus] = useState("idle");
   const [errorMessage, setErrorMessage] = useState("");
