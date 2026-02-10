@@ -77,9 +77,14 @@ api.interceptors.response.use(
       error.userMessage = 'Too many attempts. Please wait a moment and try again.';
     }
 
-    // Server errors
-    if (status >= 500) {
-      error.userMessage = 'Something went wrong on our end. Please try again later.';
+    // Surface backend error message for all errors (general fallback)
+    if (!error.userMessage) {
+      error.userMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        (status >= 500
+          ? 'Something went wrong on our end. Please try again later.'
+          : 'An unexpected error occurred.');
     }
 
     return Promise.reject(error);

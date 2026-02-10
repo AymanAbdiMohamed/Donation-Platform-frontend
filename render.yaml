@@ -8,9 +8,8 @@ services:
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
     envVars:
-      # Set this to your deployed backend URL, e.g. https://donation-platform-backend.onrender.com
       - key: VITE_API_URL
-        value: ""
+        value: "https://donation-platform-api.onrender.com"
     routes:
       # SPA catch-all: send all paths to index.html so React Router works
       - type: rewrite
