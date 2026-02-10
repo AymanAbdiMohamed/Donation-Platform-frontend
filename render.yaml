@@ -1,0 +1,27 @@
+# Render Blueprint – Donation Platform Frontend (React + Vite)
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: donation-platform-frontend
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        value: "https://donation-platform-api.onrender.com"
+    routes:
+      # SPA catch-all: send all paths to index.html so React Router works
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable

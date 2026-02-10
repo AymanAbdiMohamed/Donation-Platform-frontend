@@ -1,15 +1,46 @@
 /**
  * Donor API service
- * Handles donor-specific operations (donations, history, stats, favorites)
+ * Handles donor-specific operations (donations, dashboard, charities)
  */
 
 import api from "./axios";
 
 /**
- * Create a donation
- * @param {Object} donationData
- * { charity_id, amount (in cents), message, is_anonymous }
- * @returns {Promise<Object>} Created donation
+ * Initiate an M-Pesa STK Push donation (primary flow)
+ * @param {Object} params - { charity_id, amount, phone_number, message?, is_anonymous? }
+ * @returns {Promise<Object>} { message, donation, checkout_request_id, customer_message }
+ */
+export const initiateMpesaDonation = async ({
+  charity_id,
+  amount,
+  phone_number,
+  message,
+  is_anonymous = false,
+}) => {
+  const response = await api.post("/api/donations/mpesa", {
+    charity_id,
+    amount,
+    phone_number,
+    message: message || "",
+    is_anonymous,
+  });
+  return response.data;
+};
+
+/**
+ * Poll donation status (used after STK Push to check if payment completed)
+ * @param {number} donationId - ID of the donation
+ * @returns {Promise<Object>} { id, status, mpesa_receipt_number, amount, amount_dollars, charity_name }
+ */
+export const getDonationStatus = async (donationId) => {
+  const response = await api.get(`/api/donations/${donationId}/status`);
+  return response.data;
+};
+
+/**
+ * Create a donation (simple flow — amount in cents, no M-Pesa)
+ * @param {Object} donationData - { charity_id, amount, message, is_anonymous }
+ * @returns {Promise<Object>} { message, donation }
  */
 export const createDonation = async ({
   charity_id,
@@ -27,19 +58,9 @@ export const createDonation = async ({
 };
 
 /**
- * Confirm a donation (for multi-step payment flows)
- * @param {number|string} donationId
- * @returns {Promise<Object>}
- */
-export const confirmDonation = async (donationId) => {
-  const response = await api.post(`/donor/donations/${donationId}/confirm`);
-  return response.data;
-};
-
-/**
  * Get donation history for current donor
  * @param {number} limit - Optional limit on number of results
- * @returns {Promise<Object>} { donations: [], total_donated: number }
+ * @returns {Promise<Object>} { donations: [] }
  */
 export const getDonationHistory = async (limit) => {
   const params = limit ? { limit } : {};
@@ -48,30 +69,11 @@ export const getDonationHistory = async (limit) => {
 };
 
 /**
- * Get donor statistics
- * @returns {Promise<Object>}
- * { total_donated, donation_count, last_donation_date, ... }
+ * Get donor dashboard data (stats + recent donations)
+ * @returns {Promise<Object>} { stats: {...}, recent_donations: [] }
  */
-export const getDonorStats = async () => {
-  const response = await api.get("/donor/stats");
-  return response.data;
-};
-
-/**
- * Get favorite charities for donor
- * @returns {Promise<Object>} { favorites: [] }
- */
-export const getFavoriteCharities = async () => {
-  const response = await api.get("/donor/favorites");
-  return response.data;
-};
-
-/**
- * Get recurring donations for donor
- * @returns {Promise<Object>} { recurring: [] }
- */
-export const getRecurringDonations = async () => {
-  const response = await api.get("/donor/recurring");
+export const getDonorDashboard = async () => {
+  const response = await api.get("/donor/dashboard");
   return response.data;
 };
 
@@ -81,5 +83,25 @@ export const getRecurringDonations = async () => {
  */
 export const getDonorCharities = async () => {
   const response = await api.get("/donor/charities");
+  return response.data;
+};
+
+/**
+ * Get receipt for a specific donation
+ * @param {number} donationId - ID of the donation
+ * @returns {Promise<Object>} { receipt: {...} }
+ */
+export const getDonationReceipt = async (donationId) => {
+  const response = await api.get(`/donor/donations/${donationId}/receipt`);
+  return response.data;
+};
+
+/**
+ * Email receipt for a specific donation to the donor
+ * @param {number} donationId - ID of the donation
+ * @returns {Promise<Object>} { message: "..." }
+ */
+export const emailDonationReceipt = async (donationId) => {
+  const response = await api.post(`/donor/donations/${donationId}/receipt/email`);
   return response.data;
 };

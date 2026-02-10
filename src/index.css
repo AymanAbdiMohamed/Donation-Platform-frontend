@@ -1,6 +1,15 @@
 /**
  * Main stylesheet
- * shadcn/ui CSS variables and Tailwind imports
+ * SheNeeds Donation Platform ??? Professional design system
+ * shadcn/ui CSS variables + Tailwind + custom utilities
+ *
+ * Color Palette (Pink-focused):
+ *   Primary (Trust & Warmth)        #EC4899
+ *   Secondary (Highlights)          #FBB6CE
+ *   Accent/CTA (Donate emphasis)    #F59E0B
+ *   Background                      #FDF2F8 / #FFFFFF
+ *   Text                            #1F2937 / #4B5563 / #9CA3AF
+ *   Success #22C55E   Warning #F97316   Error #EF4444
  */
 
 @import "tailwindcss";
@@ -34,88 +43,207 @@
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
 
+  /* Extended palette */
+  --color-success: #22C55E;
+  --color-success-light: #dcfce7;
+  --color-warning: #F97316;
+  --color-warning-light: #fff7ed;
+  --color-accent-amber: #F59E0B;
+  --color-accent-amber-light: #fffbeb;
+  --color-pink-50: #FDF2F8;
+  --color-pink-100: #FCE7F3;
+  --color-pink-200: #FBCFE8;
+  --color-pink-300: #FBB6CE;
+  --color-pink-400: #F472B6;
+  --color-pink-500: #EC4899;
+  --color-pink-600: #DB2777;
+  --color-pink-700: #BE185D;
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
   @keyframes accordion-down {
-    from {
-      height: 0;
-    }
-
-    to {
-      height: var(--radix-accordion-content-height);
-    }
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
   }
 
   @keyframes accordion-up {
-    from {
-      height: var(--radix-accordion-content-height);
-    }
-
-    to {
-      height: 0;
-    }
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
   }
+
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  @keyframes count-up {
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  --animate-fade-in-up: fade-in-up 0.6s ease-out both;
+  --animate-fade-in: fade-in 0.5s ease-out both;
+  --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
+  --animate-count-up: count-up 0.5s ease-out both;
+  --animate-shimmer: shimmer 2s linear infinite;
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-scale-in: scale-in 0.3s ease-out both;
+  --animate-slide-up: slide-up 0.4s ease-out both;
 }
+
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Background & Surface ??? soft pink tint */
+    --background: 330 100% 98%;
+    --foreground: 220 13% 18%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 13% 18%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 0 72% 51%;
-    /* Red-600 for SheNeeds brand */
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 0 72% 51%;
-    --radius: 0.5rem;
+    --popover-foreground: 220 13% 18%;
+
+    /* Primary ??? warm pink #EC4899 */
+    --primary: 330 81% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary ??? light pink for backgrounds */
+    --secondary: 330 91% 85%;
+    --secondary-foreground: 220 13% 18%;
+
+    /* Muted */
+    --muted: 330 20% 95%;
+    --muted-foreground: 220 9% 46%;
+
+    /* Accent ??? pink-tinted hover/active surfaces */
+    --accent: 330 81% 96%;
+    --accent-foreground: 330 81% 40%;
+
+    /* Destructive / Error #EF4444 */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders & inputs */
+    --border: 330 20% 90%;
+    --input: 330 20% 90%;
+    --ring: 330 81% 60%;
+    --radius: 0.625rem;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 0 72% 51%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 0 72% 51%;
+    --background: 330 10% 5%;
+    --foreground: 330 20% 96%;
+    --card: 330 10% 8%;
+    --card-foreground: 330 20% 96%;
+    --popover: 330 10% 8%;
+    --popover-foreground: 330 20% 96%;
+    --primary: 330 81% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 330 15% 16%;
+    --secondary-foreground: 330 20% 96%;
+    --muted: 330 15% 16%;
+    --muted-foreground: 330 10% 65%;
+    --accent: 330 15% 16%;
+    --accent-foreground: 330 20% 96%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 330 20% 96%;
+    --border: 330 15% 16%;
+    --input: 330 15% 16%;
+    --ring: 330 81% 55%;
   }
 }
 
 @layer base {
   * {
-    border-color: var(--color-border);
+    border-color: hsl(var(--border));
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Utility animation classes */
+@layer utilities {
+  .animation-delay-200 { animation-delay: 0.2s; }
+  .animation-delay-400 { animation-delay: 0.4s; }
+  .animation-delay-600 { animation-delay: 0.6s; }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .glass-pink {
+    background: rgba(253, 242, 248, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .gradient-pink {
+    background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%);
+  }
+
+  .gradient-pink-light {
+    background: linear-gradient(135deg, #FDF2F8 0%, #FCE7F3 100%);
+  }
+
+  .gradient-warm {
+    background: linear-gradient(135deg, #EC4899 0%, #F59E0B 100%);
+  }
+
+  .shadow-pink {
+    box-shadow: 0 4px 14px -3px rgba(236, 72, 153, 0.25);
+  }
+
+  .shadow-pink-lg {
+    box-shadow: 0 10px 25px -5px rgba(236, 72, 153, 0.2), 0 8px 10px -6px rgba(236, 72, 153, 0.1);
   }
 }

@@ -1,194 +1,252 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { ROLES, ROUTES } from "../constants";
-import { Heart, Loader2, User, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { Heart, Mail, Lock, User, ArrowRight, Sparkles, HandHeart, Building2 } from "lucide-react";
 
-export default function Register() {
-  const navigate = useNavigate();
-  const { register, loading, error, clearError, getRedirectPath } = useAuth();
-
+function Register() {
   const [formData, setFormData] = useState({
+    username: "",
     email: "",
     password: "",
-    confirmPassword: "",
-    role: ROLES.DONOR,
+    role: "donor",
   });
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const { register: registerUser, getRedirectPath } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
-    clearError();
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleRoleSelect = (role) => {
-    setFormData({ ...formData, role });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    clearError();
-
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
-
+    setError(null);
+    setLoading(true);
     try {
-      const user = await register(formData.email, formData.password, formData.role);
-      navigate(getRedirectPath(user.role));
+      const response = await registerUser(
+        formData.username,
+        formData.email,
+        formData.password,
+        formData.role
+      );
+      if (response?.user?.role) {
+        navigate(getRedirectPath(response.user.role));
+      }
     } catch (err) {
-      // Error handled in AuthContext
+      setError(err.response?.data?.message || "Registration failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
+  const roles = [
+    {
+      value: "donor",
+      label: "Donor",
+      desc: "Support charities with donations",
+      icon: HandHeart,
+    },
+    {
+      value: "charity",
+      label: "Charity",
+      desc: "Register your organization",
+      icon: Building2,
+    },
+  ];
+
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
-      <div className="w-full max-w-md flex flex-col items-center">
-        {/* Logo Section */}
-        <div className="mb-8 flex items-center gap-2">
-          <Heart className="w-10 h-10 text-primary fill-primary" />
-          <span className="text-3xl font-bold text-white tracking-tight">
-            <span className="text-primary">She</span>Needs
-          </span>
+    <div className="flex min-h-screen">
+      {/* LEFT PANEL ??? BRANDING */}
+      <div className="hidden lg:flex lg:w-5/12 relative overflow-hidden bg-gradient-to-br from-[#EC4899] via-[#DB2777] to-[#BE185D]">
+        <div className="absolute top-0 left-0 w-60 h-60 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-72 h-72 rounded-full bg-white/5 blur-3xl" />
+        <div className="absolute top-1/2 left-1/4 w-40 h-40 rounded-full bg-[#FBB6CE]/10 blur-2xl" />
+
+        <div className="relative z-10 flex flex-col justify-between w-full p-12">
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm group-hover:bg-white/30 transition-colors">
+              <Heart className="h-5 w-5 text-white fill-white" />
+            </div>
+            <span className="text-xl font-bold text-white tracking-tight">SheNeeds</span>
+          </Link>
+
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-1.5 text-sm text-white/90">
+              <Sparkles className="h-3.5 w-3.5 text-[#FBB6CE]" />
+              Join our growing community
+            </div>
+            <h1 className="text-4xl xl:text-5xl font-extrabold text-white leading-tight">
+              Start Your<br />Journey Today
+            </h1>
+            <p className="text-lg text-white/70 max-w-sm leading-relaxed">
+              Whether you want to give or receive support, SheNeeds connects you with a community that cares.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="rounded-2xl bg-white/10 backdrop-blur-sm p-5 border border-white/10">
+              <p className="text-3xl font-extrabold text-white">50K+</p>
+              <p className="text-white/60 text-sm mt-1">Girls Supported</p>
+            </div>
+            <div className="rounded-2xl bg-white/10 backdrop-blur-sm p-5 border border-white/10">
+              <p className="text-3xl font-extrabold text-white">200+</p>
+              <p className="text-white/60 text-sm mt-1">Partner Charities</p>
+            </div>
+          </div>
         </div>
+      </div>
 
-        {/* Register Card */}
-        <Card className="w-full bg-card/95 backdrop-blur border/50">
-          <CardHeader className="text-center pb-2">
-            <CardTitle className="text-3xl font-bold text-primary">Create Account</CardTitle>
-            <CardDescription>Join our community and make a difference</CardDescription>
-          </CardHeader>
+      {/* RIGHT PANEL ??? FORM */}
+      <div className="flex flex-1 items-center justify-center bg-[#FDF2F8]/30 px-4 sm:px-8">
+        <div className="w-full max-w-md space-y-7 animate-fade-in-up">
+          {/* mobile logo */}
+          <div className="lg:hidden flex items-center gap-2.5 justify-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#EC4899] to-[#DB2777] shadow-pink">
+              <Heart className="h-5 w-5 text-white fill-white" />
+            </div>
+            <span className="text-xl font-bold">
+              <span className="text-[#EC4899]">She</span><span className="text-[#1F2937]">Needs</span>
+            </span>
+          </div>
 
-          <CardContent>
-            {error && (
-              <div className="bg-destructive/10 text-destructive p-3 rounded-lg mb-6 text-center text-sm border border-destructive/20">
-                {error}
+          <div className="text-center lg:text-left">
+            <h2 className="text-2xl font-extrabold text-[#1F2937] tracking-tight">
+              Create your account
+            </h2>
+            <p className="mt-2 text-[#4B5563]">
+              Get started in just a few steps
+            </p>
+          </div>
+
+          {error && (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 animate-fade-in">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* ROLE SELECTION */}
+            <div className="space-y-1.5">
+              <Label className="text-sm font-medium text-[#1F2937]">I want to...</Label>
+              <div className="grid grid-cols-2 gap-3">
+                {roles.map((role) => {
+                  const isSelected = formData.role === role.value;
+                  return (
+                    <button
+                      type="button"
+                      key={role.value}
+                      onClick={() => setFormData({ ...formData, role: role.value })}
+                      className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all duration-200 ${
+                        isSelected
+                          ? "border-[#EC4899] bg-[#FDF2F8] shadow-pink"
+                          : "border-[#FBB6CE]/20 bg-white hover:border-[#FBB6CE]/40"
+                      }`}
+                    >
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
+                        isSelected ? "bg-[#EC4899] text-white" : "bg-[#FDF2F8] text-[#EC4899]"
+                      }`}>
+                        <role.icon className="h-5 w-5" />
+                      </div>
+                      <span className={`text-sm font-semibold ${isSelected ? "text-[#EC4899]" : "text-[#1F2937]"}`}>
+                        {role.label}
+                      </span>
+                      <span className="text-xs text-[#9CA3AF] text-center leading-tight">{role.desc}</span>
+                    </button>
+                  );
+                })}
               </div>
-            )}
+            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Role Selection */}
-              <div className="space-y-2">
-                <Label>I want to register as</Label>
-                <div className="grid grid-cols-2 gap-3">
-                  <RoleButton
-                    selected={formData.role === ROLES.DONOR}
-                    onClick={() => handleRoleSelect(ROLES.DONOR)}
-                    icon={User}
-                    label="Donor"
-                    description="Make donations"
-                  />
-                  <RoleButton
-                    selected={formData.role === ROLES.CHARITY}
-                    onClick={() => handleRoleSelect(ROLES.CHARITY)}
-                    icon={Building2}
-                    label="Charity"
-                    description="Receive donations"
-                  />
-                </div>
-              </div>
-
-              {/* Email */}
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="username" className="text-sm font-medium text-[#1F2937]">
+                Username
+              </Label>
+              <div className="relative">
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9CA3AF]" />
                 <Input
-                  id="email"
-                  type="email"
+                  id="username"
+                  name="username"
+                  type="text"
+                  required
+                  placeholder="Choose a username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  className="h-11 pl-10 rounded-xl border-[#FBB6CE]/30 focus:border-[#EC4899] focus:ring-[#EC4899]/20 bg-white"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="reg-email" className="text-sm font-medium text-[#1F2937]">
+                Email Address
+              </Label>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9CA3AF]" />
+                <Input
+                  id="reg-email"
                   name="email"
+                  type="email"
+                  required
                   placeholder="you@example.com"
                   value={formData.email}
                   onChange={handleChange}
-                  required
-                  className="h-11"
+                  className="h-11 pl-10 rounded-xl border-[#FBB6CE]/30 focus:border-[#EC4899] focus:ring-[#EC4899]/20 bg-white"
                 />
               </div>
+            </div>
 
-              {/* Password */}
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="reg-password" className="text-sm font-medium text-[#1F2937]">
+                Password
+              </Label>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9CA3AF]" />
                 <Input
-                  id="password"
-                  type="password"
+                  id="reg-password"
                   name="password"
-                  placeholder="••••••••"
+                  type="password"
+                  required
+                  placeholder="Create a strong password"
                   value={formData.password}
                   onChange={handleChange}
-                  required
-                  className="h-11"
+                  className="h-11 pl-10 rounded-xl border-[#FBB6CE]/30 focus:border-[#EC4899] focus:ring-[#EC4899]/20 bg-white"
                 />
               </div>
+            </div>
 
-              {/* Confirm Password */}
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  name="confirmPassword"
-                  placeholder="••••••••"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  required
-                  className="h-11"
-                />
-              </div>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full h-11 rounded-xl bg-[#EC4899] hover:bg-[#DB2777] text-white font-semibold shadow-pink hover:shadow-pink-lg transition-all disabled:opacity-60"
+            >
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Creating account...
+                </div>
+              ) : (
+                <span className="flex items-center gap-2">
+                  Create Account
+                  <ArrowRight className="h-4 w-4" />
+                </span>
+              )}
+            </Button>
+          </form>
 
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full h-11 text-base font-semibold"
-                size="lg"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating account...
-                  </>
-                ) : (
-                  "Create Account"
-                )}
-              </Button>
-            </form>
-          </CardContent>
-
-          <CardFooter className="flex justify-center border-t pt-6">
-            <p className="text-sm text-muted-foreground">
-              Already have an account?{" "}
-              <Link to={ROUTES.LOGIN} className="text-primary font-semibold hover:underline">
-                Sign in
-              </Link>
-            </p>
-          </CardFooter>
-        </Card>
+          <p className="text-center text-sm text-[#4B5563]">
+            Already have an account?{" "}
+            <Link to="/login" className="font-semibold text-[#EC4899] hover:text-[#DB2777] transition-colors">
+              Sign in
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
 }
 
-function RoleButton({ selected, onClick, icon: Icon, label, description }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "flex flex-col items-center p-4 rounded-lg border-2 transition-all",
-        selected
-          ? "border-primary bg-primary/10 text-primary"
-          : "border hover:border-primary/50 text-muted-foreground hover:text-foreground"
-      )}
-    >
-      <Icon className="w-6 h-6 mb-1" />
-      <span className="font-medium">{label}</span>
-      <span className="text-xs opacity-70">{description}</span>
-    </button>
-  );
-}
+export default Register;
