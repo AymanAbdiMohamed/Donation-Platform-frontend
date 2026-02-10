@@ -1,7 +1,17 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { Heart, Shield, Users, TrendingUp, ArrowRight, Sparkles, Globe, BookOpen } from "lucide-react";
+import {
+  Heart,
+  Shield,
+  Users,
+  TrendingUp,
+  ArrowRight,
+  Sparkles,
+  Globe,
+  BookOpen,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Carousel from "../components/Carousel";
 
 function Home() {
   const { isAuthenticated, user, logout, getRedirectPath } = useAuth();
@@ -16,15 +26,22 @@ function Home() {
               <Heart className="h-5 w-5 text-white fill-white" />
             </div>
             <span className="text-xl font-bold tracking-tight">
-              <span className="text-[#EC4899]">She</span><span className="text-[#1F2937]">Needs</span>
+              <span className="text-[#EC4899]">She</span>
+              <span className="text-[#1F2937]">Needs</span>
             </span>
           </Link>
 
           <nav className="hidden sm:flex items-center gap-1">
-            <Link to="/" className="px-3 py-2 text-sm font-medium text-[#4B5563] hover:text-[#EC4899] rounded-lg hover:bg-[#FDF2F8] transition-colors">
+            <Link
+              to="/"
+              className="px-3 py-2 text-sm font-medium text-[#4B5563] hover:text-[#EC4899] rounded-lg hover:bg-[#FDF2F8] transition-colors"
+            >
               Home
             </Link>
-            <Link to="/charities" className="px-3 py-2 text-sm font-medium text-[#4B5563] hover:text-[#EC4899] rounded-lg hover:bg-[#FDF2F8] transition-colors">
+            <Link
+              to="/charities"
+              className="px-3 py-2 text-sm font-medium text-[#4B5563] hover:text-[#EC4899] rounded-lg hover:bg-[#FDF2F8] transition-colors"
+            >
               Charities
             </Link>
 
@@ -51,7 +68,11 @@ function Home() {
                 >
                   Sign In
                 </Link>
-                <Button asChild size="sm" className="ml-2 rounded-lg bg-[#EC4899] hover:bg-[#DB2777] text-white shadow-pink">
+                <Button
+                  asChild
+                  size="sm"
+                  className="ml-2 rounded-lg bg-[#EC4899] hover:bg-[#DB2777] text-white shadow-pink"
+                >
                   <Link to="/register">
                     Get Started
                     <ArrowRight className="ml-1 h-3.5 w-3.5" />
@@ -77,6 +98,10 @@ function Home() {
               Empowering Girls Across Africa
             </div>
 
+
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1] text-balance animate-fade-in-up">
+              Donate. Empower. Change. 
+
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#1F2937] leading-[1.1] text-balance animate-fade-in-up">
               Help Girls Stay in School{" "}
               <span className="text-[#EC4899]">with Dignity</span>
@@ -84,21 +109,33 @@ function Home() {
 
             <p className="mt-6 text-lg sm:text-xl text-[#4B5563] max-w-2xl mx-auto leading-relaxed animate-fade-in-up animation-delay-200">
               Your donations provide sanitary products, clean water, and proper
-              sanitation facilities for school-going girls across sub-Saharan Africa.
+              sanitation facilities for school-going girls across sub-Saharan
+              Africa.
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up animation-delay-400">
-              <Button asChild size="lg" className="h-12 px-8 text-base rounded-xl bg-[#EC4899] hover:bg-[#DB2777] text-white shadow-pink-lg hover:shadow-pink-lg transition-all hover:scale-[1.02]">
-                <Link to={isAuthenticated ? getRedirectPath(user?.role) : "/register"}>
+              <Button
+                asChild
+                size="lg"
+                className="h-12 px-8 text-base rounded-xl bg-[#EC4899] hover:bg-[#DB2777] text-white shadow-pink-lg hover:shadow-pink-lg transition-all hover:scale-[1.02]"
+              >
+                <Link
+                  to={
+                    isAuthenticated ? getRedirectPath(user?.role) : "/register"
+                  }
+                >
                   {isAuthenticated ? "Go to Dashboard" : "Start Donating"}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
 
-              <Button variant="outline" asChild size="lg" className="h-12 px-8 text-base rounded-xl border-2 border-[#FBB6CE]/30 hover:bg-[#FDF2F8] hover:border-[#EC4899]/30 text-[#1F2937]">
-                <Link to="/charities">
-                  View Charities
-                </Link>
+              <Button
+                variant="outline"
+                asChild
+                size="lg"
+                className="h-12 px-8 text-base rounded-xl border-2 border-[#FBB6CE]/30 hover:bg-[#FDF2F8] hover:border-[#EC4899]/30 text-[#1F2937]"
+              >
+                <Link to="/charities">View Charities</Link>
               </Button>
             </div>
 
@@ -132,16 +169,35 @@ function Home() {
               { value: "12+", label: "Countries Reached", icon: Globe, color: "text-[#8B5CF6]", bg: "bg-[#f5f3ff]" },
             ].map((stat) => (
               <div key={stat.label} className="text-center group">
-                <div className={`inline-flex items-center justify-center w-12 h-12 rounded-2xl ${stat.bg} ${stat.color} mb-3 group-hover:scale-110 transition-transform duration-300`}>
+                <div
+                  className={`inline-flex items-center justify-center w-12 h-12 rounded-2xl ${stat.bg} ${stat.color} mb-3 group-hover:scale-110 transition-transform duration-300`}
+                >
                   <stat.icon className="h-5 w-5" />
                 </div>
                 <p className="text-3xl sm:text-4xl font-extrabold text-[#1F2937] tracking-tight">
                   {stat.value}
                 </p>
-                <p className="text-sm text-[#9CA3AF] font-medium mt-1">{stat.label}</p>
+                <p className="text-sm text-[#9CA3AF] font-medium mt-1">
+                  {stat.label}
+                </p>
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* OUR PARTNERS CAROUSEL */}
+      <section className="py-16 bg-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#1F2937] tracking-tight">
+              Our Partners
+            </h2>
+            <p className="mt-2 text-[#4B5563]">
+              Trusted organizations working with us
+            </p>
+          </div>
+          <Carousel />
         </div>
       </section>
 
@@ -188,15 +244,15 @@ function Home() {
                 <div className="absolute top-6 right-6 text-5xl font-extrabold text-[#FBB6CE]/20 select-none">
                   {item.step}
                 </div>
-                <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl ${item.color} mb-5`}>
+                <div
+                  className={`inline-flex items-center justify-center w-12 h-12 rounded-xl ${item.color} mb-5`}
+                >
                   <item.icon className="h-5 w-5" />
                 </div>
                 <h3 className="text-xl font-bold text-[#1F2937] mb-2">
                   {item.title}
                 </h3>
-                <p className="text-[#4B5563] leading-relaxed">
-                  {item.desc}
-                </p>
+                <p className="text-[#4B5563] leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -241,8 +297,12 @@ function Home() {
                   <item.icon className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-[#1F2937] mb-1">{item.title}</h3>
-                  <p className="text-sm text-[#4B5563] leading-relaxed">{item.desc}</p>
+                  <h3 className="font-bold text-[#1F2937] mb-1">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-[#4B5563] leading-relaxed">
+                    {item.desc}
+                  </p>
                 </div>
               </div>
             ))}
@@ -264,19 +324,35 @@ function Home() {
                 Ready to Make a Difference?
               </h2>
               <p className="mt-4 text-lg text-white/80 max-w-xl mx-auto">
-                Join thousands of donors and charity organizations working together to ensure every girl can stay in school with dignity.
+                Join thousands of donors and charity organizations working
+                together to ensure every girl can stay in school with dignity.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button asChild size="lg" className="h-12 px-8 text-base rounded-xl font-bold bg-white text-[#EC4899] hover:bg-white/90 shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]">
-                  <Link to={isAuthenticated ? getRedirectPath(user?.role) : "/register"}>
-                    {isAuthenticated ? "Go to Dashboard" : "Create Free Account"}
+                <Button
+                  asChild
+                  size="lg"
+                  className="h-12 px-8 text-base rounded-xl font-bold bg-white text-[#EC4899] hover:bg-white/90 shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
+                >
+                  <Link
+                    to={
+                      isAuthenticated
+                        ? getRedirectPath(user?.role)
+                        : "/register"
+                    }
+                  >
+                    {isAuthenticated
+                      ? "Go to Dashboard"
+                      : "Create Free Account"}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
-                <Button asChild size="lg" variant="ghost" className="h-12 px-8 text-base rounded-xl font-bold text-white hover:bg-white/10 border border-white/20">
-                  <Link to="/charities">
-                    Explore Charities
-                  </Link>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="ghost"
+                  className="h-12 px-8 text-base rounded-xl font-bold text-white hover:bg-white/10 border border-white/20"
+                >
+                  <Link to="/charities">Explore Charities</Link>
                 </Button>
               </div>
             </div>
@@ -291,13 +367,29 @@ function Home() {
             <div className="flex items-center gap-2">
               <Heart className="h-5 w-5 text-[#EC4899] fill-[#EC4899]" />
               <span className="font-bold">
-                <span className="text-[#EC4899]">She</span><span className="text-[#1F2937]">Needs</span>
+                <span className="text-[#EC4899]">She</span>
+                <span className="text-[#1F2937]">Needs</span>
               </span>
             </div>
             <div className="flex items-center gap-6 text-sm text-[#4B5563]">
-              <Link to="/charities" className="hover:text-[#EC4899] transition-colors">Charities</Link>
-              <Link to="/login" className="hover:text-[#EC4899] transition-colors">Sign In</Link>
-              <Link to="/register" className="hover:text-[#EC4899] transition-colors">Register</Link>
+              <Link
+                to="/charities"
+                className="hover:text-[#EC4899] transition-colors"
+              >
+                Charities
+              </Link>
+              <Link
+                to="/login"
+                className="hover:text-[#EC4899] transition-colors"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/register"
+                className="hover:text-[#EC4899] transition-colors"
+              >
+                Register
+              </Link>
             </div>
             <p className="text-sm text-[#9CA3AF]">
               &copy; {new Date().getFullYear()} SheNeeds. All rights reserved.

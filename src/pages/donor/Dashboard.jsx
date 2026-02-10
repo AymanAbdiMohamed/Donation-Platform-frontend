@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { getDonorDashboard, getDonationReceipt } from "../../api/donor";
 import DashboardLayout from "../../components/layout/DashboardLayout";

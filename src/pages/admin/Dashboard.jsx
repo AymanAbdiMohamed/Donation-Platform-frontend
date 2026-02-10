@@ -1,222 +1,168 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { ROUTES } from "../../constants";
 import {
-  getPendingApplications,
+  getApplications,
   approveApplication,
   rejectApplication,
+  getPlatformStats,
 } from "../../api/admin";
-import DashboardLayout from "../../components/layout/DashboardLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, CheckCircle, XCircle, Inbox, Shield, Clock, FileText } from "lucide-react";
+import { Check, X, Eye, Search, RefreshCw, LogOut } from "lucide-react";
+import {
+  Button,
+  Input,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  Textarea,
+  Badge,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui";
 
-function AdminDashboard() {
-  const { user } = useAuth();
-
+export default function AdminDashboard() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [applications, setApplications] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [actionLoading, setActionLoading] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState(null);
+  
+  const [activeTab, setActiveTab] = useState("pending");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const fetchPending = async () => {
+  const [selectedApp, setSelectedApp] = useState(null);
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [actionLoading, setActionLoading] = useState(false);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      setError("");
-      const data = await getPendingApplications();
-      setApplications(data.applications || []);
+      const [statsData, appsData] = await Promise.all([
+        getPlatformStats(),
+        getApplications()
+      ]);
+      setStats(statsData);
+      setApplications(appsData.applications || []);
     } catch (err) {
-      console.error(err);
-      setError("Failed to load pending applications.");
+      console.error("Failed to load dashboard data:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchPending(); }, []);
+  const filteredApplications = applications.filter(app => {
+    const matchesTab = app.status === activeTab;
+    const matchesSearch = 
+      app.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      app.email?.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesTab && matchesSearch;
+  });
 
   const handleApprove = async (id) => {
+    if (!confirm("Are you sure you want to approve this application?")) return;
+    setActionLoading(id);
     try {
-      setActionLoading(id);
       await approveApplication(id);
-      setApplications((prev) => prev.filter((app) => app.id !== id));
+      await fetchData();
     } catch (err) {
-      console.error(err);
-      alert("Failed to approve application.");
+      alert("Failed to approve application: " + (err.response?.data?.message || err.message));
     } finally {
-      setActionLoading(null);
+      setActionLoading(false);
     }
   };
 
-  const handleReject = async (id) => {
+  const handleReject = async () => {
+    if (!selectedApp) return;
+    setActionLoading(true);
     try {
-      const reason = prompt("Enter rejection reason (optional):") || "";
-      setActionLoading(id);
-      await rejectApplication(id, reason);
-      setApplications((prev) => prev.filter((app) => app.id !== id));
+      await rejectApplication(selectedApp.id, rejectionReason);
+      setIsRejectModalOpen(false);
+      setRejectionReason("");
+      setSelectedApp(null);
+      await fetchData();
     } catch (err) {
-      console.error(err);
-      alert("Failed to reject application.");
+      alert("Failed to reject application: " + (err.response?.data?.message || err.message));
     } finally {
-      setActionLoading(null);
+      setActionLoading(false);
     }
   };
+
+  const openRejectModal = (app) => {
+    setSelectedApp(app);
+    setRejectionReason("");
+    setIsRejectModalOpen(true);
+  };
+  
+  const openDetailModal = (app) => {
+    setSelectedApp(app);
+    setIsDetailModalOpen(true);
+  };
+
+  if (loading && !stats) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-xl animate-pulse">Loading Dashboard...</div>
+      </div>
+    );
+  }
 
   return (
-    <DashboardLayout title="Admin Dashboard">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="animate-fade-in-up">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1F2937] tracking-tight">
-            Admin <span className="text-[#EC4899]">Dashboard</span>
-          </h1>
-          <p className="text-[#4B5563] mt-1">
-            Review and manage charity applications
-          </p>
+    <div className="min-h-screen bg-gray-50/50 p-8 space-y-8">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+          <p className="text-muted-foreground mt-1">Manage charity applications and platform overview.</p>
         </div>
-
-        {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-3 animate-fade-in-up animation-delay-200">
-          <Card className="border-[#FBB6CE]/10 hover:border-[#EC4899]/20 hover:shadow-pink transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-[#4B5563]">Pending Reviews</CardTitle>
-              <div className="rounded-xl bg-gradient-to-br from-[#F59E0B]/10 to-[#F59E0B]/20 p-2">
-                <Clock className="h-4 w-4 text-[#F59E0B]" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-extrabold text-[#1F2937]">{applications.length}</div>
-              <p className="text-xs text-[#9CA3AF] mt-1">Awaiting your decision</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-[#FBB6CE]/10 hover:border-[#EC4899]/20 hover:shadow-pink transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-[#4B5563]">Approved Today</CardTitle>
-              <div className="rounded-xl bg-gradient-to-br from-[#22C55E]/10 to-[#22C55E]/20 p-2">
-                <CheckCircle className="h-4 w-4 text-[#22C55E]" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-extrabold text-[#1F2937]">&mdash;</div>
-              <p className="text-xs text-[#9CA3AF] mt-1">Keep reviewing applications</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-[#FBB6CE]/10 hover:border-[#EC4899]/20 hover:shadow-pink transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-[#4B5563]">Your Role</CardTitle>
-              <div className="rounded-xl bg-gradient-to-br from-[#EC4899]/10 to-[#EC4899]/20 p-2">
-                <Shield className="h-4 w-4 text-[#EC4899]" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Badge className="capitalize bg-[#FDF2F8] text-[#EC4899] hover:bg-[#FCE7F3] border-[#FBB6CE]/20 font-semibold">
-                {user?.role}
-              </Badge>
-            </CardContent>
-          </Card>
+        <div className="flex gap-3">
+          <Button onClick={fetchData} variant="outline" size="sm" className="gap-2">
+            <RefreshCw className="h-4 w-4" />
+            Refresh Data
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => {
+              logout();
+              navigate(ROUTES.LOGIN);
+            }}
+            className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-100"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </Button>
         </div>
-
-        {/* Applications List */}
-        <Card className="border-[#FBB6CE]/10 animate-fade-in-up animation-delay-400">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#EC4899] to-[#DB2777] flex items-center justify-center shadow-pink">
-                <FileText className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <CardTitle className="text-[#1F2937]">Pending Charity Applications</CardTitle>
-                <CardDescription className="text-[#4B5563]">
-                  Review and approve or reject charity applications
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {loading && (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-[#EC4899] mr-2" />
-                <span className="text-[#4B5563]">Loading applications...</span>
-              </div>
-            )}
-
-            {error && (
-              <div className="bg-red-50 text-[#EF4444] p-4 rounded-xl text-center border border-red-100">
-                {error}
-                <Button variant="outline" size="sm" className="ml-4 border-red-200 hover:bg-red-50" onClick={fetchPending}>
-                  Retry
-                </Button>
-              </div>
-            )}
-
-            {!loading && !error && applications.length === 0 && (
-              <div className="text-center py-16">
-                <div className="w-16 h-16 rounded-2xl bg-[#FDF2F8] flex items-center justify-center mx-auto mb-4">
-                  <Inbox className="h-8 w-8 text-[#FBB6CE]" />
-                </div>
-                <p className="text-[#1F2937] font-semibold mb-1">All caught up!</p>
-                <p className="text-[#9CA3AF] text-sm">No pending applications to review.</p>
-              </div>
-            )}
-
-            <div className="space-y-4">
-              {applications.map((app, i) => (
-                <div
-                  key={app.id}
-                  className="border border-[#FBB6CE]/10 rounded-xl p-5 space-y-3 hover:border-[#EC4899]/20 hover:shadow-pink transition-all duration-300 animate-slide-up"
-                  style={{ animationDelay: `${i * 100}ms` }}
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold text-[#1F2937]">
-                        {app.name || app.charity_name || "Charity Application"}
-                      </h3>
-                      <p className="text-sm text-[#4B5563]">
-                        Contact: {app.contact_email || "N/A"}
-                      </p>
-                    </div>
-                    <Badge variant="outline" className="font-mono text-[#9CA3AF] border-[#FBB6CE]/20">
-                      #{app.id}
-                    </Badge>
-                  </div>
-
-                  <p className="text-sm text-[#4B5563] leading-relaxed">
-                    {app.description || app.mission || "No description provided"}
-                  </p>
-
-                  <div className="flex gap-3 pt-2">
-                    <Button
-                      size="sm"
-                      className="bg-[#22C55E] hover:bg-[#16a34a] text-white shadow-sm hover:shadow-md transition-all rounded-xl"
-                      onClick={() => handleApprove(app.id)}
-                      disabled={actionLoading === app.id}
-                    >
-                      {actionLoading === app.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin mr-1" />
-                      ) : (
-                        <CheckCircle className="h-4 w-4 mr-1" />
-                      )}
-                      Approve
-                    </Button>
-                    <Button
-                      size="sm"
-                      className="bg-[#EF4444] hover:bg-[#DC2626] text-white shadow-sm hover:shadow-md transition-all rounded-xl"
-                      onClick={() => handleReject(app.id)}
-                      disabled={actionLoading === app.id}
-                    >
-                      <XCircle className="h-4 w-4 mr-1" />
-                      Reject
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
       </div>
-    </DashboardLayout>
+
+      {/* Stats Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatsCard title="Total Donations" value={`$${stats?.total_donations_dollars?.toFixed(2) || "0.00"}`} desc="Lifetime platform volume" />
+        <StatsCard title="Pending Applications" value={stats?.pending_count || 0} desc="Requires review" highlight={stats?.pending_count > 0} />
+        <StatsCard title="Active Charities" value={stats?.total_charities || 0} desc="Approved organizations" />
+        <StatsCard title="Total Donors" value={stats?.total_donors || 0} desc="Registered donors" />
+      </div>
+
+      {/* Applications Table & Modals */}
+      {/* Keep your existing table, Tabs, and modals here... */}
+    </div>
   );
 }
 
-export default AdminDashboard;
+// Sub-components: StatsCard, TabTrigger, DetailItem (keep as in your xervi/dev version)
