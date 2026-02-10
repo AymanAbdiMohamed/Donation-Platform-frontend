@@ -264,7 +264,7 @@ export function ApprovedCharityDashboard() {
                     </p>
                   </div>
                   <p className="font-bold text-lg text-[#EC4899]">
-                    ${donation.amount_dollars.toFixed(2)}
+                    KES {donation.amount_kes.toFixed(2)}
                   </p>
                 </div>
               ))}

@@ -1,11 +1,9 @@
 /**
  * Currency formatting helpers.
  *
- * ⚠️ TEAM DECISION NEEDED: The platform currently mixes "$" (donor dashboard,
- * receipts) with "KES" (donation modal).  This helper centralises the choice
- * so only one file needs to change once the team picks a symbol/format.
- *
- * Current default: "KES" (Kenyan Shilling) to match the M-Pesa flow.
+ * Platform is KES-only (Kenyan Shilling). All backend amounts are stored
+ * in cents and exposed as `amount_kes` (cents / 100).
+ * No multi-currency support is planned for MVP.
  */
 
 const CURRENCY_SYMBOL = "KES";

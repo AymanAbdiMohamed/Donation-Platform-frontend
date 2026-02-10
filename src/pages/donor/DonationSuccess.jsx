@@ -85,8 +85,8 @@ function DonationSuccess() {
     );
   }
 
-  const amountDisplay = donation.amount_dollars
-    ? `KES ${Number(donation.amount_dollars).toLocaleString()}`
+  const amountDisplay = donation.amount_kes
+    ? `KES ${Number(donation.amount_kes).toLocaleString()}`
     : donation.amount
     ? `KES ${(donation.amount / 100).toLocaleString()}`
     : "KES 0";
@@ -286,7 +286,7 @@ function DonationSuccess() {
                           `Receipt Number: ${r.receipt_number}`,
                           `Date: ${r.date}`,
                           "",
-                          `Amount: KES ${Number(r.amount_dollars || 0).toLocaleString()}`,
+                          `Amount: KES ${Number(r.amount_kes || 0).toLocaleString()}`,
                           `Charity: ${r.charity?.name}`,
                           `Donor: ${r.is_anonymous ? "Anonymous" : r.donor?.name}`,
                           receiptNumber ? `M-Pesa Receipt: ${receiptNumber}` : "",
