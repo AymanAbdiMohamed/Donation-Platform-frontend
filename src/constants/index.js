@@ -25,23 +25,31 @@ export const ROUTES = {
 
 // API endpoint paths (relative to base URL)
 export const API_ENDPOINTS = {
+  // Auth
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',
   ME: '/auth/me',
+  
+  // Charities
   CHARITIES: '/charities',
+  
+  // Charity application (for charity role)
   CHARITY_APPLICATION: '/charity/application',
+  
+  // Admin
   ADMIN_APPROVE_APPLICATION: (id) => `/admin/applications/${id}/approve`,
   ADMIN_REJECT_APPLICATION: (id) => `/admin/applications/${id}/reject`,
-};
-
-// Application status values
-export const APPLICATION_STATUS = {
-  PENDING: 'pending',
-  APPROVED: 'approved',
-  REJECTED: 'rejected',
 };
 
 // Local storage keys
 export const STORAGE_KEYS = {
   TOKEN: 'access_token',
+};
+
+// Add this to constants/index.js
+
+export const APPLICATION_STATUS = {
+  PENDING: "pending",
+  APPROVED: "approved",
+  REJECTED: "rejected",
 };

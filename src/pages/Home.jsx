@@ -80,6 +80,7 @@ function Home() {
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1] text-balance animate-fade-in-up">
               Donate. Empower. Change. 
+            </h1>  
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#1F2937] leading-[1.1] text-balance animate-fade-in-up">
               Help Girls Stay in School{" "}
