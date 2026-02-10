@@ -7,7 +7,7 @@ import {
   getPlatformStats,
   deleteCharity,
 } from "../../api/admin";
-import { Check, X, Trash2, Eye, Search, Filter, RefreshCw } from "lucide-react";
+import { Check, X, Trash2, Eye, Search, Filter, RefreshCw, LogOut } from "lucide-react";
 import {
   Button,
   Input,
@@ -31,7 +31,8 @@ import {
 } from "@/components/ui";
 
 export default function AdminDashboard() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
@@ -137,10 +138,24 @@ export default function AdminDashboard() {
           <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
           <p className="text-muted-foreground mt-1">Manage charity applications and platform overview.</p>
         </div>
-        <Button onClick={fetchData} variant="outline" size="sm" className="gap-2">
-          <RefreshCw className="h-4 w-4" />
-          Refresh Data
-        </Button>
+        <div className="flex gap-3">
+          <Button onClick={fetchData} variant="outline" size="sm" className="gap-2">
+            <RefreshCw className="h-4 w-4" />
+            Refresh Data
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => {
+              logout();
+              navigate("/login");
+            }}
+            className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-100"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}

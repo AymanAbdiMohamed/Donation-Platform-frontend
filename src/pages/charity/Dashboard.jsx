@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { submitCharityApplication, api } from "../../api";
 import { useAuth } from "../../context/AuthContext";
+import { LogOut } from "lucide-react";
 import { ROUTES } from "../../constants";
 
 function CharityDashboard() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [status, setStatus] = useState("idle"); // idle, submitting, success, error
   const [errorMessage, setErrorMessage] = useState("");
@@ -79,13 +80,11 @@ function CharityDashboard() {
         }
       });
 
-      await submitCharityApplication(data);
+      const response = await submitCharityApplication(data);
+      setApplication(response.data.application);
       setStatus("success");
       
-      // Auto-redirect after a short delay for UX
-      setTimeout(() => {
-        navigate(ROUTES.CHARITIES);
-      }, 2000);
+      // Removed auto-redirect to stay on the dashboard and see the "Pending" status
     } catch (err) {
       console.error(err);
       setStatus("error");
@@ -103,7 +102,19 @@ function CharityDashboard() {
   return (
     <div className="max-w-[1200px] mx-auto p-12 bg-white min-h-screen">
       {/* Header Section from Image */}
-      <header className="flex flex-col items-center mb-12">
+      <header className="flex flex-col items-center mb-12 relative">
+        <div className="absolute right-0 top-0">
+          <button 
+            onClick={() => {
+              logout();
+              navigate(ROUTES.LOGIN);
+            }}
+            className="flex items-center gap-2 text-gray-500 hover:text-red-600 transition font-semibold text-sm bg-gray-50 px-4 py-2 rounded-full border border-gray-100 shadow-sm"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </button>
+        </div>
         <div className="flex items-center gap-3 mb-4">
             {/* Simple representation of the logo */}
             <div className="flex items-center gap-1">
@@ -124,36 +135,72 @@ function CharityDashboard() {
       </header>
 
       {/* Application Status Alert */}
-      {application && (
-        <div className={`mb-8 p-4 rounded-lg flex justify-between items-center ${
-          application.status === 'approved' ? 'bg-green-100 text-green-800' :
-          application.status === 'rejected' ? 'bg-red-100 text-red-800' :
-          'bg-yellow-100 text-yellow-800'
+      {(application || status === "success") && (
+        <div className={`mb-8 p-6 rounded-2xl flex justify-between items-center shadow-sm border-2 ${
+          (application?.status === 'approved' || application?.status === 'active') ? 'bg-green-50 text-green-700 border-green-200' :
+          application?.status === 'rejected' ? 'bg-red-50 text-red-700 border-red-200' :
+          'bg-amber-50 text-amber-700 border-amber-200 animate-pulse'
         }`}>
-          <div>
-            <span className="font-bold">Application Status: </span>
-            <span className="capitalize">{application.status}</span>
-            {application.rejection_reason && (
-                <p className="text-sm mt-1">Reason: {application.rejection_reason}</p>
-            )}
+          <div className="flex items-center gap-4">
+            <div className={`w-3 h-3 rounded-full ${
+                (application?.status === 'approved' || application?.status === 'active') ? 'bg-green-500' :
+                application?.status === 'rejected' ? 'bg-red-500' : 'bg-amber-500'
+            }`} />
+            <div>
+                <p className="text-sm font-semibold uppercase tracking-wider opacity-70">Application Status</p>
+                <h4 className="text-xl font-bold capitalize">
+                    {application?.status === 'submitted' ? 'Pending Approval' : (application?.status || 'Processing')}
+                </h4>
+                {application?.rejection_reason && (
+                    <p className="mt-2 text-sm bg-white/50 p-2 rounded-lg border border-red-100 italic">
+                        " {application.rejection_reason} "
+                    </p>
+                )}
+            </div>
           </div>
-          <p className="text-xs uppercase tracking-wider font-semibold opacity-70">Case #{application.id}</p>
+          {application?.id && (
+            <p className="text-sm font-mono bg-white/50 px-3 py-1 rounded-full border border-inherit">
+                REF: #{application.id}
+            </p>
+          )}
         </div>
       )}
 
-      {status === "success" ? (
-        <div className="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
-          <h2 className="text-3xl font-bold text-green-600 mb-4">Application Submitted!</h2>
-          <p className="text-gray-600 max-w-md mx-auto">
-            Thank you for applying. Our team will review your organization and get back to you shortly.
+      {status === "success" && !application ? (
+        <div className="text-center py-24 bg-gradient-to-b from-green-50 to-white rounded-3xl border-2 border-green-100 shadow-xl">
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 className="text-3xl font-extrabold text-gray-900 mb-4">Submission Successful!</h2>
+          <p className="text-gray-600 max-w-md mx-auto text-lg leading-relaxed">
+            Your application has been logged into our system. Our administrators will review the details and provide feedback shortly.
           </p>
-          <button 
-            onClick={() => setStatus("idle")}
-            className="mt-8 bg-red-600 text-white px-10 py-3 rounded-full hover:bg-red-700 transition font-bold"
-          >
-            Submit Another Application
-          </button>
+          <div className="mt-10 p-6 bg-amber-50 rounded-2xl border border-amber-100 inline-block">
+             <p className="text-amber-800 font-bold flex items-center gap-2">
+                <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-ping" />
+                Current Status: Pending Admin Review
+             </p>
+          </div>
         </div>
+      ) : application ? (
+         <div className="bg-gray-50 p-12 rounded-3xl border-2 border-gray-100 text-center">
+            <h2 className="text-2xl font-bold mb-4">Manage Your Charity</h2>
+            <p className="text-gray-500 mb-8">
+                {application.status === 'submitted' 
+                    ? "Your application is currently being reviewed. You'll be notified once an admin takes action." 
+                    : "Your organization is now part of the SheNeeds network."}
+            </p>
+            {(application.status === 'approved' || application.status === 'active') && (
+                <button 
+                  onClick={() => navigate(ROUTES.CHARITIES)}
+                  className="bg-red-600 text-white px-8 py-3 rounded-full font-bold shadow-lg"
+                >
+                    Go to Dashboard
+                </button>
+            )}
+         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-16">
           

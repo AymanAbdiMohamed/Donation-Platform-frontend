@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { 
   getDonorStats, 
@@ -16,8 +17,11 @@ import {
  * 
  * We use 'useState' to manage data and 'useEffect' to fetch it when the page loads.
  */
+const ROLES_TEXT = { donor: 'Donor', charity: 'Charity', admin: 'Admin' };
+
 function DonorDashboard() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   
   /**
    * REACT STATE (Think of this as the component's memory)
@@ -109,13 +113,25 @@ function DonorDashboard() {
   return (
     <div className="max-w-7xl mx-auto p-6 md:p-12 bg-gray-50 min-h-screen">
       {/* Header Section */}
-      <header className="mb-10">
-        <h1 className="text-4xl font-extrabold text-gray-900">
-          Welcome back, <span className="text-red-600">{user?.email?.split('@')[0]}</span>!
-        </h1>
-        <p className="text-gray-600 mt-2 text-lg">
-          Here's the impact you've made so far.
-        </p>
+      <header className="mb-10 flex justify-between items-start">
+        <div>
+          <h1 className="text-4xl font-extrabold text-gray-900">
+            Welcome back, <span className="text-red-600">{user?.email?.split('@')[0]}</span>!
+          </h1>
+          <p className="text-gray-600 mt-2 text-lg">
+            Here's the impact you've made so far.
+          </p>
+        </div>
+        <button 
+          onClick={() => {
+            logout();
+            navigate("/login");
+          }}
+          className="flex items-center gap-2 text-gray-500 hover:text-red-600 transition font-bold bg-white px-6 py-2 rounded-full border border-gray-100 shadow-sm"
+        >
+          <LogOut className="w-5 h-5" />
+          Logout
+        </button>
       </header>
 
       {/* STAT CARDS */}
