@@ -1,10 +1,23 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import CharityCard from "../components/CharityCard";
+import { getCharities } from "../api";
+import { APPLICATION_STATUS, ROUTES } from "../constants";
+import { Button } from "../components/ui/button";
+import {
+  Heart,
+  Loader2,
+  AlertCircle,
+  Building2,
+  ArrowLeft,
+} from "lucide-react";
+
 import CharityCard from "@/components/CharityCard";
 import { getCharities } from "@/api/charity";
 import { ROUTES } from "@/constants";
 import { Button } from "@/components/ui/button";
 import { Heart, Loader2, AlertCircle, Building2, ArrowLeft, ArrowRight } from "lucide-react";
+
 
 function Charities() {
   const [charities, setCharities] = useState([]);
@@ -16,8 +29,12 @@ function Charities() {
       try {
         setLoading(true);
         setError(null);
-        const data = await getCharities();
-        setCharities(data.charities || []);
+
+        const data = await getCharities({
+          status: APPLICATION_STATUS.APPROVED,
+        });
+
+        setCharities(data?.charities || data || []);
       } catch (err) {
         console.error("Failed to fetch charities:", err);
         setError("Failed to load charities. Please try again later.");
@@ -65,10 +82,14 @@ function Charities() {
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#EC4899] to-[#DB2777] shadow-pink group-hover:shadow-pink-lg transition-shadow">
                 <Heart className="h-5 w-5 text-white fill-white" />
               </div>
+
+              <span className="text-xl font-bold">
+                <span className="text-primary">She</span>Needs
               <span className="text-xl font-bold tracking-tight">
                 <span className="text-[#EC4899]">She</span><span className="text-[#1F2937]">Needs</span>
               </span>
             </Link>
+
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="sm" asChild className="text-[#4B5563] hover:text-[#EC4899] hover:bg-[#FDF2F8] rounded-lg">
                 <Link to={ROUTES.HOME}>
@@ -76,6 +97,10 @@ function Charities() {
                   Home
                 </Link>
               </Button>
+
+
+              <Button size="sm" className="rounded-xl shadow-sm" asChild>
+                <Link to={ROUTES.LOGIN}>Sign In</Link>
               <Button size="sm" asChild className="rounded-xl bg-[#EC4899] hover:bg-[#DB2777] text-white shadow-pink">
                 <Link to={ROUTES.LOGIN}>
                   Sign In
@@ -86,6 +111,18 @@ function Charities() {
           </div>
         </div>
       </header>
+
+      {/* Main */}
+      <main className="container mx-auto px-4 py-10">
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 mb-4">
+            <Building2 className="h-6 w-6 text-primary" />
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
+            Approved Charities
+          </h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Support verified organizations making a difference in menstrual
 
       {/* Hero */}
       <div className="relative overflow-hidden bg-gradient-to-b from-[#FDF2F8] to-white">
@@ -99,6 +136,7 @@ function Charities() {
           </h2>
           <p className="text-[#4B5563] max-w-2xl mx-auto text-lg">
             Support verified organizations that are making a difference in menstrual health education and access.
+
           </p>
         </div>
       </div>
