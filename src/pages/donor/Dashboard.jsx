@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { useToast } from "../../components/ui/toast";
 import { getDonorDashboard, getDonationReceipt } from "../../api/donor";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +13,7 @@ import { formatCurrency, formatCurrencyCompact } from "@/lib/currency";
 
 function DonorDashboard() {
   const { user } = useAuth();
+  const { toast } = useToast();
 
   const [stats, setStats] = useState({
     total_donated_kes: 0,
@@ -74,7 +76,7 @@ function DonorDashboard() {
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Failed to download receipt:", err);
-      alert("Could not download receipt. Please try again.");
+      toast.error("Download Failed", "Could not download receipt. Please try again.");
     }
   };
 

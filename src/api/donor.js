@@ -38,6 +38,17 @@ export const getDonationStatus = async (donationId) => {
 };
 
 /**
+ * Poll donation status by checkout request ID
+ * This is the preferred method right after STK Push initiation
+ * @param {string} checkoutId - Checkout request ID from STK Push response
+ * @returns {Promise<Object>} { id, status, mpesa_receipt_number, amount_kes, charity_name, failure_reason }
+ */
+export const getDonationStatusByCheckout = async (checkoutId) => {
+  const response = await api.get(`/api/donations/status/${checkoutId}`);
+  return response.data;
+};
+
+/**
  * Create a donation (simple flow — amount in cents, no M-Pesa)
  * @param {Object} donationData - { charity_id, amount, message, is_anonymous }
  * @returns {Promise<Object>} { message, donation }

@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { AuthProvider } from './context/AuthContext'
+import { ToastProvider } from './components/ui/toast'
 import ErrorBoundary from './components/ErrorBoundary'
 import App from './App'
 import './index.css'
@@ -8,9 +9,11 @@ import './index.css'
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </ToastProvider>
     </ErrorBoundary>
   </React.StrictMode>,
 )

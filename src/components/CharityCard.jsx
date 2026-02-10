@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Heart, MapPin, Users, Shield, ArrowRight } from "lucide-react";
+import { useToast } from "@/components/ui/toast";
 import DonationModal from "./DonationModal";
 
 /**
@@ -17,6 +18,7 @@ import DonationModal from "./DonationModal";
  */
 function CharityCard({ charity, onDonate }) {
   const [showModal, setShowModal] = useState(false);
+  const { toast } = useToast();
 
   const handleDonate = () => {
     if (onDonate) {
@@ -27,7 +29,7 @@ function CharityCard({ charity, onDonate }) {
   };
 
   const handleDonationSuccess = () => {
-    alert("Thank you for your donation!");
+    toast.success("Thank you!", "Your donation has been received successfully.");
   };
 
   const description =
