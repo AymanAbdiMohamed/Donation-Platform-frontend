@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useToast } from "../../components/ui/toast";
 import { ROUTES } from "../../constants";
 import {
   getApplications,
@@ -34,6 +35,7 @@ import {
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
@@ -80,9 +82,10 @@ export default function AdminDashboard() {
     setActionLoading(id);
     try {
       await approveApplication(id);
+      toast.success("Application Approved", "The charity has been approved and notified.");
       await fetchData();
     } catch (err) {
-      alert("Failed to approve application: " + (err.response?.data?.message || err.message));
+      toast.error("Approval Failed", err.response?.data?.message || err.message);
     } finally {
       setActionLoading(false);
     }
@@ -96,9 +99,10 @@ export default function AdminDashboard() {
       setIsRejectModalOpen(false);
       setRejectionReason("");
       setSelectedApp(null);
+      toast.success("Application Rejected", "The charity has been notified.");
       await fetchData();
     } catch (err) {
-      alert("Failed to reject application: " + (err.response?.data?.message || err.message));
+      toast.error("Rejection Failed", err.response?.data?.message || err.message);
     } finally {
       setActionLoading(false);
     }
