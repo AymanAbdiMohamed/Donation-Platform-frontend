@@ -7,7 +7,7 @@
 # Updated: February 10, 2026
 
 services:
-  - type: static_site
+  - type: web
     name: donation-platform-frontend
     branch: ayman/dev  # Auto-deploy from this branch
     
