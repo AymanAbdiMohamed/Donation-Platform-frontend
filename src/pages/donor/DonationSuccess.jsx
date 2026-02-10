@@ -178,7 +178,7 @@ function DonationSuccess() {
                 size="lg"
                 className="rounded-xl w-full bg-[#EC4899] hover:bg-[#DB2777] text-white shadow-pink"
               >
-                <Link to="/donor/browse">
+                <Link to="/browse-charities">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Try Again
                 </Link>
