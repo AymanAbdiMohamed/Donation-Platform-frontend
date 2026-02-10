@@ -26,7 +26,8 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
-    if (token) {
+    // Only attach a real token — never send "Bearer null" / "Bearer undefined"
+    if (token && token !== 'undefined' && token !== 'null') {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -38,7 +39,21 @@ api.interceptors.request.use(
 
 // Response interceptor - handle common error scenarios
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Guard: if we expected JSON but got HTML back, the request likely
+    // hit the frontend domain instead of the backend (VITE_API_URL not set).
+    const ct = response.headers?.['content-type'] || '';
+    if (!ct.includes('application/json') && typeof response.data === 'string' && response.data.trimStart().startsWith('<!')) {
+      const err = new Error(
+        'API request returned an HTML page instead of JSON. ' +
+        'This usually means VITE_API_URL is not configured — requests are hitting the frontend domain instead of the backend.'
+      );
+      err.isConfigError = true;
+      err.userMessage = 'Unable to reach the API server. Please contact support.';
+      return Promise.reject(err);
+    }
+    return response;
+  },
   (error) => {
     // Network error (server unreachable, no internet)
     if (!error.response) {
@@ -48,12 +63,22 @@ api.interceptors.response.use(
     }
 
     const status = error.response?.status;
-    const serverError = error.response?.data?.error || '';
+    const data = error.response?.data;
+
+    // If the error response body is HTML (not JSON), the request likely
+    // went to the wrong server (frontend domain instead of backend).
+    if (typeof data === 'string' && data.trimStart().startsWith('<!')) {
+      error.isConfigError = true;
+      error.userMessage = 'Unable to reach the API server. Please contact support.';
+      return Promise.reject(error);
+    }
+
+    const serverError = data?.error || '';
 
     // Handle 401 Unauthorized
     if (status === 401) {
       const isTokenExpired = serverError === 'Token expired';
-      const isTokenInvalid = ['Invalid token', 'Token revoked'].includes(serverError);
+      const isTokenInvalid = ['Invalid token', 'Token revoked', 'Authorization required'].includes(serverError);
 
       if (isTokenExpired || isTokenInvalid) {
         // Session ended — clear token and redirect
@@ -69,7 +94,7 @@ api.interceptors.response.use(
 
       error.userMessage = isTokenExpired
         ? 'Your session has expired. Please sign in again.'
-        : error.response?.data?.message || error.response?.data?.error || 'Authentication required.';
+        : data?.message || data?.error || 'Authentication required.';
     }
 
     // Rate limited
@@ -80,8 +105,8 @@ api.interceptors.response.use(
     // Surface backend error message for all errors (general fallback)
     if (!error.userMessage) {
       error.userMessage =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
+        data?.message ||
+        data?.error ||
         (status >= 500
           ? 'Something went wrong on our end. Please try again later.'
           : 'An unexpected error occurred.');
