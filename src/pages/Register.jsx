@@ -26,16 +26,16 @@ function Register() {
     setError(null);
     setLoading(true);
     try {
-      const response = await registerUser(
+      const user = await registerUser(
         formData.email,
         formData.password,
         formData.role
       );
-      if (response?.user?.role) {
-        navigate(getRedirectPath(response.user.role));
+      if (user?.role) {
+        navigate(getRedirectPath(user.role));
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed. Please try again.");
+      setError(err.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }

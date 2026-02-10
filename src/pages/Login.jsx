@@ -19,12 +19,12 @@ function Login() {
     setError(null);
     setLoading(true);
     try {
-      const response = await login(email, password);
-      if (response?.user?.role) {
-        navigate(getRedirectPath(response.user.role));
+      const user = await login(email, password);
+      if (user?.role) {
+        navigate(getRedirectPath(user.role));
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid credentials. Please try again.");
+      setError(err.message || "Invalid credentials. Please try again.");
     } finally {
       setLoading(false);
     }
