@@ -8,7 +8,7 @@
  * - Token lifecycle management
  */
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { loginUser, registerUser, getMe } from '../api';
+import { loginUser, registerUser, getMe } from '../api/auth';
 import { STORAGE_KEYS, ROUTES, ROLES } from '../constants';
 
 const AuthContext = createContext(null);
@@ -76,15 +76,23 @@ export function AuthProvider({ children }) {
 
     try {
       const data = await loginUser({ email, password });
-      
+
+      // Validate response shape — prevents storing garbage from wrong server
+      if (!data?.access_token || !data?.user) {
+        throw { userMessage: 'Login failed — unexpected server response.' };
+      }
+
       localStorage.setItem(STORAGE_KEYS.TOKEN, data.access_token);
       setUser(data.user);
 
       return data.user;
     } catch (err) {
-      const status = err.response?.status;
-      let message = err.response?.data?.error || 'Login failed';
-      if (status === 401) message = 'Invalid credentials';
+      const message =
+        err.isNetworkError || err.isConfigError
+          ? err.userMessage
+          : err.response?.data?.message ||
+            err.userMessage ||
+            'Login failed';
 
       setError(message);
       throw new Error(message);
@@ -102,15 +110,23 @@ export function AuthProvider({ children }) {
 
     try {
       const data = await registerUser({ email, password, role });
-      
+
+      // Validate response shape — prevents storing garbage from wrong server
+      if (!data?.access_token || !data?.user) {
+        throw { userMessage: 'Registration failed — unexpected server response.' };
+      }
+
       localStorage.setItem(STORAGE_KEYS.TOKEN, data.access_token);
       setUser(data.user);
 
       return data.user;
     } catch (err) {
-      const status = err.response?.status;
-      let message = err.response?.data?.error || 'Registration failed';
-      if (status === 422) message = 'Validation error';
+      const message =
+        err.isNetworkError || err.isConfigError
+          ? err.userMessage
+          : err.response?.data?.message ||
+            err.userMessage ||
+            'Registration failed';
 
       setError(message);
       throw new Error(message);

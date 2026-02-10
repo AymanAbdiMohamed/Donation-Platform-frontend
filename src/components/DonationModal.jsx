@@ -1,126 +1,240 @@
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Heart, Loader2, Phone, Smartphone } from "lucide-react";
 
 /**
- * DONATION MODAL (The Popup)
- * 
+ * Donation Modal — M-Pesa STK Push flow.
+ *
  * Props:
- * - charity: The specific charity being donated to
- * - isOpen: Boolean that tells us if we should show this modal
- * - onClose: Function to close the modal
- * - onConfirm: Function to send the donation data to the server
+ * - charity: Charity object
+ * - open: Boolean to show/hide modal
+ * - onClose: Function to close modal
+ * - onConfirm: (amount, phoneNumber, message, isAnonymous) => Promise
  */
-function DonationModal({ charity, isOpen, onClose, onConfirm }) {
-  // 'amount' holds the text in the input box
+export default function DonationModal({
+  charity,
+  open,
+  onClose,
+  onConfirm,
+}) {
   const [amount, setAmount] = useState("");
-  // 'isSubmitting' tracks if the API call is in progress (so we can disable buttons)
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  // Shortcuts for the donor to quickly pick a common amount
-  const quickAmounts = [10, 25, 50, 100];
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [message, setMessage] = useState("");
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  // If 'isOpen' is false, we don't render ANYTHING (the modal disappears)
-  if (!isOpen) return null;
+  // KES quick amounts relevant for Kenyan donations
+  const quickAmounts = [100, 250, 500, 1000];
 
   /**
-   * Logic to handle the 'Confirm' click
+   * Normalise a Kenyan phone number to 254XXXXXXXXX.
+   * Accepts: 0712345678, +254712345678, 254712345678
    */
-  const handleConfirm = async () => {
-    // 1. Convert the text input to a real number
-    const numericAmount = parseFloat(amount);
-    
-    // 2. Simple validation: make sure it's a positive number
-    if (!numericAmount || numericAmount <= 0) {
-      alert("Please enter a valid donation amount.");
+  const normalisePhone = (raw) => {
+    let cleaned = raw.replace(/[\s\-()]/g, "");
+    if (cleaned.startsWith("+")) cleaned = cleaned.slice(1);
+    if (cleaned.startsWith("0")) cleaned = "254" + cleaned.slice(1);
+    return cleaned;
+  };
+
+  const isValidPhone = (raw) => /^254\d{9}$/.test(normalisePhone(raw));
+
+  const resetForm = () => {
+    setAmount("");
+    setPhoneNumber("");
+    setMessage("");
+    setIsAnonymous(false);
+    setError("");
+  };
+
+  const handleClose = () => {
+    if (!loading) {
+      resetForm();
+      onClose();
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    const amountNum = parseInt(amount, 10);
+    if (!amountNum || amountNum < 1) {
+      setError("Please enter a valid amount (minimum KES 1)");
       return;
     }
 
-    // 3. Start the submission process
-    setIsSubmitting(true);
+    if (!phoneNumber.trim()) {
+      setError("Please enter your M-Pesa phone number");
+      return;
+    }
+
+    if (!isValidPhone(phoneNumber)) {
+      setError("Invalid phone number. Use format 07XXXXXXXX or 254XXXXXXXXX");
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      // Call the function passed down from the parent (BrowseCharities)
-      await onConfirm(numericAmount);
+      await onConfirm(amountNum, normalisePhone(phoneNumber), message, isAnonymous);
+      resetForm();
     } catch (err) {
-      // Error handling is handled here locally for the modal UI
       console.error("Donation failed:", err);
-      alert("Something went wrong. Please try again.");
+      // Backend returns { error: "...", message: "..." } on failure
+      const serverMsg =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        err.userMessage ||
+        "Donation failed. Please try again.";
+      setError(serverMsg);
     } finally {
-      // Stop the 'Loading' state when finished (success or failure)
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      ></div>
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <div className="rounded-lg bg-primary/10 p-1.5">
+              <Heart className="h-4 w-4 text-primary" />
+            </div>
+            Donate to {charity?.name}
+          </DialogTitle>
+          <DialogDescription>
+            Your contribution helps provide essential menstrual hygiene products
+            to girls in need. Payment via M-Pesa.
+          </DialogDescription>
+        </DialogHeader>
 
-      {/* Modal Content */}
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md relative z-10 overflow-hidden animate-in fade-in zoom-in duration-200">
-        {/* Header */}
-        <div className="bg-red-600 p-8 text-white text-center">
-          <h2 className="text-2xl font-bold">Make a Donation</h2>
-          <p className="opacity-90 mt-1">To: {charity?.name}</p>
-        </div>
-
-        <div className="p-8 space-y-8">
-          {/* Quick Selection */}
-          <div className="grid grid-cols-4 gap-3">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Quick Amounts (KES) */}
+          <div className="grid grid-cols-4 gap-2">
             {quickAmounts.map((amt) => (
-              <button
+              <Button
                 key={amt}
+                type="button"
+                variant={amount == amt ? "default" : "outline"}
+                className={amount == amt ? "shadow-md shadow-primary/20" : ""}
                 onClick={() => setAmount(amt.toString())}
-                className={`py-3 rounded-xl font-bold transition-all ${
-                  amount === amt.toString() 
-                    ? "bg-red-600 text-white scale-105" 
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                disabled={loading}
               >
-                ${amt}
-              </button>
+                KES {amt}
+              </Button>
             ))}
           </div>
 
-          {/* Custom Amount Input */}
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xl">$</span>
-            <input
+          {/* Custom Amount */}
+          <div className="space-y-2">
+            <Label htmlFor="amount">Amount (KES)</Label>
+            <Input
+              id="amount"
               type="number"
+              placeholder="500"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder="Enter custom amount"
-              className="w-full bg-gray-50 border-2 border-gray-100 p-4 pl-10 rounded-2xl focus:outline-none focus:border-red-300 text-xl font-bold text-gray-900 transition"
+              required
+              min="1"
+              step="1"
+              disabled={loading}
             />
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-4">
-            <button
-              onClick={onClose}
-              disabled={isSubmitting}
-              className="flex-1 py-4 text-gray-500 font-bold hover:bg-gray-50 rounded-2xl transition"
+          {/* Phone Number */}
+          <div className="space-y-2">
+            <Label htmlFor="phone" className="flex items-center gap-1.5">
+              <Phone className="h-3.5 w-3.5" />
+              M-Pesa Phone Number
+            </Label>
+            <Input
+              id="phone"
+              type="tel"
+              placeholder="0712345678"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              required
+              disabled={loading}
+            />
+            <p className="text-xs text-muted-foreground">
+              You&apos;ll receive an STK push on this number to confirm payment.
+            </p>
+          </div>
+
+          {/* Message */}
+          <div className="space-y-2">
+            <Label htmlFor="message">Message (optional)</Label>
+            <Input
+              id="message"
+              placeholder="Optional message to the charity"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              disabled={loading}
+            />
+          </div>
+
+          {/* Anonymous */}
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="anonymous"
+              checked={isAnonymous}
+              onCheckedChange={setIsAnonymous}
+              disabled={loading}
+            />
+            <Label
+              htmlFor="anonymous"
+              className="text-sm font-normal cursor-pointer"
+            >
+              Make this donation anonymous
+            </Label>
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div className="bg-destructive/10 text-destructive p-3 rounded-xl text-sm border border-destructive/20">
+              {error}
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              disabled={loading}
+              className="flex-1"
             >
               Cancel
-            </button>
-            <button
-              onClick={handleConfirm}
-              disabled={isSubmitting}
-              className="flex-[2] bg-red-600 text-white py-4 rounded-2xl font-bold hover:bg-black transition-all shadow-xl shadow-red-100 disabled:opacity-50"
-            >
-              {isSubmitting ? "Processing..." : "Confirm Donation"}
-            </button>
+            </Button>
+            <Button type="submit" disabled={loading} className="flex-1">
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sending STK Push...
+                </>
+              ) : (
+                <>
+                  <Smartphone className="mr-2 h-4 w-4" />
+                  Pay KES {amount || "0"}
+                </>
+              )}
+            </Button>
           </div>
-        </div>
-
-        {/* Security Note */}
-        <div className="bg-gray-50 p-4 text-center text-[10px] text-gray-400 uppercase tracking-widest font-bold">
-          Secure Payment Processing
-        </div>
-      </div>
-    </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
-
-export default DonationModal;

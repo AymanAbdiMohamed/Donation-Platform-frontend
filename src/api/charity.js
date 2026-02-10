@@ -26,14 +26,53 @@ export const getCharityApplication = async () => {
 
 /**
  * Submit charity application
- * @param {FormData} formData - Multipart form data with application details
+ * @param {Object} applicationData - Application data object
  * @returns {Promise<Object>} Created application
  */
 export const submitCharityApplication = async (formData) => {
-  const response = await api.post(API_ENDPOINTS.CHARITY_APPLICATION, formData, {
+  const response = await api.post('/charity/apply', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   });
+  return response.data;
+};
+
+/**
+ * Get charity profile
+ * @returns {Promise<{charity: Object}>}
+ */
+export const getCharityProfile = async () => {
+  const response = await api.get('/charity/profile');
+  return response.data;
+};
+
+/**
+ * Update charity profile
+ * @param {Object} updates - { name, description }
+ * @returns {Promise<Object>} Updated charity
+ */
+export const updateCharityProfile = async (updates) => {
+  const response = await api.put('/charity/profile', updates);
+  return response.data;
+};
+
+/**
+ * Get received donations
+ * @param {number} limit - Optional limit
+ * @returns {Promise<{donations: []}>}
+ */
+export const getReceivedDonations = async (limit) => {
+  const params = limit ? { limit } : {};
+  const response = await api.get('/charity/donations', { params });
+  return response.data;
+};
+
+/**
+ * Get charity dashboard with stats
+ * @returns {Promise<Object>} Dashboard data
+ */
+export const getCharityDashboard = async () => {
+  const response = await api.get('/charity/dashboard');
   return response.data;
 };

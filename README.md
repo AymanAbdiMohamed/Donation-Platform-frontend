@@ -1,6 +1,21 @@
 # SheNeeds - Donation Platform Frontend
 
-Modern React frontend for the SheNeeds Donation Platform, built with Vite and shadcn/ui.
+Modern React frontend for the SheNeeds Donation Platform - empowering donors to support verified charities focused on menstrual health education and access.
+
+## 📖 About
+
+SheNeeds is a user-friendly donation platform that connects generous donors with verified charitable organizations dedicated to improving menstrual health education and access. The frontend provides an intuitive interface for donors to discover charities, make donations, and track their impact.
+
+### Key Features
+
+- 🎨 **Modern UI** - Clean, responsive design built with shadcn/ui and Tailwind CSS
+- 🔐 **Secure Authentication** - JWT-based authentication with protected routes
+- 👥 **Role-Based Access** - Tailored dashboards for donors, charities, and administrators
+- 🏢 **Charity Applications** - Streamlined application process for charitable organizations
+- 💳 **Donation Flow** - Intuitive donation interface with charity profiles
+- 📊 **Dashboard Analytics** - Real-time statistics and donation tracking
+- 📱 **Responsive Design** - Optimized for desktop, tablet, and mobile devices
+- ⚡ **Fast Performance** - Built with Vite for lightning-fast development and builds
 
 ## Tech Stack
 
@@ -160,20 +175,26 @@ Key variables:
 
 ## Features
 
-### Donor Dashboard
-- View donation history (placeholder)
-- Browse approved charities
-- Make donations (placeholder)
+### 👤 Donor Dashboard
+- Browse verified active charities
+- View detailed charity profiles and impact metrics
+- Make secure donations to chosen charities
+- Track donation history and receipts
+- Save favorite charities for quick access
 
-### Charity Dashboard
-- Submit charity application form
-- Track application status
-- View received donations (placeholder)
+### 🏢 Charity Dashboard
+- Submit comprehensive charity application
+- Track application status (pending, approved, rejected)
+- Update charity profile and information
+- View received donations and donor analytics
+- Access dashboard statistics and insights
 
-### Admin Dashboard
-- Review pending applications
-- Approve/reject charities
-- Platform statistics (placeholder)
+### 🛡️ Admin Dashboard
+- Review pending charity applications
+- Approve or reject charity registrations
+- Monitor platform statistics and metrics
+- Manage user accounts and charity status
+- Access comprehensive platform analytics
 
 ## TODO Items
 
@@ -183,6 +204,115 @@ The codebase contains TODO comments for future features:
 - `FE3` - Search and filter functionality
 - `FE4` - Donation flow implementation
 
+## Deployment
+
+### Production Build
+
+```bash
+# Create optimized production build
+npm run build
+
+# Preview production build locally
+npm run preview
+```
+
+The build output will be in the `dist/` directory.
+
+### Environment Variables
+
+Create a `.env` file for environment-specific configuration:
+
+```env
+VITE_API_URL=https://your-api-domain.com
+```
+
+Update API URL in production:
+```js
+// src/api/axios.js
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+```
+
+### Deploy to Netlify/Vercel
+
+1. Build command: `npm run build`
+2. Publish directory: `dist`
+3. Set environment variable: `VITE_API_URL`
+
+### Deploy to Custom Server
+
+```bash
+# Build the app
+npm run build
+
+# Copy dist/ folder to your web server
+# Configure server to serve index.html for all routes (SPA)
+```
+
+## Troubleshooting
+
+### Common Issues
+
+**Module not found errors**
+```bash
+# Clear node_modules and reinstall
+rm -rf node_modules package-lock.json
+npm install
+```
+
+**API connection errors**
+- Verify backend is running at `http://localhost:5000`
+- Check CORS settings in backend
+- Inspect Network tab in browser DevTools
+
+**Authentication issues**
+- Clear localStorage: `localStorage.clear()`
+- Check token expiration in AuthContext
+- Verify JWT_SECRET_KEY matches backend
+
+**Build errors**
+```bash
+# Clear Vite cache
+rm -rf node_modules/.vite
+npm run dev
+```
+
+## Development Tips
+
+### Component Creation
+
+Follow shadcn/ui patterns for new components:
+```bash
+# Add new shadcn component
+npx shadcn-ui@latest add [component-name]
+```
+
+### Code Style
+
+- Use functional components with hooks
+- Implement proper error boundaries
+- Follow React best practices
+- Use Tailwind utility classes
+- Leverage shadcn/ui components
+
+### Performance
+
+- Lazy load routes with React.lazy()
+- Optimize images and assets
+- Use React.memo() for expensive components
+- Implement proper loading states
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
 ## License
 
 MIT
+
+---
+
+Built with ❤️ for menstrual health advocacy
