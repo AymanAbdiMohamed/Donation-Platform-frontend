@@ -8,11 +8,14 @@ dist/
 build/
 *.local
 
-# Environment variables
+# Environment variables (contains sensitive API URLs - NEVER commit)
 .env
 .env.local
+.env.development
 .env.development.local
+.env.test
 .env.test.local
+.env.production
 .env.production.local
 
 # Logs
