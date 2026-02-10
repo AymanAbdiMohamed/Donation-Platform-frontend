@@ -131,7 +131,7 @@ function Home() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
             {[
               { value: "50K+", label: "Girls Supported", icon: Users, color: "text-[#EC4899]", bg: "bg-[#FDF2F8]" },
-              { value: "$2M+", label: "Funds Raised", icon: TrendingUp, color: "text-[#22C55E]", bg: "bg-[#dcfce7]" },
+              { value: "KES 2M+", label: "Funds Raised", icon: TrendingUp, color: "text-[#22C55E]", bg: "bg-[#dcfce7]" },
               { value: "200+", label: "Partner Charities", icon: Heart, color: "text-[#F59E0B]", bg: "bg-[#fffbeb]" },
               { value: "12+", label: "Countries Reached", icon: Globe, color: "text-[#8B5CF6]", bg: "bg-[#f5f3ff]" },
             ].map((stat) => (
