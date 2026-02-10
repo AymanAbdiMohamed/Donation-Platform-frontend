@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { ROUTES } from "../../constants";
 import {
   getApplications,
   approveApplication,
@@ -148,7 +150,7 @@ export default function AdminDashboard() {
             size="sm" 
             onClick={() => {
               logout();
-              navigate("/login");
+              navigate(ROUTES.LOGIN);
             }}
             className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-100"
           >
