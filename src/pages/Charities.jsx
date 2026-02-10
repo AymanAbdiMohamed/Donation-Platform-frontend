@@ -47,7 +47,11 @@ function Charities() {
             <AlertCircle className="h-8 w-8 text-red-500" />
           </div>
           <p className="text-red-600 font-medium mb-4">{error}</p>
-          <Button variant="outline" onClick={() => window.location.reload()} className="rounded-xl border-[#FBB6CE]/30 hover:bg-[#FDF2F8]">
+          <Button
+            variant="outline"
+            onClick={() => window.location.reload()}
+            className="rounded-xl border-[#FBB6CE]/30 hover:bg-[#FDF2F8]"
+          >
             Try Again
           </Button>
         </div>
@@ -57,7 +61,6 @@ function Charities() {
 
   return (
     <div className="min-h-screen bg-[#FDF2F8]/50">
-      {/* Header */}
       <header className="border-b border-[#FBB6CE]/20 bg-white/80 backdrop-blur-lg sticky top-0 z-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between">
@@ -66,17 +69,27 @@ function Charities() {
                 <Heart className="h-5 w-5 text-white fill-white" />
               </div>
               <span className="text-xl font-bold tracking-tight">
-                <span className="text-[#EC4899]">She</span><span className="text-[#1F2937]">Needs</span>
+                <span className="text-[#EC4899]">She</span>
+                <span className="text-[#1F2937]">Needs</span>
               </span>
             </Link>
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" asChild className="text-[#4B5563] hover:text-[#EC4899] hover:bg-[#FDF2F8] rounded-lg">
+              <Button
+                variant="ghost"
+                size="sm"
+                asChild
+                className="text-[#4B5563] hover:text-[#EC4899] hover:bg-[#FDF2F8] rounded-lg"
+              >
                 <Link to={ROUTES.HOME}>
                   <ArrowLeft className="h-4 w-4 mr-1.5" />
                   Home
                 </Link>
               </Button>
-              <Button size="sm" asChild className="rounded-xl bg-[#EC4899] hover:bg-[#DB2777] text-white shadow-pink">
+              <Button
+                size="sm"
+                asChild
+                className="rounded-xl bg-[#EC4899] hover:bg-[#DB2777] text-white shadow-pink"
+              >
                 <Link to={ROUTES.LOGIN}>
                   Sign In
                   <ArrowRight className="ml-1 h-3.5 w-3.5" />
@@ -87,9 +100,8 @@ function Charities() {
         </div>
       </header>
 
-      {/* Hero */}
       <div className="relative overflow-hidden bg-gradient-to-b from-[#FDF2F8] to-white">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-[#EC4899]/5 blur-3xl -translate-y-1/2" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-[#EC4899]/5 blur-3xl -translate-y-1/2"></div>
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-14 text-center">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FDF2F8] to-[#FBB6CE]/30 mb-5">
             <Building2 className="h-6 w-6 text-[#EC4899]" />
@@ -103,7 +115,6 @@ function Charities() {
         </div>
       </div>
 
-      {/* Grid */}
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-16">
         {charities.length === 0 ? (
           <div className="text-center py-20 animate-fade-in-up">
