@@ -14,7 +14,7 @@ function DonorDashboard() {
   const { user } = useAuth();
 
   const [stats, setStats] = useState({
-    total_donated_dollars: 0,
+    total_donated_kes: 0,
     donation_count: 0,
     charities_supported: 0,
   });
@@ -49,7 +49,7 @@ function DonorDashboard() {
         `Receipt Number: ${receipt.receipt_number}`,
         `Date: ${receipt.date}`,
         ``,
-        `Amount: ${formatCurrency(receipt.amount_dollars || 0)}`,
+        `Amount: ${formatCurrency(receipt.amount_kes || 0)}`,
         `Charity: ${receipt.charity?.name}`,
         `Donor: ${receipt.is_anonymous ? "Anonymous" : receipt.donor?.name}`,
         ``,
@@ -107,7 +107,7 @@ function DonorDashboard() {
   const statCards = [
     {
       label: "Total Donated",
-      value: formatCurrencyCompact(stats.total_donated_dollars || 0),
+      value: formatCurrencyCompact(stats.total_donated_kes || 0),
       icon: DollarSign,
       color: "text-[#22C55E]",
       bg: "bg-[#dcfce7]",
@@ -219,7 +219,7 @@ function DonorDashboard() {
                           </td>
                           <td className="px-4 py-3.5">
                             <span className="font-bold text-[#22C55E]">
-                              {formatCurrency(donation.amount_dollars || 0)}
+                              {formatCurrency(donation.amount_kes || 0)}
                             </span>
                           </td>
                           <td className="px-4 py-3.5 text-[#9CA3AF] text-sm text-center hidden sm:table-cell">

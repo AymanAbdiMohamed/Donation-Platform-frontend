@@ -284,7 +284,7 @@ function CharityDashboard() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="annualBudget" className="text-[#1F2937]">Annual Budget *</Label>
-                    <Input id="annualBudget" name="annualBudget" placeholder="e.g. $50,000" value={formData.annualBudget} onChange={handleChange} required className="border-[#FBB6CE]/30 focus:border-[#EC4899] focus:ring-[#EC4899]/20 rounded-xl" />
+                    <Input id="annualBudget" name="annualBudget" placeholder="e.g. KES 5,000,000" value={formData.annualBudget} onChange={handleChange} required className="border-[#FBB6CE]/30 focus:border-[#EC4899] focus:ring-[#EC4899]/20 rounded-xl" />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[#1F2937]">Photos or Testimonials</Label>
