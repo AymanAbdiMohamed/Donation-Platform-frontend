@@ -19,9 +19,12 @@ function Login() {
     setError(null);
     setLoading(true);
     try {
-      const user = await login(email, password);
-      if (user?.role) {
-        navigate(getRedirectPath(user.role));
+      const returnedUser = await login(email, password);
+      if (returnedUser?.role) {
+        const redirectPath = getRedirectPath(returnedUser.role);
+        navigate(redirectPath);
+      } else {
+        setError("Login succeeded but user data is invalid.");
       }
     } catch (err) {
       setError(err.message || "Invalid credentials. Please try again.");
