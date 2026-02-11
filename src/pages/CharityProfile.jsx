@@ -1,21 +1,26 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../api/axios";
+import { getPublicStories } from "../api/stories";
 import CharityCard from "../components/CharityCard";
 import { ROUTES } from "../constants";
-import { Heart, ArrowLeft, Loader2, AlertCircle } from "lucide-react";
+import { Heart, ArrowLeft, Loader2, AlertCircle, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 function CharityProfile() {
   const { id } = useParams();
   const [charity, setCharity] = useState(null);
   const [error, setError] = useState(null);
+  const [stories, setStories] = useState([]);
 
   useEffect(() => {
     const fetchCharity = async () => {
       try {
         const response = await api.get(`/charities/${id}`);
         setCharity(response.data.charity);
+        const storiesData = await getPublicStories({ charity_id: id });
+        setStories(storiesData.stories || []);
       } catch (err) {
         console.error("Failed to load charity:", err);
         setError("Charity not found or unavailable.");
@@ -71,6 +76,29 @@ function CharityProfile() {
               {charity.name}
             </h1>
             <CharityCard charity={charity} />
+
+            {/* Beneficiary Stories */}
+            {stories.length > 0 && (
+              <div className="mt-10">
+                <div className="flex items-center gap-2 mb-4">
+                  <BookOpen className="h-5 w-5 text-[#EC4899]" />
+                  <h2 className="text-xl font-bold text-[#1F2937]">Beneficiary Stories</h2>
+                </div>
+                <div className="space-y-4">
+                  {stories.map((story) => (
+                    <Card key={story.id} className="border-[#FBB6CE]/10 hover:border-[#EC4899]/20 transition-all">
+                      <CardContent className="py-5">
+                        <h3 className="font-bold text-[#1F2937] mb-2">{story.title}</h3>
+                        <p className="text-sm text-[#4B5563] leading-relaxed">{story.content}</p>
+                        <p className="text-xs text-[#9CA3AF] mt-3">
+                          {story.created_at ? new Date(story.created_at).toLocaleDateString() : ""}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>
