@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Real Auth Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 20px auto; 
+            padding: 20px; 
+            background: #f0f0f0;
+        }
+        .test-status { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin: 20px 0; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success { color: #28a745; font-weight: bold; }
+        .error { color: #dc3545; font-weight: bold; }
+        .info { color: #17a2b8; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Real Authentication Test</h1>
+    
+    <div class="test-status">
+        <h3>Current Status</h3>
+        <div id="status">Preparing tests...</div>
+    </div>
+    
+    <div class="test-status">
+        <h3>Quick Tests</h3>
+        <button onclick="testAPI()">Test API Directly</button>
+        <button onclick="goToLogin()">Go to Login Page</button>
+        <button onclick="testRegister()">Test Register</button>
+        <div id="quick-results"></div>
+    </div>
+    
+    <div class="test-status">
+        <h3>Test Results</h3>
+        <div id="results">No tests run yet.</div>
+    </div>
+
+    <script>
+        function updateStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            status.innerHTML = `<div class="${className}">${message}</div>`;
+        }
+        
+        function updateResults(message, type = 'info') {
+            const results = document.getElementById('results');
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            const timestamp = new Date().toLocaleTimeString();
+            results.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+        }
+        
+        async function testAPI() {
+            updateStatus('Testing API...', 'info');
+            
+            try {
+                const response = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        password: 'password123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.access_token && data.user) {
+                    updateStatus('✅ API Working!', 'success');
+                    updateResults(`✅ API Test SUCCESS: ${data.user.email} (${data.user.role})`, 'success');
+                    localStorage.setItem('access_token', data.access_token);
+                } else {
+                    updateStatus('❌ API Failed', 'error');
+                    updateResults(`❌ API Test FAILED: ${JSON.stringify(data)}`, 'error');
+                }
+            } catch (error) {
+                updateStatus('❌ API Error', 'error');
+                updateResults(`❌ API Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function goToLogin() {
+            updateStatus('Navigating to login...', 'info');
+            window.location.href = '/login';
+        }
+        
+        async function testRegister() {
+            updateStatus('Testing register...', 'info');
+            
+            try {
+                const response = await fetch('/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: `test${Date.now()}@example.com`,
+                        password: 'password123',
+                        role: 'donor'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.access_token && data.user) {
+                    updateStatus('✅ Register Working!', 'success');
+                    updateResults(`✅ Register SUCCESS: ${data.user.email} (${data.user.role})`, 'success');
+                } else {
+                    updateStatus('❌ Register Failed', 'error');
+                    updateResults(`❌ Register FAILED: ${JSON.stringify(data)}`, 'error');
+                }
+            } catch (error) {
+                updateStatus('❌ Register Error', 'error');
+                updateResults(`❌ Register Error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Initial setup
+        window.onload = () => {
+            updateStatus('Ready to test authentication', 'info');
+            updateResults('Authentication test page loaded', 'info');
+            
+            const token = localStorage.getItem('access_token');
+            if (token) {
+                updateResults(`Found existing token: ${token.substring(0, 30)}...`, 'info');
+            }
+        };
+    </script>
+</body>
+</html>
