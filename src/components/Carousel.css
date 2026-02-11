@@ -1,0 +1,42 @@
+.carousel-container {
+  position: relative;
+  width: 100%;
+  max-width: 600px; /* adjust for dashboard */
+  height: 150px; /* must have height so it's visible */
+  margin: 20px auto;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff; /* optional: helps see the container */
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.carousel-slide img {
+  width: 120px;
+  height: auto;
+  transition: transform 0.5s ease-in-out;
+}
+
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem;
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 50%;
+  z-index: 10;
+  user-select: none;
+}
+
+.arrow.left {
+  left: 10px;
+}
+
+.arrow.right {
+  right: 10px;
+}

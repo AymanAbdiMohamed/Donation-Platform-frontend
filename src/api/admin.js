@@ -6,6 +6,17 @@ import api from './axios';
 import { API_ENDPOINTS } from '../constants';
 
 /**
+ * Get list of all charity applications (paginated)
+ * @param {string} status - Filter by status (pending, approved, rejected)
+ * @returns {Promise<Object>} Applications with pagination
+ */
+export const getApplications = async (status = null) => {
+  const params = status ? { status } : {};
+  const response = await api.get('/admin/applications', { params });
+  return response.data;
+};
+
+/**
  * Get list of pending charity applications
  * @returns {Promise<Array>} Array of pending applications
  */

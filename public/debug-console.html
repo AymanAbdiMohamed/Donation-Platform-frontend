@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Console</title>
+    <style>
+        body { font-family: monospace; max-width: 800px; margin: 20px auto; padding: 20px; }
+        button { margin: 5px; padding: 10px 15px; cursor: pointer; }
+        .output { background: #f5f5f5; padding: 10px; border-radius: 5px; margin: 10px 0; min-height: 100px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Authentication Debugging Console</h1>
+    
+    <div>
+        <button onclick="runLoginTest()">Test Login API</button>
+        <button onclick="runRegisterTest()">Test Register API</button>
+        <button onclick="checkStorage()">Check Storage</button>
+        <button onclick="clearAuth()">Clear Auth</button>
+        <button onclick="goToReactApp()">Go to React App</button>
+    </div>
+    
+    <div id="output" class="output">Ready for testing...</div>
+    
+    <script>
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            output.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        async function runLoginTest() {
+            log('Testing login API...', 'info');
+            try {
+                const response = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        password: 'password123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.access_token && data.user) {
+                    localStorage.setItem('access_token', data.access_token);
+                    log(`✅ Login successful! User: ${data.user.email}, Role: ${data.user.role}`, 'success');
+                    log(`Token stored. Should redirect to: /${data.user.role}`, 'success');
+                } else {
+                    log(`❌ Login failed: ${JSON.stringify(data)}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Login error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function runRegisterTest() {
+            log('Testing register API...', 'info');
+            try {
+                const email = `test${Date.now()}@example.com`;
+                const response = await fetch('/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        password: 'password123',
+                        role: 'donor'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.access_token && data.user) {
+                    localStorage.setItem('access_token', data.access_token);
+                    log(`✅ Register successful! User: ${data.user.email}, Role: ${data.user.role}`, 'success');
+                    log(`Token stored. Should redirect to: /${data.user.role}`, 'success');
+                } else {
+                    log(`❌ Register failed: ${JSON.stringify(data)}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Register error: ${error.message}`, 'error');
+            }
+        }
+        
+        function checkStorage() {
+            const token = localStorage.getItem('access_token');
+            if (token) {
+                log(`💾 Token found in localStorage: ${token.substring(0, 50)}...`, 'success');
+            } else {
+                log('💾 No token in localStorage', 'info');
+            }
+            
+            log(`💾 All localStorage keys: ${Object.keys(localStorage).join(', ')}`, 'info');
+        }
+        
+        function clearAuth() {
+            localStorage.removeItem('access_token');
+            log('🗑️ Auth token cleared from localStorage', 'info');
+        }
+        
+        function goToReactApp() {
+            log('🔄 Navigating to React login page...', 'info');
+            window.location.href = '/login';
+        }
+        
+        // Initial check
+        checkStorage();
+    </script>
+</body>
+</html>

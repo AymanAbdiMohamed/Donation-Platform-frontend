@@ -47,7 +47,6 @@ export function AuthProvider({ children }) {
         }
       } catch (err) {
         // Token is invalid or expired - clean up silently
-        console.warn('Token validation failed:', err.response?.status || err.message);
         localStorage.removeItem(STORAGE_KEYS.TOKEN);
         if (isMounted) {
           setUser(null);
@@ -193,4 +192,5 @@ export function useAuth() {
   return context;
 }
 
+// Keep default export for backwards compatibility
 export default AuthContext;

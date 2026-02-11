@@ -12,10 +12,11 @@ SheNeeds is a user-friendly donation platform that connects generous donors with
 - 🔐 **Secure Authentication** - JWT-based authentication with protected routes
 - 👥 **Role-Based Access** - Tailored dashboards for donors, charities, and administrators
 - 🏢 **Charity Applications** - Streamlined application process for charitable organizations
-- 💳 **Donation Flow** - Intuitive donation interface with charity profiles
+- 💳 **M-Pesa Integration** - STK Push for secure KES donations
 - 📊 **Dashboard Analytics** - Real-time statistics and donation tracking
 - 📱 **Responsive Design** - Optimized for desktop, tablet, and mobile devices
 - ⚡ **Fast Performance** - Built with Vite for lightning-fast development and builds
+- 🛡️ **Error Boundaries** - Graceful error handling with fallback UI
 
 ## Tech Stack
 
@@ -35,6 +36,7 @@ src/
 │   ├── axios.js              # Axios instance with JWT interceptor
 │   ├── auth.js               # Auth API (login, register, me)
 │   ├── charity.js            # Charity API (applications, profile)
+│   ├── donor.js              # Donor API (donations, M-Pesa)
 │   ├── admin.js              # Admin API (applications, users)
 │   └── index.js              # Barrel export
 ├── components/
@@ -49,22 +51,27 @@ src/
 │   │   ├── dropdown-menu.jsx
 │   │   └── index.js
 │   ├── layout/
-│   │   └── DashboardLayout.jsx
+│   │   └── DashboardLayout.jsx  # Mobile-responsive nav
 │   ├── charity/
 │   │   └── ApplicationFormSections.jsx
-│   └── CharityCard.jsx
+│   ├── CharityCard.jsx
+│   ├── DonationModal.jsx      # M-Pesa STK Push UI
+│   └── ErrorBoundary.jsx      # Error fallback UI
 ├── constants/
 │   └── index.js              # ROLES, ROUTES, API_ENDPOINTS
 ├── context/
 │   └── AuthContext.jsx       # Auth state management
 ├── lib/
-│   └── utils.js              # cn() utility for class merging
+│   ├── utils.js              # cn() utility for class merging
+│   └── currency.js           # KES formatting helpers
 ├── pages/
 │   ├── Login.jsx
 │   ├── Register.jsx
 │   ├── Charities.jsx
 │   ├── donor/
-│   │   └── Dashboard.jsx
+│   │   ├── Dashboard.jsx
+│   │   ├── BrowseCharities.jsx
+│   │   └── DonationSuccess.jsx
 │   ├── charity/
 │   │   └── Dashboard.jsx
 │   └── admin/
@@ -101,6 +108,53 @@ App runs at `http://localhost:5173` (or next available port)
 The app connects to the backend API at `http://localhost:5000` by default.
 
 To change, update `baseURL` in `src/api/axios.js`.
+
+## Recent Improvements (Feb 2026)
+
+### 🔧 Audit Fixes Applied
+
+**Backend Integration:**
+- ✅ Charity API now includes `region`, `image`, `verified` fields (backend aliases)
+- ✅ All charity list endpoints return consistent paginated format
+- ✅ Donor stats use `total_donated_kes` (KES-only platform)
+- ✅ Simplified response handling (removed conditional fallbacks)
+
+**UI/UX:**
+- ✅ Mobile-responsive hamburger navigation added to DashboardLayout
+- ✅ Error boundaries wrap entire app for graceful error handling
+- ✅ Currency display centralized via `formatCurrency()` helper (KES symbol)
+- ✅ Region filter now functional (backend provides `region` field)
+
+**API Changes:**
+```js
+// Charity response format (standardized)
+{
+  "charities": [...],
+  "pagination": {
+    "page": 1,
+    "per_page": 20,
+    "total": 50,
+    "pages": 3
+  }
+}
+
+// Donor stats field renamed
+{
+  "total_donated_kes": 5000.00,  // Was: total_donated_dollars
+  "donation_count": 12,
+  "charities_supported": 4
+}
+
+// Charity fields added (aliases)
+{
+  "name": "Example Charity",
+  "location": "Nairobi",
+  "logo_path": "/uploads/logo.png",
+  "region": "Nairobi",           // Alias for location
+  "image": "/uploads/logo.png",   // Alias for logo_path
+  "verified": true                 // All approved = verified
+}
+```
 
 ## Routes
 
@@ -150,7 +204,20 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu'
 ```
 
-## Path Aliases
+## Utilities
+
+### Currency Formatting
+
+Use centralized helpers for consistent KES display:
+
+```jsx
+import { formatCurrency, formatCurrencyCompact } from '@/lib/currency'
+
+formatCurrency(5000)        // "KES 5,000.00"
+formatCurrencyCompact(5000) // "KES 5K"
+```
+
+### Path Aliases
 
 The project uses `@` as an alias for `src/`:
 
@@ -176,24 +243,25 @@ Key variables:
 ## Features
 
 ### 👤 Donor Dashboard
-- Browse verified active charities
+- Browse verified active charities with region filtering
 - View detailed charity profiles and impact metrics
-- Make secure donations to chosen charities
-- Track donation history and receipts
-- Save favorite charities for quick access
+- Make secure M-Pesa STK Push donations (KES only)
+- Track donation history with status polling
+- Download donation receipts
+- Mobile-responsive charity cards with verified badges
 
 ### 🏢 Charity Dashboard
 - Submit comprehensive charity application
 - Track application status (pending, approved, rejected)
 - Update charity profile and information
-- View received donations and donor analytics
-- Access dashboard statistics and insights
+- View received donations with donor information
+- Access dashboard statistics (total donations in KES)
 
 ### 🛡️ Admin Dashboard
 - Review pending charity applications
-- Approve or reject charity registrations
+- Approve or reject charity registrations with reasons
 - Monitor platform statistics and metrics
-- Manage user accounts and charity status
+- Manage user accounts with pagination
 - Access comprehensive platform analytics
 
 ## TODO Items
@@ -261,13 +329,25 @@ npm install
 
 **API connection errors**
 - Verify backend is running at `http://localhost:5000`
-- Check CORS settings in backend
+- Check CORS settings in backend (`CORS_ORIGINS`)
 - Inspect Network tab in browser DevTools
+- Verify backend migrations are applied: `flask db upgrade`
 
 **Authentication issues**
 - Clear localStorage: `localStorage.clear()`
-- Check token expiration in AuthContext
+- Check token expiration in AuthContext (24h default)
 - Verify JWT_SECRET_KEY matches backend
+- Ensure backend is using latest migration with role constraints
+
+**Charity data issues**
+- Backend now provides `region`, `image`, `verified` aliases
+- All charities show as "verified" (approved = verified in MVP)
+- Region filter uses backend's `location` field (aliased as `region`)
+
+**Currency display issues**
+- All amounts should display with "KES" prefix
+- Use `formatCurrency()` from `@/lib/currency` for consistency
+- Backend returns `total_donated_kes` (not `*_dollars`)
 
 **Build errors**
 ```bash

@@ -30,10 +30,21 @@ export const initiateMpesaDonation = async ({
 /**
  * Poll donation status (used after STK Push to check if payment completed)
  * @param {number} donationId - ID of the donation
- * @returns {Promise<Object>} { id, status, mpesa_receipt_number, amount, amount_dollars, charity_name }
+ * @returns {Promise<Object>} { id, status, mpesa_receipt_number, amount, amount_kes, charity_name }
  */
 export const getDonationStatus = async (donationId) => {
   const response = await api.get(`/api/donations/${donationId}/status`);
+  return response.data;
+};
+
+/**
+ * Poll donation status by checkout request ID
+ * This is the preferred method right after STK Push initiation
+ * @param {string} checkoutId - Checkout request ID from STK Push response
+ * @returns {Promise<Object>} { id, status, mpesa_receipt_number, amount_kes, charity_name, failure_reason }
+ */
+export const getDonationStatusByCheckout = async (checkoutId) => {
+  const response = await api.get(`/api/donations/status/${checkoutId}`);
   return response.data;
 };
 
