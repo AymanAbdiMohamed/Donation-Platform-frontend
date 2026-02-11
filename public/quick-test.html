@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quick Auth Test</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Quick Authentication Test</h1>
+    
+    <button onclick="testLogin()">Test Login</button>
+    <button onclick="testRegister()">Test Register</button>
+    <button onclick="goToApp()">Go to React App</button>
+    
+    <div id="result"></div>
+
+    <script>
+        async function testLogin() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing login...';
+            
+            try {
+                const response = await fetch('http://localhost:5173/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        password: 'password123'
+                    })
+                });
+                
+                const data = await response.json();
+                console.log('Login result:', data);
+                
+                if (data.access_token && data.user) {
+                    localStorage.setItem('access_token', data.access_token);
+                    resultDiv.innerHTML = `
+                        <h3>✅ Login Success!</h3>
+                        <p>Email: ${data.user.email}</p>
+                        <p>Role: ${data.user.role}</p>
+                        <p>Token stored in localStorage</p>
+                        <p>Ready to navigate to /${data.user.role}</p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `❌ Login failed - Invalid response: ${JSON.stringify(data)}`;
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                resultDiv.innerHTML = `❌ Login error: ${error.message}`;
+            }
+        }
+        
+        async function testRegister() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing register...';
+            
+            try {
+                const response = await fetch('http://localhost:5173/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: `test${Date.now()}@example.com`,
+                        password: 'password123',
+                        role: 'donor'
+                    })
+                });
+                
+                const data = await response.json();
+                console.log('Register result:', data);
+                
+                if (data.access_token && data.user) {
+                    localStorage.setItem('access_token', data.access_token);
+                    resultDiv.innerHTML = `
+                        <h3>✅ Register Success!</h3>
+                        <p>Email: ${data.user.email}</p>
+                        <p>Role: ${data.user.role}</p>
+                        <p>Token stored in localStorage</p>
+                        <p>Ready to navigate to /${data.user.role}</p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `❌ Register failed - Invalid response: ${JSON.stringify(data)}`;
+                }
+            } catch (error) {
+                console.error('Register error:', error);
+                resultDiv.innerHTML = `❌ Register error: ${error.message}`;
+            }
+        }
+        
+        function goToApp() {
+            window.location.href = '/login';
+        }
+    </script>
+</body>
+</html>

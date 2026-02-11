@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Final Auth Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 600px; 
+            margin: 50px auto; 
+            padding: 20px; 
+            background: #f5f5f5;
+        }
+        .test-box { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        button { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 12px 24px; 
+            border-radius: 6px; 
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover { background: #0056b3; }
+        .success { color: #28a745; font-weight: bold; }
+        .error { color: #dc3545; font-weight: bold; }
+        .info { color: #17a2b8; }
+        .result { margin-top: 15px; padding: 10px; border-radius: 5px; background: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <h1>🎯 Final Authentication Test</h1>
+    
+    <div class="test-box">
+        <h3>Step 1: API Test</h3>
+        <button onclick="testAPI()">Test Auth API</button>
+        <div id="api-result" class="result"></div>
+    </div>
+    
+    <div class="test-box">
+        <h3>Step 2: React App Test</h3>
+        <button onclick="goToLoginPage()">Go to Login Page</button>
+        <button onclick="goToRegisterPage()">Go to Register Page</button>
+        <button onclick="goToTestComponent()">Go to Test Component</button>
+        <div id="react-result" class="result">
+            <div class="info">Click buttons above to test React components</div>
+        </div>
+    </div>
+    
+    <div class="test-box">
+        <h3>Step 3: Complete Flow Test</h3>
+        <button onclick="runCompleteTest()">Run Complete Auth Flow</button>
+        <div id="complete-result" class="result"></div>
+    </div>
+
+    <script>
+        function updateResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            element.innerHTML = `<div class="${className}">${message}</div>`;
+        }
+
+        async function testAPI() {
+            updateResult('api-result', 'Testing authentication API...', 'info');
+            
+            try {
+                // Test login
+                const loginResponse = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        password: 'password123'
+                    })
+                });
+                
+                const loginData = await loginResponse.json();
+                
+                if (loginData.access_token && loginData.user) {
+                    updateResult('api-result', `✅ API Test SUCCESS!<br/>User: ${loginData.user.email}<br/>Role: ${loginData.user.role}<br/>Token: ${loginData.access_token.substring(0, 30)}...`, 'success');
+                    
+                    // Store token for testing
+                    localStorage.setItem('access_token', loginData.access_token);
+                } else {
+                    updateResult('api-result', `❌ API Test FAILED: ${JSON.stringify(loginData)}`, 'error');
+                }
+                
+            } catch (error) {
+                updateResult('api-result', `❌ API Test ERROR: ${error.message}`, 'error');
+            }
+        }
+
+        function goToLoginPage() {
+            updateResult('react-result', 'Navigating to login page...', 'info');
+            window.location.href = '/login';
+        }
+
+        function goToRegisterPage() {
+            updateResult('react-result', 'Navigating to register page...', 'info');
+            window.location.href = '/register';
+        }
+
+        function goToTestComponent() {
+            updateResult('react-result', 'Navigating to test component...', 'info');
+            window.location.href = '/test-auth';
+        }
+
+        async function runCompleteTest() {
+            updateResult('complete-result', 'Running complete authentication flow test...', 'info');
+            
+            try {
+                // Step 1: Clear any existing auth
+                localStorage.removeItem('access_token');
+                
+                // Step 2: Test register
+                const registerEmail = `testuser${Date.now()}@example.com`;
+                const registerResponse = await fetch('/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: registerEmail,
+                        password: 'password123',
+                        role: 'donor'
+                    })
+                });
+                
+                const registerData = await registerResponse.json();
+                
+                if (!registerData.access_token || !registerData.user) {
+                    throw new Error(`Register failed: ${JSON.stringify(registerData)}`);
+                }
+                
+                // Step 3: Store token and test /auth/me
+                localStorage.setItem('access_token', registerData.access_token);
+                
+                const meResponse = await fetch('/auth/me', {
+                    headers: {
+                        'Authorization': `Bearer ${registerData.access_token}`
+                    }
+                });
+                
+                const meData = await meResponse.json();
+                
+                if (!meData.user) {
+                    throw new Error(`/auth/me failed: ${JSON.stringify(meData)}`);
+                }
+                
+                // Success!
+                updateResult('complete-result', `🎉 COMPLETE FLOW SUCCESS!<br/>
+                    ✅ Register: ${registerData.user.email}<br/>
+                    ✅ Token: Valid and stored<br/>
+                    ✅ /auth/me: Working<br/>
+                    ✅ Role: ${meData.user.role}<br/>
+                    🔄 Ready for dashboard redirect to /${meData.user.role}`, 'success');
+                
+            } catch (error) {
+                updateResult('complete-result', `❌ COMPLETE FLOW FAILED: ${error.message}`, 'error');
+            }
+        }
+
+        // Run initial API test
+        window.onload = () => {
+            // Check if we have a token already
+            const token = localStorage.getItem('access_token');
+            if (token) {
+                updateResult('api-result', `Found existing token: ${token.substring(0, 30)}...`, 'info');
+            }
+        };
+    </script>
+</body>
+</html>

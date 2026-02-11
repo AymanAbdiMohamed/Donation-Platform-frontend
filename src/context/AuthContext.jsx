@@ -192,4 +192,5 @@ export function useAuth() {
   return context;
 }
 
+// Keep default export for backwards compatibility
 export default AuthContext;
