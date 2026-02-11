@@ -3,7 +3,7 @@ import axios from "axios";
 /**
  * API Module – Backwards Compatibility Layer
  *
- * ⚠️ DEPRECATED
+ *  DEPRECATED
  * This file exists ONLY to support legacy imports.
  *
  * New code MUST import from:
