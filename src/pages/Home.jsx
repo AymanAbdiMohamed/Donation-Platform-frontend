@@ -1,10 +1,38 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { Heart, Shield, Users, TrendingUp, ArrowRight, Sparkles, Globe, BookOpen } from "lucide-react";
+import {
+  Heart,
+  Shield,
+  Users,
+  TrendingUp,
+  ArrowRight,
+  Sparkles,
+  Globe,
+  BookOpen,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import girl1 from "../assets/girl1.jpg";
+import girl2 from "../assets/girl2.jpg";
+import girl3 from "../assets/girl3.jpg";
+import girl4 from "../assets/girl4.jpg";
 
 function Home() {
   const { isAuthenticated, user, logout, getRedirectPath } = useAuth();
+  // Images for hero slideshow
+  const heroImages = [girl1, girl2, girl3, girl4];
+
+  // State to track current image
+  const [currentImage, setCurrentImage] = useState(0);
+
+  // Auto-change image every 4 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImage((prev) => (prev + 1) % heroImages.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -21,10 +49,16 @@ function Home() {
           </Link>
 
           <nav className="hidden sm:flex items-center gap-1">
-            <Link to="/" className="px-3 py-2 text-sm font-medium text-foreground/70 hover:text-primary rounded-lg hover:bg-primary/5 transition-colors">
+            <Link
+              to="/"
+              className="px-3 py-2 text-sm font-medium text-foreground/70 hover:text-primary rounded-lg hover:bg-primary/5 transition-colors"
+            >
               Home
             </Link>
-            <Link to="/charities" className="px-3 py-2 text-sm font-medium text-foreground/70 hover:text-primary rounded-lg hover:bg-primary/5 transition-colors">
+            <Link
+              to="/charities"
+              className="px-3 py-2 text-sm font-medium text-foreground/70 hover:text-primary rounded-lg hover:bg-primary/5 transition-colors"
+            >
               Charities
             </Link>
 
@@ -65,6 +99,23 @@ function Home() {
 
       {/* HERO SECTION */}
       <section className="relative overflow-hidden">
+        {/* Hero Background Image Slider */}
+        <div className="absolute inset-0 z-0">
+          {heroImages.map((img, index) => (
+            <img
+              key={index}
+              src={img}
+              alt="African school girls in uniform"
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                index === currentImage ? "opacity-100" : "opacity-0"
+              }`}
+            />
+          ))}
+
+          {/* Light overlay so text is readable */}
+          <div className="absolute inset-0 bg-white/80" />
+        </div>
+
         {/* Background decorations */}
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-white to-white" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-primary/5 blur-3xl -translate-y-1/2" />
@@ -86,21 +137,33 @@ function Home() {
 
             <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-fade-in-up animation-delay-200">
               Your donations provide sanitary products, clean water, and proper
-              sanitation facilities for school-going girls across sub-Saharan Africa.
+              sanitation facilities for school-going girls across sub-Saharan
+              Africa.
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up animation-delay-400">
-              <Button asChild size="lg" className="h-12 px-8 text-base rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all">
-                <Link to={isAuthenticated ? getRedirectPath(user?.role) : "/register"}>
+              <Button
+                asChild
+                size="lg"
+                className="h-12 px-8 text-base rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all"
+              >
+                <Link
+                  to={
+                    isAuthenticated ? getRedirectPath(user?.role) : "/register"
+                  }
+                >
                   {isAuthenticated ? "Go to Dashboard" : "Start Donating"}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
 
-              <Button variant="outline" asChild size="lg" className="h-12 px-8 text-base rounded-xl border-2 hover:bg-primary/5">
-                <Link to="/charities">
-                  View Charities
-                </Link>
+              <Button
+                variant="outline"
+                asChild
+                size="lg"
+                className="h-12 px-8 text-base rounded-xl border-2 hover:bg-primary/5"
+              >
+                <Link to="/charities">View Charities</Link>
               </Button>
             </div>
 
@@ -140,7 +203,9 @@ function Home() {
                 <p className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
                   {stat.value}
                 </p>
-                <p className="text-sm text-muted-foreground font-medium mt-1">{stat.label}</p>
+                <p className="text-sm text-muted-foreground font-medium mt-1">
+                  {stat.label}
+                </p>
               </div>
             ))}
           </div>
@@ -190,7 +255,9 @@ function Home() {
                 <div className="absolute top-6 right-6 text-5xl font-extrabold text-muted/50 select-none">
                   {item.step}
                 </div>
-                <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl ${item.color} mb-5`}>
+                <div
+                  className={`inline-flex items-center justify-center w-12 h-12 rounded-xl ${item.color} mb-5`}
+                >
                   <item.icon className="h-5 w-5" />
                 </div>
                 <h3 className="text-xl font-bold text-foreground mb-2">
@@ -243,8 +310,12 @@ function Home() {
                   <item.icon className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-foreground mb-1">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                  <h3 className="font-bold text-foreground mb-1">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {item.desc}
+                  </p>
                 </div>
               </div>
             ))}
@@ -267,19 +338,36 @@ function Home() {
                 Ready to Make a Difference?
               </h2>
               <p className="mt-4 text-lg text-white/80 max-w-xl mx-auto">
-                Join thousands of donors and charity organizations working together to ensure every girl can stay in school with dignity.
+                Join thousands of donors and charity organizations working
+                together to ensure every girl can stay in school with dignity.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button asChild size="lg" variant="secondary" className="h-12 px-8 text-base rounded-xl font-bold shadow-lg">
-                  <Link to={isAuthenticated ? getRedirectPath(user?.role) : "/register"}>
-                    {isAuthenticated ? "Go to Dashboard" : "Create Free Account"}
+                <Button
+                  asChild
+                  size="lg"
+                  variant="secondary"
+                  className="h-12 px-8 text-base rounded-xl font-bold shadow-lg"
+                >
+                  <Link
+                    to={
+                      isAuthenticated
+                        ? getRedirectPath(user?.role)
+                        : "/register"
+                    }
+                  >
+                    {isAuthenticated
+                      ? "Go to Dashboard"
+                      : "Create Free Account"}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
-                <Button asChild size="lg" variant="ghost" className="h-12 px-8 text-base rounded-xl font-bold text-white hover:bg-white/10 border border-white/20">
-                  <Link to="/charities">
-                    Explore Charities
-                  </Link>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="ghost"
+                  className="h-12 px-8 text-base rounded-xl font-bold text-white hover:bg-white/10 border border-white/20"
+                >
+                  <Link to="/charities">Explore Charities</Link>
                 </Button>
               </div>
             </div>
@@ -298,9 +386,24 @@ function Home() {
               </span>
             </div>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <Link to="/charities" className="hover:text-primary transition-colors">Charities</Link>
-              <Link to="/login" className="hover:text-primary transition-colors">Sign In</Link>
-              <Link to="/register" className="hover:text-primary transition-colors">Register</Link>
+              <Link
+                to="/charities"
+                className="hover:text-primary transition-colors"
+              >
+                Charities
+              </Link>
+              <Link
+                to="/login"
+                className="hover:text-primary transition-colors"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/register"
+                className="hover:text-primary transition-colors"
+              >
+                Register
+              </Link>
             </div>
             <p className="text-sm text-muted-foreground">
               &copy; {new Date().getFullYear()} SheNeeds. All rights reserved.
