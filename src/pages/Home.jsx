@@ -11,10 +11,29 @@ import {
   BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Carousel from "../components/Carousel";
+import Carousel from "@/components/Carousel";
+import { useState, useEffect } from "react";
+import girl1 from "../assets/girl1.jpg";
+import girl2 from "../assets/girl2.jpg";
+import girl3 from "../assets/girl3.jpg";
+import girl4 from "../assets/girl4.jpg";
 
 function Home() {
   const { isAuthenticated, user, logout, getRedirectPath } = useAuth();
+  // Images for hero slideshow
+  const heroImages = [girl1, girl2, girl3, girl4];
+
+  // State to track current image
+  const [currentImage, setCurrentImage] = useState(0);
+
+  // Auto-change image every 4 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImage((prev) => (prev + 1) % heroImages.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#FDF2F8]">
@@ -34,13 +53,13 @@ function Home() {
           <nav className="hidden sm:flex items-center gap-1">
             <Link
               to="/"
-              className="px-3 py-2 text-sm font-medium text-[#4B5563] hover:text-[#EC4899] rounded-lg hover:bg-[#FDF2F8] transition-colors"
+              className="px-3 py-2 text-sm font-medium text-foreground/70 hover:text-primary rounded-lg hover:bg-primary/5 transition-colors"
             >
               Home
             </Link>
             <Link
               to="/charities"
-              className="px-3 py-2 text-sm font-medium text-[#4B5563] hover:text-[#EC4899] rounded-lg hover:bg-[#FDF2F8] transition-colors"
+              className="px-3 py-2 text-sm font-medium text-foreground/70 hover:text-primary rounded-lg hover:bg-primary/5 transition-colors"
             >
               Charities
             </Link>
@@ -85,13 +104,33 @@ function Home() {
       </header>
 
       {/* HERO SECTION */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#FDF2F8] via-white to-white" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-[#EC4899]/5 blur-3xl -translate-y-1/2" />
-        <div className="absolute top-40 right-0 w-72 h-72 rounded-full bg-[#FBB6CE]/20 blur-3xl" />
-        <div className="absolute top-60 left-0 w-72 h-72 rounded-full bg-[#EC4899]/5 blur-3xl" />
+      <section className="relative overflow-hidden min-h-[600px]">
+        {/* Background image slideshow */}
+        <div className="absolute inset-0 z-0">
+          {heroImages.map((img, idx) => (
+            <div
+              key={idx}
+              className={`absolute inset-0 transition-opacity duration-1000 ${
+                idx === currentImage ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              <img
+                src={img}
+                alt={`Hero ${idx + 1}`}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-white/40" />
+            </div>
+          ))}
+        </div>
 
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-24 sm:pt-28 sm:pb-32">
+        {/* Background decorations */}
+        <div className="absolute inset-0 z-10 bg-gradient-to-b from-primary/5 via-transparent to-white" />
+        <div className="absolute z-10 top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-primary/5 blur-3xl -translate-y-1/2" />
+        <div className="absolute z-10 top-40 right-0 w-72 h-72 rounded-full bg-teal-100/40 blur-3xl" />
+        <div className="absolute z-10 top-60 left-0 w-72 h-72 rounded-full bg-primary/5 blur-3xl" />
+
+        <div className="relative z-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-24 sm:pt-28 sm:pb-32">
           <div className="mx-auto max-w-3xl text-center">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#FBB6CE]/30 bg-[#FDF2F8] px-4 py-1.5 text-sm font-medium text-[#EC4899] animate-fade-in">
               <Sparkles className="h-3.5 w-3.5" />
@@ -113,7 +152,7 @@ function Home() {
               <Button
                 asChild
                 size="lg"
-                className="h-12 px-8 text-base rounded-xl bg-[#EC4899] hover:bg-[#DB2777] text-white shadow-pink-lg hover:shadow-pink-lg transition-all hover:scale-[1.02]"
+                className="h-12 px-8 text-base rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all"
               >
                 <Link
                   to={
@@ -129,7 +168,7 @@ function Home() {
                 variant="outline"
                 asChild
                 size="lg"
-                className="h-12 px-8 text-base rounded-xl border-2 border-[#FBB6CE]/30 hover:bg-[#FDF2F8] hover:border-[#EC4899]/30 text-[#1F2937]"
+                className="h-12 px-8 text-base rounded-xl border-2 hover:bg-primary/5"
               >
                 <Link to="/charities">View Charities</Link>
               </Button>
@@ -159,10 +198,34 @@ function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
             {[
-              { value: "50K+", label: "Girls Supported", icon: Users, color: "text-[#EC4899]", bg: "bg-[#FDF2F8]" },
-              { value: "KES 2M+", label: "Funds Raised", icon: TrendingUp, color: "text-[#22C55E]", bg: "bg-[#dcfce7]" },
-              { value: "200+", label: "Partner Charities", icon: Heart, color: "text-[#F59E0B]", bg: "bg-[#fffbeb]" },
-              { value: "12+", label: "Countries Reached", icon: Globe, color: "text-[#8B5CF6]", bg: "bg-[#f5f3ff]" },
+              {
+                value: "50K+",
+                label: "Girls Supported",
+                icon: Users,
+                color: "text-[#EC4899]",
+                bg: "bg-[#FDF2F8]",
+              },
+              {
+                value: "KES 2M+",
+                label: "Funds Raised",
+                icon: TrendingUp,
+                color: "text-[#22C55E]",
+                bg: "bg-[#dcfce7]",
+              },
+              {
+                value: "200+",
+                label: "Partner Charities",
+                icon: Heart,
+                color: "text-[#F59E0B]",
+                bg: "bg-[#fffbeb]",
+              },
+              {
+                value: "12+",
+                label: "Countries Reached",
+                icon: Globe,
+                color: "text-[#8B5CF6]",
+                bg: "bg-[#f5f3ff]",
+              },
             ].map((stat) => (
               <div key={stat.label} className="text-center group">
                 <div
@@ -173,7 +236,7 @@ function Home() {
                 <p className="text-3xl sm:text-4xl font-extrabold text-[#1F2937] tracking-tight">
                   {stat.value}
                 </p>
-                <p className="text-sm text-[#9CA3AF] font-medium mt-1">
+                <p className="text-sm text-muted-foreground font-medium mt-1">
                   {stat.label}
                 </p>
               </div>
@@ -293,10 +356,10 @@ function Home() {
                   <item.icon className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-[#1F2937] mb-1">
+                  <h3 className="font-bold text-foreground mb-1">
                     {item.title}
                   </h3>
-                  <p className="text-sm text-[#4B5563] leading-relaxed">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     {item.desc}
                   </p>
                 </div>
@@ -327,7 +390,8 @@ function Home() {
                 <Button
                   asChild
                   size="lg"
-                  className="h-12 px-8 text-base rounded-xl font-bold bg-white text-[#EC4899] hover:bg-white/90 shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
+                  variant="secondary"
+                  className="h-12 px-8 text-base rounded-xl font-bold shadow-lg"
                 >
                   <Link
                     to={
@@ -367,22 +431,22 @@ function Home() {
                 <span className="text-[#1F2937]">Needs</span>
               </span>
             </div>
-            <div className="flex items-center gap-6 text-sm text-[#4B5563]">
+            <div className="flex items-center gap-6 text-sm text-muted-foreground">
               <Link
                 to="/charities"
-                className="hover:text-[#EC4899] transition-colors"
+                className="hover:text-primary transition-colors"
               >
                 Charities
               </Link>
               <Link
                 to="/login"
-                className="hover:text-[#EC4899] transition-colors"
+                className="hover:text-primary transition-colors"
               >
                 Sign In
               </Link>
               <Link
                 to="/register"
-                className="hover:text-[#EC4899] transition-colors"
+                className="hover:text-primary transition-colors"
               >
                 Register
               </Link>
