@@ -26,13 +26,16 @@ function Register() {
     setError(null);
     setLoading(true);
     try {
-      const user = await registerUser(
+      const returnedUser = await registerUser(
         formData.email,
         formData.password,
         formData.role
       );
-      if (user?.role) {
-        navigate(getRedirectPath(user.role));
+      if (returnedUser?.role) {
+        const redirectPath = getRedirectPath(returnedUser.role);
+        navigate(redirectPath);
+      } else {
+        setError("Registration succeeded but user data is invalid.");
       }
     } catch (err) {
       setError(err.message || "Registration failed. Please try again.");

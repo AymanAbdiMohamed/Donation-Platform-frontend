@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auth Debug Test</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Authentication Debug Test</h1>
+    
+    <h2>Login Test</h2>
+    <form id="loginForm">
+        <input type="email" id="loginEmail" value="test@example.com" placeholder="Email" />
+        <input type="password" id="loginPassword" value="password123" placeholder="Password" />
+        <button type="submit">Login</button>
+    </form>
+    <div id="loginResult"></div>
+    
+    <h2>Register Test</h2>
+    <form id="registerForm">
+        <input type="email" id="registerEmail" value="test5@example.com" placeholder="Email" />
+        <input type="password" id="registerPassword" value="password123" placeholder="Password" />
+        <select id="registerRole">
+            <option value="donor">Donor</option>
+            <option value="charity">Charity</option>
+        </select>
+        <button type="submit">Register</button>
+    </form>
+    <div id="registerResult"></div>
+
+    <script>
+        // Create axios instance with same config as frontend
+        const api = axios.create({
+            baseURL: '',  // Use Vite proxy
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            timeout: 30000,
+        });
+
+        // Navigation test function
+        function testNavigation(role) {
+            const redirectPaths = {
+                'donor': '/donor',
+                'charity': '/charity',
+                'admin': '/admin'
+            };
+            
+            const path = redirectPaths[role];
+            console.log(`🔄 Testing navigation to: ${path}`);
+            
+            // Try to navigate to the route
+            window.location.href = path;
+        }
+
+        // Login test
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const resultDiv = document.getElementById('loginResult');
+            resultDiv.innerHTML = 'Loading...';
+            
+            try {
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                console.log('🔐 Starting login test...');
+                const response = await api.post('/auth/login', { email, password });
+                
+                console.log('✅ Login response:', response.data);
+                
+                // Store token like the frontend would
+                localStorage.setItem('access_token', response.data.access_token);
+                
+                resultDiv.innerHTML = `
+                    <h3>✅ Login Success!</h3>
+                    <p><strong>User:</strong> ${response.data.user.email}</p>
+                    <p><strong>Role:</strong> ${response.data.user.role}</p>
+                    <p><strong>Token:</strong> ${response.data.access_token.substring(0, 50)}...</p>
+                    <p><strong>Redirect should go to:</strong> /${response.data.user.role}</p>
+                    <button onclick="testNavigation('${response.data.user.role}')">Test Navigation to Dashboard</button>
+                    <br><br>
+                    <button onclick="window.location.href='/login'">Go to React Login Page</button>
+                `;
+            } catch (error) {
+                console.error('❌ Login error:', error);
+                resultDiv.innerHTML = `
+                    <h3>❌ Login Failed!</h3>
+                    <p>${error.response?.data?.message || error.message}</p>
+                `;
+            }
+        });
+
+        // Register test
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const resultDiv = document.getElementById('registerResult');
+            resultDiv.innerHTML = 'Loading...';
+            
+            try {
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+                const role = document.getElementById('registerRole').value;
+                
+                console.log('📝 Starting register test...');
+                const response = await api.post('/auth/register', { email, password, role });
+                
+                console.log('✅ Register response:', response.data);
+                
+                // Store token like the frontend would
+                localStorage.setItem('access_token', response.data.access_token);
+                
+                resultDiv.innerHTML = `
+                    <h3>✅ Register Success!</h3>
+                    <p><strong>User:</strong> ${response.data.user.email}</p>
+                    <p><strong>Role:</strong> ${response.data.user.role}</p>
+                    <p><strong>Token:</strong> ${response.data.access_token.substring(0, 50)}...</p>
+                    <p><strong>Redirect should go to:</strong> /${response.data.user.role}</p>
+                    <button onclick="testNavigation('${response.data.user.role}')">Test Navigation to Dashboard</button>
+                    <br><br>
+                    <button onclick="window.location.href='/register'">Go to React Register Page</button>
+                `;
+            } catch (error) {
+                console.error('❌ Register error:', error);
+                resultDiv.innerHTML = `
+                    <h3>❌ Register Failed!</h3>
+                    <p>${error.response?.data?.message || error.message}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
