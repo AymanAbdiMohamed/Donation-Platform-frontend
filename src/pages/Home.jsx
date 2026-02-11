@@ -11,6 +11,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Carousel from "@/components/Carousel";
 import { useState, useEffect } from "react";
 import girl1 from "../assets/girl1.jpg";
 import girl2 from "../assets/girl2.jpg";
@@ -103,14 +104,33 @@ function Home() {
       </header>
 
       {/* HERO SECTION */}
-      <section className="relative overflow-hidden">
-        {/* Background decorations */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-white to-white" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-primary/5 blur-3xl -translate-y-1/2" />
-        <div className="absolute top-40 right-0 w-72 h-72 rounded-full bg-teal-100/40 blur-3xl" />
-        <div className="absolute top-60 left-0 w-72 h-72 rounded-full bg-primary/5 blur-3xl" />
+      <section className="relative overflow-hidden min-h-[600px]">
+        {/* Background image slideshow */}
+        <div className="absolute inset-0 z-0">
+          {heroImages.map((img, idx) => (
+            <div
+              key={idx}
+              className={`absolute inset-0 transition-opacity duration-1000 ${
+                idx === currentImage ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              <img
+                src={img}
+                alt={`Hero ${idx + 1}`}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-white/40" />
+            </div>
+          ))}
+        </div>
 
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-24 sm:pt-28 sm:pb-32">
+        {/* Background decorations */}
+        <div className="absolute inset-0 z-10 bg-gradient-to-b from-primary/5 via-transparent to-white" />
+        <div className="absolute z-10 top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-primary/5 blur-3xl -translate-y-1/2" />
+        <div className="absolute z-10 top-40 right-0 w-72 h-72 rounded-full bg-teal-100/40 blur-3xl" />
+        <div className="absolute z-10 top-60 left-0 w-72 h-72 rounded-full bg-primary/5 blur-3xl" />
+
+        <div className="relative z-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-24 sm:pt-28 sm:pb-32">
           <div className="mx-auto max-w-3xl text-center">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#FBB6CE]/30 bg-[#FDF2F8] px-4 py-1.5 text-sm font-medium text-[#EC4899] animate-fade-in">
               <Sparkles className="h-3.5 w-3.5" />

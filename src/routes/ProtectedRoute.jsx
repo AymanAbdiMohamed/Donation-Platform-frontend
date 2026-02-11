@@ -1,40 +1,32 @@
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
-import { ROUTES } from '@/constants';
-import { Loader2 } from 'lucide-react';
+import { Navigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 /**
- * Protected Route Component
- * - Redirects to login if not authenticated
- * - Redirects to appropriate dashboard if user doesn't have required role
- * 
- * @param {React.ReactNode} children - Child components to render if authorized
- * @param {string[]} allowedRoles - Array of roles that can access this route
+ * Protected Route - redirects to login if not authenticated.
+ * Optionally restricts by role.
  */
-const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { user, isAuthenticated, loading, getRedirectPath } = useAuth();
+function ProtectedRoute({ children, allowedRoles }) {
+  const { user, loading, isAuthenticated } = useAuth()
 
-  // Show loading state during auth check
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <div>Loading...</div>
   }
 
-  // Redirect to login if not authenticated
   if (!isAuthenticated) {
-    return <Navigate to={ROUTES.LOGIN} replace />;
+    return <Navigate to="/login" replace />
   }
 
-  // Check role-based access
   if (allowedRoles && !allowedRoles.includes(user?.role)) {
-    // Redirect to user's appropriate dashboard
-    return <Navigate to={getRedirectPath(user?.role)} replace />;
+    // Redirect to appropriate dashboard based on role
+    const dashboards = {
+      donor: '/donor/dashboard',
+      charity: '/charity/dashboard',
+      admin: '/admin/dashboard',
+    }
+    return <Navigate to={dashboards[user?.role] || '/login'} replace />
   }
 
-  return children;
-};
+  return children
+}
 
-export default ProtectedRoute;
+export default ProtectedRoute
