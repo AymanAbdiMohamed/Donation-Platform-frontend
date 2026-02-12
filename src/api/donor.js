@@ -17,6 +17,14 @@ export const initiateMpesaDonation = async ({
   message,
   is_anonymous = false,
 }) => {
+  console.log("🔄 Initiating M-Pesa donation:", {
+    charity_id,
+    amount,
+    phone_number,
+    message,
+    is_anonymous,
+    url: "/api/donations/mpesa"
+  });
   const response = await api.post("/api/donations/mpesa", {
     charity_id,
     amount,
@@ -24,6 +32,7 @@ export const initiateMpesaDonation = async ({
     message: message || "",
     is_anonymous,
   });
+  console.log("✅ M-Pesa donation initiated:", response.data);
   return response.data;
 };
 
