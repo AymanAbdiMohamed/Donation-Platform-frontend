@@ -133,7 +133,6 @@ function Home() {
         <div className="relative z-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-24 sm:pt-28 sm:pb-32">
           <div className="mx-auto max-w-3xl text-center">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#FBB6CE]/30 bg-[#FDF2F8] px-4 py-1.5 text-sm font-medium text-[#EC4899] animate-fade-in">
-              <Sparkles className="h-3.5 w-3.5" />
               Empowering Girls Across Africa
             </div>
 
