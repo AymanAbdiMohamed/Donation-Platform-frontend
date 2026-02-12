@@ -4,66 +4,54 @@
  *
  * Development: Vite proxy forwards all backend paths to http://localhost:5000
  *   → set baseURL to '' (empty) so requests go through the proxy
- * Production: set VITE_API_URL to your deployed backend (e.g. https://api.example.com)
+ * Production: set VITE_API_URL to your deployed backend
  */
 import axios from "axios";
 import { STORAGE_KEYS, ROUTES } from "../constants";
 
-// Production backend URL
-const PRODUCTION_API_URL = "https://donation-platform-backend.onrender.com";
+// Use VITE_API_URL if set, otherwise default to deployed Railway backend
+const BASE_URL =
+  import.meta.env.VITE_API_URL || "https://web-production-63323.up.railway.app";
 
-// In development, an empty string lets Vite proxy handle routing.
-// In production, VITE_API_URL must point to the deployed backend.
-const BASE_URL = import.meta.env.VITE_API_URL || PRODUCTION_API_URL;
-
-// Create axios instance with base configuration
+// Create axios instance
 const api = axios.create({
   baseURL: BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 30000, // 30 second timeout
+  timeout: 30000, // 30s timeout
+  withCredentials: true, // needed if backend uses cookies
 });
 
-// Request interceptor - attach auth token to requests
+// Attach token if available
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
-    // Only attach a real token — never send "Bearer null" / "Bearer undefined"
     if (token && token !== "undefined" && token !== "null") {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  },
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor - handle common error scenarios
+// Response interceptor - handle common errors
 api.interceptors.response.use(
   (response) => {
-    // Guard: if we expected JSON but got HTML back, the request likely
-    // hit the frontend domain instead of the backend (VITE_API_URL not set).
+    // Catch HTML responses (likely misconfigured backend URL)
     const ct = response.headers?.["content-type"] || "";
-    if (
-      !ct.includes("application/json") &&
-      typeof response.data === "string" &&
-      response.data.trimStart().startsWith("<!")
-    ) {
+    if (!ct.includes("application/json") && typeof response.data === "string" && response.data.trimStart().startsWith("<!")) {
       const err = new Error(
-        "API request returned an HTML page instead of JSON. " +
-          "This usually means VITE_API_URL is not configured — requests are hitting the frontend domain instead of the backend.",
+        "API returned HTML instead of JSON. Check VITE_API_URL / backend deployment."
       );
       err.isConfigError = true;
-      err.userMessage =
-        "Unable to reach the API server. Please contact support.";
+      err.userMessage = "Unable to reach the API server. Please contact support.";
       return Promise.reject(err);
     }
     return response;
   },
   (error) => {
-    // Network error (server unreachable, no internet)
+    // Network errors
     if (!error.response) {
       error.isNetworkError = true;
       error.userMessage =
@@ -71,11 +59,9 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    const status = error.response?.status;
-    const data = error.response?.data;
+    const { status, data } = error.response;
 
-    // If the error response body is HTML (not JSON), the request likely
-    // went to the wrong server (frontend domain instead of backend).
+    // HTML response fallback
     if (typeof data === "string" && data.trimStart().startsWith("<!")) {
       error.isConfigError = true;
       error.userMessage =
@@ -85,42 +71,31 @@ api.interceptors.response.use(
 
     const serverError = data?.error || "";
 
-    // Handle 401 Unauthorized
+    // 401 Unauthorized handling
     if (status === 401) {
       const isTokenExpired = serverError === "Token expired";
-      const isTokenInvalid = [
-        "Invalid token",
-        "Token revoked",
-        "Authorization required",
-      ].includes(serverError);
+      const isTokenInvalid = ["Invalid token", "Token revoked", "Authorization required"].includes(serverError);
 
       if (isTokenExpired || isTokenInvalid) {
-        // Session ended — clear token and redirect
         localStorage.removeItem(STORAGE_KEYS.TOKEN);
-
         const currentPath = window.location.pathname;
-        if (
-          !currentPath.includes(ROUTES.LOGIN) &&
-          !currentPath.includes(ROUTES.REGISTER)
-        ) {
-          // Preserve where the user wanted to go
-          const dest = `${ROUTES.LOGIN}?expired=1`;
-          window.location.href = dest;
+        if (!currentPath.includes(ROUTES.LOGIN) && !currentPath.includes(ROUTES.REGISTER)) {
+          window.location.href = `${ROUTES.LOGIN}?expired=1`;
         }
       }
 
       error.userMessage = isTokenExpired
         ? "Your session has expired. Please sign in again."
-        : data?.message || data?.error || "Authentication required.";
+        : data?.message || serverError || "Authentication required.";
     }
 
-    // Rate limited
+    // Rate limiting
     if (status === 429) {
       error.userMessage =
         "Too many attempts. Please wait a moment and try again.";
     }
 
-    // Surface backend error message for all errors (general fallback)
+    // General fallback
     if (!error.userMessage) {
       error.userMessage =
         data?.message ||
@@ -131,7 +106,7 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  },
+  }
 );
 
 export default api;
