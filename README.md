@@ -2,13 +2,13 @@
 
 Modern React frontend for the SheNeeds Donation Platform - empowering donors to support verified charities focused on menstrual health education and access.
 
-## 📖 About
+##  About
 
 SheNeeds is a user-friendly donation platform that connects generous donors with verified charitable organizations dedicated to improving menstrual health education and access. The frontend provides an intuitive interface for donors to discover charities, make donations, and track their impact.
 
 ### Key Features
 
-- 🎨 **Modern UI** - Clean, responsive design built with shadcn/ui and Tailwind CSS
+-  **Modern UI** - Clean, responsive design built with shadcn/ui and Tailwind CSS
 - 🔐 **Secure Authentication** - JWT-based authentication with protected routes
 - 👥 **Role-Based Access** - Tailored dashboards for donors, charities, and administrators
 - 🏢 **Charity Applications** - Streamlined application process for charitable organizations
