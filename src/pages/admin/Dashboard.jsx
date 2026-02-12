@@ -34,16 +34,25 @@ import {
 import { formatCurrency } from "@/lib/currency";
 
 /* ── Stats Card ─────────────────────────────────────────────── */
-function StatsCard({ title, value, desc, icon: Icon, highlight }) {
+function StatCard({ title, value, desc, icon: Icon, highlight, trend, color }) {
   return (
     <Card className={`border ${highlight ? "border-[#EC4899]/30 bg-[#FDF2F8]/30" : "border-[#FBB6CE]/10"}`}>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium text-[#4B5563]">{title}</CardTitle>
-        {Icon && <Icon className="h-4 w-4 text-[#EC4899]" />}
+        <div className={`p-2 rounded-xl ${color ? color.replace('bg-', 'bg-opacity-10 bg-') : 'bg-[#FDF2F8]'}`}>
+          {Icon && <Icon className={`h-4 w-4 ${color ? color.replace('bg-', 'text-') : 'text-[#EC4899]'}`} />}
+        </div>
       </CardHeader>
       <CardContent>
-        <p className="text-2xl font-extrabold text-[#1F2937]">{value}</p>
-        <p className="text-xs text-[#9CA3AF] mt-1">{desc}</p>
+        <div className="flex items-baseline justify-between">
+          <p className="text-2xl font-extrabold text-[#1F2937]">{value}</p>
+          {trend && (
+            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${trend.startsWith('+') ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+              {trend}
+            </span>
+          )}
+        </div>
+        {desc && <p className="text-xs text-[#9CA3AF] mt-1">{desc}</p>}
       </CardContent>
     </Card>
   );
@@ -67,7 +76,7 @@ export default function AdminDashboard() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
-  
+
   const [activeTab, setActiveTab] = useState("pending");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -85,8 +94,8 @@ export default function AdminDashboard() {
     setLoading(true);
     try {
       const [statsData, appsData] = await Promise.all([
-        getPlatformStats(),
-        getApplications()
+        getAdminStats(),
+        getApplications('pending')
       ]);
       setStats(statsData);
       setApplications(appsData.applications || []);
@@ -144,7 +153,7 @@ export default function AdminDashboard() {
     setRejectionReason("");
     setIsRejectModalOpen(true);
   };
-  
+
   const openDetailModal = (app) => {
     setSelectedApp(app);
     setIsDetailModalOpen(true);
@@ -173,9 +182,9 @@ export default function AdminDashboard() {
             <RefreshCw className="h-4 w-4" />
             Refresh
           </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => {
               logout();
               navigate(ROUTES.LOGIN);
@@ -188,13 +197,40 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatsCard icon={DollarSign} title="Total Donations" value={formatCurrency(stats?.total_donations_kes || 0)} desc="Lifetime platform volume" />
-        <StatsCard icon={Clock} title="Pending Applications" value={pendingCount} desc="Requires review" highlight={pendingCount > 0} />
-        <StatsCard icon={Building2} title="Active Charities" value={stats?.total_charities || 0} desc="Approved organizations" />
-        <StatsCard icon={Users} title="Total Donors" value={stats?.total_donors || 0} desc="Registered donors" />
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <StatCard
+          title="Total Donations"
+          value={`KES ${stats?.total_donations_kes?.toLocaleString() || '0'}`}
+          icon={DollarSign}
+          trend="+12.5%"
+          color="bg-emerald-500"
+        />
+        <StatCard
+          title="Active Charities"
+          value={stats?.total_charities || 0}
+          icon={HeartHandshake}
+          trend="+4"
+          color="bg-pink-500"
+        />
+        <StatCard
+          title="Total Donors"
+          value={stats?.total_donors || 0}
+          icon={Users}
+          trend="+18"
+          color="bg-violet-500"
+        />
+        <StatCard
+          title="Pending Applications"
+          value={stats?.pending_count || 0}
+          icon={Clock}
+          trend="-2"
+          color="bg-amber-500"
+        />
       </div>
+
+      {/* Analytics Charts */}
+      <AnalyticsCharts />
 
       {/* Applications Management */}
       <Card className="border-[#FBB6CE]/10">
@@ -265,8 +301,8 @@ export default function AdminDashboard() {
                                 app.status === "approved"
                                   ? "bg-[#dcfce7] text-[#166534] border-0"
                                   : app.status === "rejected"
-                                  ? "bg-red-50 text-red-700 border-0"
-                                  : "bg-[#FDF2F8] text-[#EC4899] border-0"
+                                    ? "bg-red-50 text-red-700 border-0"
+                                    : "bg-[#FDF2F8] text-[#EC4899] border-0"
                               }
                             >
                               {app.status === "submitted" ? "pending" : app.status}

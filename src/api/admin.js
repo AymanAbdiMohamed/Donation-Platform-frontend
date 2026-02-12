@@ -52,7 +52,18 @@ export const rejectApplication = async (applicationId, reason = '') => {
  * Get platform statistics
  * @returns {Promise<Object>} Platform stats
  */
-export const getPlatformStats = async () => {
+export const getAdminStats = async () => {
   const response = await api.get('/admin/stats');
   return response.data;
 };
+
+/**
+ * Get analytics data for charts
+ * @returns {Promise<Object>} Analytics data
+ */
+export const getAdminAnalytics = async () => {
+  const response = await api.get('/admin/analytics');
+  return response.data;
+};
+
+// Get all users (paginated)
