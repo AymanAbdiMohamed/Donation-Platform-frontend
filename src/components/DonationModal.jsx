@@ -19,6 +19,7 @@ import { Heart, Loader2, Phone, Smartphone, Sparkles } from "lucide-react";
 export default function DonationModal({ charity, open, onClose, onConfirm }) {
   const [amount, setAmount] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -38,6 +39,7 @@ export default function DonationModal({ charity, open, onClose, onConfirm }) {
   const resetForm = () => {
     setAmount("");
     setPhoneNumber("");
+    setEmail("");
     setMessage("");
     setIsAnonymous(false);
     setError("");
@@ -60,17 +62,25 @@ export default function DonationModal({ charity, open, onClose, onConfirm }) {
       return;
     }
     if (!phoneNumber.trim()) {
-      setError("Please enter your M-Pesa phone number");
+      setError("Please enter your phone number");
       return;
     }
     if (!isValidPhone(phoneNumber)) {
       setError("Invalid phone number. Use format 07XXXXXXXX or 254XXXXXXXXX");
       return;
     }
+    if (!email.trim()) {
+      setError("Please enter your email address");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
 
     setLoading(true);
     try {
-      await onConfirm(amountNum, normalisePhone(phoneNumber), message, isAnonymous);
+      await onConfirm(amountNum, normalisePhone(phoneNumber), email, message, isAnonymous);
       resetForm();
     } catch (err) {
       console.error("Donation failed:", err);
@@ -99,7 +109,7 @@ export default function DonationModal({ charity, open, onClose, onConfirm }) {
                 Donate to {charity?.name}
               </DialogTitle>
               <DialogDescription className="text-[#4B5563]">
-                Payment via M-Pesa. Every shilling counts.
+                Secure payment via Pesapal. M-Pesa, Cards & Bank.
               </DialogDescription>
             </div>
           </div>
@@ -118,11 +128,10 @@ export default function DonationModal({ charity, open, onClose, onConfirm }) {
                   type="button"
                   onClick={() => setAmount(amt.toString())}
                   disabled={loading}
-                  className={`relative py-2.5 px-3 rounded-xl text-sm font-bold transition-all duration-200 ${
-                    amount == amt
-                      ? "bg-[#EC4899] text-white shadow-pink scale-[1.02]"
-                      : "bg-[#FDF2F8] text-[#1F2937] hover:bg-[#FCE7F3] hover:scale-[1.02] border border-[#FBB6CE]/20"
-                  }`}
+                  className={`relative py-2.5 px-3 rounded-xl text-sm font-bold transition-all duration-200 ${amount == amt
+                    ? "bg-[#EC4899] text-white shadow-pink scale-[1.02]"
+                    : "bg-[#FDF2F8] text-[#1F2937] hover:bg-[#FCE7F3] hover:scale-[1.02] border border-[#FBB6CE]/20"
+                    }`}
                 >
                   KES {amt}
                   {amount == amt && (
@@ -156,7 +165,7 @@ export default function DonationModal({ charity, open, onClose, onConfirm }) {
           <div className="space-y-2">
             <Label htmlFor="phone" className="flex items-center gap-1.5 text-[#1F2937] font-medium">
               <Phone className="h-3.5 w-3.5 text-[#EC4899]" />
-              M-Pesa Phone Number
+              Phone Number
             </Label>
             <Input
               id="phone"
@@ -168,8 +177,25 @@ export default function DonationModal({ charity, open, onClose, onConfirm }) {
               disabled={loading}
               className="h-11 border-[#FBB6CE]/30 focus:border-[#EC4899] focus:ring-[#EC4899]/20 rounded-xl"
             />
+          </div>
+
+          {/* Email */}
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-[#1F2937] font-medium">
+              Email Address
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="your@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={loading}
+              className="h-11 border-[#FBB6CE]/30 focus:border-[#EC4899] focus:ring-[#EC4899]/20 rounded-xl"
+            />
             <p className="text-xs text-[#9CA3AF]">
-              You&apos;ll receive an STK push on this number to confirm payment.
+              Receipt will be sent to this email.
             </p>
           </div>
 

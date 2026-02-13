@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCharities } from "../../api/charity";
-import { initiateMpesaDonation } from "../../api/donor";
+import { initiatePesapalDonation } from "../../api/donor";
 import CharityCard from "../../components/CharityCard";
 import DonationModal from "../../components/DonationModal";
 import DashboardLayout from "../../components/layout/DashboardLayout";
@@ -98,23 +98,23 @@ function BrowseCharities() {
     setIsModalOpen(true);
   };
 
-  const handleConfirmDonation = async (amount, phoneNumber, message, isAnonymous) => {
+  const handleConfirmDonation = async (amount, phoneNumber, email, message, isAnonymous) => {
     if (!selectedCharity) return;
-    const response = await initiateMpesaDonation({
+    const response = await initiatePesapalDonation({
       charity_id: selectedCharity.id,
       amount,
       phone_number: phoneNumber,
+      email: email,
       message: message || "",
       is_anonymous: Boolean(isAnonymous),
     });
-    setIsModalOpen(false);
-    navigate("/donation/success", {
-      state: {
-        donation: response?.donation,
-        charity: selectedCharity,
-        stkMessage: response?.message,
-      },
-    });
+
+    // Redirect to Pesapal payment page
+    if (response.success && response.payment_url) {
+      window.location.href = response.payment_url;
+    } else {
+      throw new Error(response.error || "Payment initiation failed");
+    }
   };
 
   const clearFilters = () => {
@@ -182,9 +182,8 @@ function BrowseCharities() {
           <Button
             variant="outline"
             onClick={() => setShowFilters(!showFilters)}
-            className={`rounded-xl border-[#FBB6CE]/30 hover:bg-[#FDF2F8] hover:border-[#EC4899]/30 transition-all ${
-              showFilters ? "bg-[#FDF2F8] border-[#EC4899]/30 text-[#EC4899]" : ""
-            }`}
+            className={`rounded-xl border-[#FBB6CE]/30 hover:bg-[#FDF2F8] hover:border-[#EC4899]/30 transition-all ${showFilters ? "bg-[#FDF2F8] border-[#EC4899]/30 text-[#EC4899]" : ""
+              }`}
           >
             <SlidersHorizontal className="h-4 w-4 mr-2" />
             Filters
@@ -213,11 +212,10 @@ function BrowseCharities() {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setSelectedRegion("")}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                  !selectedRegion
-                    ? "bg-[#EC4899] text-white shadow-sm"
-                    : "bg-[#FDF2F8] text-[#4B5563] hover:bg-[#FCE7F3]"
-                }`}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${!selectedRegion
+                  ? "bg-[#EC4899] text-white shadow-sm"
+                  : "bg-[#FDF2F8] text-[#4B5563] hover:bg-[#FCE7F3]"
+                  }`}
               >
                 All Regions
               </button>
@@ -225,11 +223,10 @@ function BrowseCharities() {
                 <button
                   key={region}
                   onClick={() => setSelectedRegion(region)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                    selectedRegion === region
-                      ? "bg-[#EC4899] text-white shadow-sm"
-                      : "bg-[#FDF2F8] text-[#4B5563] hover:bg-[#FCE7F3]"
-                  }`}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${selectedRegion === region
+                    ? "bg-[#EC4899] text-white shadow-sm"
+                    : "bg-[#FDF2F8] text-[#4B5563] hover:bg-[#FCE7F3]"
+                    }`}
                 >
                   {region}
                 </button>
@@ -317,11 +314,10 @@ function BrowseCharities() {
                   variant={page === currentPage ? "default" : "outline"}
                   size="sm"
                   onClick={() => setCurrentPage(page)}
-                  className={`rounded-xl min-w-[36px] ${
-                    page === currentPage
-                      ? "bg-[#EC4899] hover:bg-[#DB2777] text-white shadow-pink"
-                      : "border-[#FBB6CE]/30 hover:bg-[#FDF2F8]"
-                  }`}
+                  className={`rounded-xl min-w-[36px] ${page === currentPage
+                    ? "bg-[#EC4899] hover:bg-[#DB2777] text-white shadow-pink"
+                    : "border-[#FBB6CE]/30 hover:bg-[#FDF2F8]"
+                    }`}
                 >
                   {page}
                 </Button>
