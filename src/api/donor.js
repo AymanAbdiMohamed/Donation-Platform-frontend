@@ -37,6 +37,36 @@ export const initiateMpesaDonation = async ({
 };
 
 /**
+ * Initiate a manual M-Pesa donation (Till/PayBill)
+ */
+export const createManualDonation = async ({
+  charity_id,
+  amount,
+  phone_number,
+  message,
+  is_anonymous = false,
+}) => {
+  const response = await api.post("/api/donations/manual", {
+    charity_id,
+    amount,
+    phone_number,
+    message: message || "",
+    is_anonymous,
+  });
+  return response.data;
+};
+
+/**
+ * Submit transaction code for a manual donation
+ */
+export const submitTransactionCode = async (donationId, transactionCode) => {
+  const response = await api.post(`/api/donations/${donationId}/submit-code`, {
+    transaction_code: transactionCode,
+  });
+  return response.data;
+};
+
+/**
  * Initiate a Pesapal donation (alternative flow)
  * @param {Object} params - { charity_id, amount, phone_number, email, message?, is_anonymous? }
  * @returns {Promise<Object>} { success, payment_url, tracking_id, reference, donation_id }
