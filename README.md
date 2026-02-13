@@ -2,21 +2,22 @@
 
 Modern React frontend for the SheNeeds Donation Platform - empowering donors to support verified charities focused on menstrual health education and access.
 
-##  About
+## About
 
 SheNeeds is a user-friendly donation platform that connects generous donors with verified charitable organizations dedicated to improving menstrual health education and access. The frontend provides an intuitive interface for donors to discover charities, make donations, and track their impact.
 
 ### Key Features
 
--  **Modern UI** - Clean, responsive design built with shadcn/ui and Tailwind CSS
-- 🔐 **Secure Authentication** - JWT-based authentication with protected routes
-- 👥 **Role-Based Access** - Tailored dashboards for donors, charities, and administrators
-- 🏢 **Charity Applications** - Streamlined application process for charitable organizations
-- 💳 **M-Pesa Integration** - STK Push for secure KES donations
-- 📊 **Dashboard Analytics** - Real-time statistics and donation tracking
-- 📱 **Responsive Design** - Optimized for desktop, tablet, and mobile devices
-- ⚡ **Fast Performance** - Built with Vite for lightning-fast development and builds
-- 🛡️ **Error Boundaries** - Graceful error handling with fallback UI
+- **Modern UI** - Clean, responsive design built with shadcn/ui and Tailwind CSS
+- **Secure Authentication** - JWT-based authentication with protected routes
+- **Role-Based Access** - Tailored dashboards for donors, charities, and administrators
+- **Charity Applications** - Streamlined application process for charitable organizations
+- **M-Pesa Integration** - Secure payment processing for KES donations
+- **Dashboard Analytics** - Real-time statistics and donation tracking
+- **Responsive Design** - Optimized for desktop, tablet, and mobile devices
+- **Fast Performance** - Built with Vite for lightning-fast development and builds
+- **Error Boundaries** - Graceful error handling with fallback UI
+- **Real-time Updates** - Live donation status tracking
 
 ## Tech Stack
 
@@ -55,7 +56,7 @@ src/
 │   ├── charity/
 │   │   └── ApplicationFormSections.jsx
 │   ├── CharityCard.jsx
-│   ├── DonationModal.jsx      # M-Pesa STK Push UI
+│   ├── DonationModal.jsx      # M-Pesa payment UI
 │   └── ErrorBoundary.jsx      # Error fallback UI
 ├── constants/
 │   └── index.js              # ROLES, ROUTES, API_ENDPOINTS
@@ -107,53 +108,10 @@ App runs at `http://localhost:5173` (or next available port)
 
 The app connects to the backend API at `http://localhost:5000` by default.
 
-To change, update `baseURL` in `src/api/axios.js`.
+To change, update `baseURL` in `src/api/axios.js`:
 
-## Recent Improvements (Feb 2026)
-
-### 🔧 Audit Fixes Applied
-
-**Backend Integration:**
-- ✅ Charity API now includes `region`, `image`, `verified` fields (backend aliases)
-- ✅ All charity list endpoints return consistent paginated format
-- ✅ Donor stats use `total_donated_kes` (KES-only platform)
-- ✅ Simplified response handling (removed conditional fallbacks)
-
-**UI/UX:**
-- ✅ Mobile-responsive hamburger navigation added to DashboardLayout
-- ✅ Error boundaries wrap entire app for graceful error handling
-- ✅ Currency display centralized via `formatCurrency()` helper (KES symbol)
-- ✅ Region filter now functional (backend provides `region` field)
-
-**API Changes:**
-```js
-// Charity response format (standardized)
-{
-  "charities": [...],
-  "pagination": {
-    "page": 1,
-    "per_page": 20,
-    "total": 50,
-    "pages": 3
-  }
-}
-
-// Donor stats field renamed
-{
-  "total_donated_kes": 5000.00,  // Was: total_donated_dollars
-  "donation_count": 12,
-  "charities_supported": 4
-}
-
-// Charity fields added (aliases)
-{
-  "name": "Example Charity",
-  "location": "Nairobi",
-  "logo_path": "/uploads/logo.png",
-  "region": "Nairobi",           // Alias for location
-  "image": "/uploads/logo.png",   // Alias for logo_path
-  "verified": true                 // All approved = verified
-}
+```javascript
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 ```
 
 ## Routes
@@ -164,6 +122,8 @@ To change, update `baseURL` in `src/api/axios.js`.
 | `/register` | Register | Public |
 | `/charities` | Charities | Public |
 | `/donor/dashboard` | DonorDashboard | Donor only |
+| `/donor/browse` | BrowseCharities | Donor only |
+| `/donation/success` | DonationSuccess | Donor only |
 | `/charity/dashboard` | CharityDashboard | Charity only |
 | `/admin/dashboard` | AdminDashboard | Admin only |
 
@@ -242,35 +202,42 @@ Key variables:
 
 ## Features
 
-### 👤 Donor Dashboard
+### Donor Dashboard
 - Browse verified active charities with region filtering
 - View detailed charity profiles and impact metrics
-- Make secure M-Pesa STK Push donations (KES only)
-- Track donation history with status polling
-- Download donation receipts
+- Make secure M-Pesa donations (KES only)
+- Track donation history with real-time status updates
+- View donation receipts
 - Mobile-responsive charity cards with verified badges
 
-### 🏢 Charity Dashboard
+### Charity Dashboard
 - Submit comprehensive charity application
 - Track application status (pending, approved, rejected)
 - Update charity profile and information
 - View received donations with donor information
 - Access dashboard statistics (total donations in KES)
+- Manage charity details and contact information
 
-### 🛡️ Admin Dashboard
+### Admin Dashboard
 - Review pending charity applications
 - Approve or reject charity registrations with reasons
 - Monitor platform statistics and metrics
 - Manage user accounts with pagination
 - Access comprehensive platform analytics
+- View all donations and transactions
 
-## TODO Items
+## Payment Flow
 
-The codebase contains TODO comments for future features:
-- `FE1` - Donation history and favorites
-- `FE2` - Admin statistics and pagination
-- `FE3` - Search and filter functionality
-- `FE4` - Donation flow implementation
+The platform uses M-Pesa STK Push for secure payment processing:
+
+1. **Select Charity** - Browse and select a charity to support
+2. **Enter Details** - Enter donation amount and phone number
+3. **Initiate Payment** - Click "Pay" to initiate M-Pesa STK Push
+4. **Receive Prompt** - User receives payment prompt on their phone
+5. **Enter PIN** - User enters M-Pesa PIN to confirm payment
+6. **Wait for Confirmation** - System polls for payment status
+7. **Success** - Donation marked as paid, receipt email sent
+8. **View Receipt** - Access donation receipt in dashboard
 
 ## Deployment
 
@@ -294,17 +261,12 @@ Create a `.env` file for environment-specific configuration:
 VITE_API_URL=https://your-api-domain.com
 ```
 
-Update API URL in production:
-```js
-// src/api/axios.js
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
-```
-
 ### Deploy to Netlify/Vercel
 
 1. Build command: `npm run build`
 2. Publish directory: `dist`
 3. Set environment variable: `VITE_API_URL`
+4. Configure SPA redirects (all routes to index.html)
 
 ### Deploy to Custom Server
 
@@ -314,6 +276,13 @@ npm run build
 
 # Copy dist/ folder to your web server
 # Configure server to serve index.html for all routes (SPA)
+```
+
+Example nginx configuration:
+```nginx
+location / {
+  try_files $uri $uri/ /index.html;
+}
 ```
 
 ## Troubleshooting
@@ -339,15 +308,11 @@ npm install
 - Verify JWT_SECRET_KEY matches backend
 - Ensure backend is using latest migration with role constraints
 
-**Charity data issues**
-- Backend now provides `region`, `image`, `verified` aliases
-- All charities show as "verified" (approved = verified in MVP)
-- Region filter uses backend's `location` field (aliased as `region`)
-
-**Currency display issues**
-- All amounts should display with "KES" prefix
-- Use `formatCurrency()` from `@/lib/currency` for consistency
-- Backend returns `total_donated_kes` (not `*_dollars`)
+**Payment issues**
+- Verify M-Pesa credentials are configured in backend
+- Check that callback URL is publicly accessible
+- Review backend logs for M-Pesa API errors
+- Ensure phone number is in correct format (254XXXXXXXXX)
 
 **Build errors**
 ```bash
@@ -373,6 +338,7 @@ npx shadcn-ui@latest add [component-name]
 - Follow React best practices
 - Use Tailwind utility classes
 - Leverage shadcn/ui components
+- Keep components focused and reusable
 
 ### Performance
 
@@ -380,6 +346,7 @@ npx shadcn-ui@latest add [component-name]
 - Optimize images and assets
 - Use React.memo() for expensive components
 - Implement proper loading states
+- Minimize re-renders with proper dependency arrays
 
 ## Contributing
 
@@ -395,4 +362,4 @@ MIT
 
 ---
 
-Built with ❤️ for menstrual health advocacy
+Built for menstrual health advocacy
