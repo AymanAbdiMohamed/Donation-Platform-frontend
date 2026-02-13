@@ -348,6 +348,10 @@ npx shadcn-ui@latest add [component-name]
 - Implement proper loading states
 - Minimize re-renders with proper dependency arrays
 
+
+## LIve link
+- https://donation-platform-frontend.onrender.com/
+
 ## Contributing
 
 1. Fork the repository
