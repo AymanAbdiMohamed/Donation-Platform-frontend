@@ -204,6 +204,7 @@ function DonorDashboard() {
                       <tr>
                         <th className="px-4 py-3">Charity</th>
                         <th className="px-4 py-3">Amount</th>
+                        <th className="px-4 py-3 text-center">Status</th>
                         <th className="px-4 py-3 text-center hidden sm:table-cell">Date</th>
                         <th className="px-4 py-3 text-center">Receipt</th>
                       </tr>
@@ -215,14 +216,30 @@ function DonorDashboard() {
                           className="hover:bg-[#FDF2F8]/40 transition-colors"
                         >
                           <td className="px-4 py-3.5">
-                            <span className="font-semibold text-[#1F2937]">
-                              {donation.charity_name || `Charity #${donation.charity_id}`}
-                            </span>
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-[#1F2937]">
+                                {donation.charity_name || `Charity #${donation.charity_id}`}
+                              </span>
+                              <span className="text-[10px] text-[#9CA3AF] uppercase font-bold tracking-tight">
+                                {donation.payment_method === 'MANUAL' ? 'Manual Pay' : 'M-Pesa Express'}
+                              </span>
+                            </div>
                           </td>
                           <td className="px-4 py-3.5">
-                            <span className="font-bold text-[#22C55E]">
+                            <span className="font-bold text-[#1F2937]">
                               {formatCurrency(donation.amount_kes || 0)}
                             </span>
+                          </td>
+                          <td className="px-4 py-3.5 text-center">
+                            {donation.status === "SUCCESS" ? (
+                              <Badge className="bg-green-50 text-green-700 border-green-100 hover:bg-green-50">Success</Badge>
+                            ) : donation.status === "FAILED" ? (
+                              <Badge className="bg-red-50 text-red-700 border-red-100 hover:bg-red-50">Failed</Badge>
+                            ) : donation.payment_method === 'MANUAL' ? (
+                              <Badge className="bg-amber-50 text-amber-700 border-amber-100 hover:bg-amber-50">Verifying</Badge>
+                            ) : (
+                              <Badge className="bg-blue-50 text-blue-700 border-blue-100 hover:bg-blue-50">Pending</Badge>
+                            )}
                           </td>
                           <td className="px-4 py-3.5 text-[#9CA3AF] text-sm text-center hidden sm:table-cell">
                             {donation.created_at
@@ -230,15 +247,19 @@ function DonorDashboard() {
                               : "N/A"}
                           </td>
                           <td className="px-4 py-3.5 text-center">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDownloadReceipt(donation.id)}
-                              className="h-8 text-xs gap-1 text-[#EC4899] hover:text-[#DB2777] hover:bg-[#FDF2F8]"
-                            >
-                              <Download className="h-3 w-3" />
-                              <span className="hidden sm:inline">Download</span>
-                            </Button>
+                            {donation.status === "SUCCESS" ? (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDownloadReceipt(donation.id)}
+                                className="h-8 text-xs gap-1 text-[#EC4899] hover:text-[#DB2777] hover:bg-[#FDF2F8]"
+                              >
+                                <Download className="h-3 w-3" />
+                                <span className="hidden sm:inline">Download</span>
+                              </Button>
+                            ) : (
+                              <span className="text-xs text-[#9CA3AF]">--</span>
+                            )}
                           </td>
                         </tr>
                       ))}
