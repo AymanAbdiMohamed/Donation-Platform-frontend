@@ -6,7 +6,38 @@
 import api from "./axios";
 
 /**
- * Initiate a Pesapal donation (primary flow)
+ * Initiate an M-Pesa STK Push donation (primary flow)
+ * @param {Object} params - { charity_id, amount, phone_number, message?, is_anonymous? }
+ * @returns {Promise<Object>} { message, donation, checkout_request_id, customer_message }
+ */
+export const initiateMpesaDonation = async ({
+  charity_id,
+  amount,
+  phone_number,
+  message,
+  is_anonymous = false,
+}) => {
+  console.log("🔄 Initiating M-Pesa donation:", {
+    charity_id,
+    amount,
+    phone_number,
+    message,
+    is_anonymous,
+    url: "/api/donations/mpesa"
+  });
+  const response = await api.post("/api/donations/mpesa", {
+    charity_id,
+    amount,
+    phone_number,
+    message: message || "",
+    is_anonymous,
+  });
+  console.log("✅ M-Pesa donation initiated:", response.data);
+  return response.data;
+};
+
+/**
+ * Initiate a Pesapal donation (alternative flow)
  * @param {Object} params - { charity_id, amount, phone_number, email, message?, is_anonymous? }
  * @returns {Promise<Object>} { success, payment_url, tracking_id, reference, donation_id }
  */
@@ -51,8 +82,8 @@ export const getDonationStatus = async (donationId) => {
 
 /**
  * Poll donation status by checkout request ID
- * This is used to check payment status after Pesapal redirect
- * @param {string} checkoutId - Checkout request ID from payment response
+ * This is the preferred method right after STK Push initiation
+ * @param {string} checkoutId - Checkout request ID from STK Push response
  * @returns {Promise<Object>} { id, status, mpesa_receipt_number, amount_kes, charity_name, failure_reason }
  */
 export const getDonationStatusByCheckout = async (checkoutId) => {

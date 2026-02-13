@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCharities } from "../../api/charity";
-import { initiatePesapalDonation } from "../../api/donor";
+import { initiateMpesaDonation } from "../../api/donor";
 import CharityCard from "../../components/CharityCard";
 import DonationModal from "../../components/DonationModal";
 import DashboardLayout from "../../components/layout/DashboardLayout";
@@ -98,23 +98,23 @@ function BrowseCharities() {
     setIsModalOpen(true);
   };
 
-  const handleConfirmDonation = async (amount, phoneNumber, email, message, isAnonymous) => {
+  const handleConfirmDonation = async (amount, phoneNumber, message, isAnonymous) => {
     if (!selectedCharity) return;
-    const response = await initiatePesapalDonation({
+    const response = await initiateMpesaDonation({
       charity_id: selectedCharity.id,
       amount,
       phone_number: phoneNumber,
-      email: email,
       message: message || "",
       is_anonymous: Boolean(isAnonymous),
     });
-
-    // Redirect to Pesapal payment page
-    if (response.success && response.payment_url) {
-      window.location.href = response.payment_url;
-    } else {
-      throw new Error(response.error || "Payment initiation failed");
-    }
+    setIsModalOpen(false);
+    navigate("/donation/success", {
+      state: {
+        donation: response?.donation,
+        charity: selectedCharity,
+        stkMessage: response?.message,
+      },
+    });
   };
 
   const clearFilters = () => {
