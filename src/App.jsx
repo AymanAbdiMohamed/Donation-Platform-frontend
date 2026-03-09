@@ -4,9 +4,6 @@ import ProtectedRoute from "./routes/ProtectedRoute"
 import { ROUTES, ROLES } from "./constants"
 import { Loader2 } from "lucide-react"
 
-// Test component
-import TestLogin from "./components/TestLogin"
-
 // Public pages
 import Home from "./pages/Home"
 import Charities from "./pages/Charities"
@@ -71,9 +68,6 @@ function App() {
               : <Register />
           }
         />
-
-        {/* Test component */}
-        <Route path="/test-auth" element={<TestLogin />} />
 
         {/* Donor routes */}
         <Route
