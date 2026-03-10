@@ -9,9 +9,9 @@
 import axios from "axios";
 import { STORAGE_KEYS, ROUTES } from "../constants";
 
-// Use VITE_API_URL if set, otherwise default to deployed Railway backend
-const BASE_URL =
-  import.meta.env.VITE_API_URL || "https://web-production-63323.up.railway.app";
+// VITE_API_URL must be set in the Render dashboard (or .env.production locally).
+// Falls back to empty string so Vite proxy handles requests in development.
+const BASE_URL = import.meta.env.VITE_API_URL || "";
 
 // Create axios instance
 const api = axios.create({
