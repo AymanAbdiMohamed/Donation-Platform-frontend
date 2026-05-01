@@ -22,6 +22,7 @@ import {
   addInventoryItem,
   deleteInventoryItem,
 } from "@/api/beneficiaries";
+import { formatCurrency } from "@/lib/currency";
 import {
   Card,
   CardContent,
@@ -469,7 +470,7 @@ export function ApprovedCharityDashboard() {
             <div className="rounded-xl bg-gradient-to-br from-[#22C55E]/10 to-[#22C55E]/20 p-2"><DollarSign className="h-4 w-4 text-[#22C55E]" /></div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-extrabold text-[#1F2937]">KES {((stats.total_donations || 0) / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+            <div className="text-3xl font-extrabold text-[#1F2937]">{formatCurrency((stats.total_donations || 0) / 100)}</div>
             <div className="flex items-center gap-1 mt-1"><TrendingUp className="h-3 w-3 text-[#22C55E]" /><p className="text-xs text-[#22C55E] font-medium">All time revenue</p></div>
           </CardContent>
         </Card>
@@ -536,7 +537,7 @@ export function ApprovedCharityDashboard() {
                       {donation.message && <p className="text-sm text-[#4B5563] mt-1 italic">&quot;{donation.message}&quot;</p>}
                       <p className="text-xs text-[#9CA3AF] mt-1">{new Date(donation.created_at).toLocaleDateString()}</p>
                     </div>
-                    <p className="font-bold text-lg text-[#EC4899]">KES {(donation.amount_kes || 0).toFixed(2)}</p>
+                    <p className="font-bold text-lg text-[#EC4899]">{formatCurrency(donation.amount_kes || 0)}</p>
                   </div>
                 ))}
               </div>

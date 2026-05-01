@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -10,26 +9,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Heart, MapPin, Users, Shield, ArrowRight } from "lucide-react";
-import { useToast } from "@/components/ui/toast";
-import DonationModal from "./DonationModal";
+import { useNavigate } from "react-router-dom";
 
-/**
- * Charity Card ??? Pink-themed with hover effects and gradient placeholders.
- */
 function CharityCard({ charity, onDonate }) {
-  const [showModal, setShowModal] = useState(false);
-  const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleDonate = () => {
     if (onDonate) {
       onDonate(charity);
     } else {
-      setShowModal(true);
+      // Public page — donor must be logged in to donate
+      navigate("/register");
     }
-  };
-
-  const handleDonationSuccess = () => {
-    toast.success("Thank you!", "Your donation has been received successfully.");
   };
 
   const description =
@@ -120,14 +111,6 @@ function CharityCard({ charity, onDonate }) {
         </CardFooter>
       </Card>
 
-      {!onDonate && (
-        <DonationModal
-          charity={charity}
-          open={showModal}
-          onClose={() => setShowModal(false)}
-          onSuccess={handleDonationSuccess}
-        />
-      )}
     </>
   );
 }

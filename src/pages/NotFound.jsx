@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#FDF2F8]/50 px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
       {/* decorative blurs */}
       <div className="absolute top-1/4 left-1/4 w-72 h-72 rounded-full bg-[#EC4899]/5 blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-60 h-60 rounded-full bg-[#FBB6CE]/10 blur-3xl pointer-events-none" />

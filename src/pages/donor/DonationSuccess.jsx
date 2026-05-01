@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { getDonationReceipt, getDonationStatus } from "../../api/donor";
+import { formatCurrency } from "@/lib/currency";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -85,11 +86,8 @@ function DonationSuccess() {
     );
   }
 
-  const amountDisplay = donation.amount_kes
-    ? `KES ${Number(donation.amount_kes).toLocaleString()}`
-    : donation.amount
-    ? `KES ${(donation.amount / 100).toLocaleString()}`
-    : "KES 0";
+  const amountKes = donation.amount_kes ?? (donation.amount ? donation.amount / 100 : 0);
+  const amountDisplay = formatCurrency(amountKes);
 
   // PENDING
   if (status === "PENDING") {
@@ -326,7 +324,7 @@ function DonationSuccess() {
                 <span className="text-xs text-[#9CA3AF] font-medium">Share your impact:</span>
                 <button
                   onClick={() => {
-                    const text = `I just donated ${amountDisplay} to ${charity?.name || "a great cause"} on SheNeeds! ????`;
+                    const text = `I just donated ${amountDisplay} to ${charity?.name || "a great cause"} on SheNeeds!`;
                     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank");
                   }}
                   className="w-8 h-8 rounded-lg bg-[#FDF2F8] flex items-center justify-center text-[#EC4899] hover:bg-[#FCE7F3] transition-colors"

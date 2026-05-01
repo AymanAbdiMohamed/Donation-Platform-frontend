@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../components/ui/toast";
-import { ROUTES } from "../../constants";
 import {
   getApplications,
   approveApplication,
@@ -10,7 +8,8 @@ import {
   getAdminStats,
 } from "../../api/admin";
 import AnalyticsCharts from "../../components/admin/AnalyticsCharts";
-import { Check, X, Eye, Search, RefreshCw, LogOut, Loader2, DollarSign, Users, Building2, Clock, HeartHandshake } from "lucide-react";
+import DashboardLayout from "../../components/layout/DashboardLayout";
+import { Check, X, Eye, Search, RefreshCw, Loader2, DollarSign, Users, Clock, HeartHandshake } from "lucide-react";
 import {
   Button,
   Input,
@@ -71,8 +70,7 @@ function DetailItem({ label, value }) {
 }
 
 export default function AdminDashboard() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -87,35 +85,49 @@ export default function AdminDashboard() {
   const [rejectionReason, setRejectionReason] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
 
+  // Load stats once on mount
   useEffect(() => {
-    fetchData();
+    getAdminStats()
+      .then(setStats)
+      .catch((err) => console.error("Failed to load stats:", err));
   }, []);
 
+  // Re-fetch applications whenever the active tab changes
+  useEffect(() => {
+    setApplications([]);
+    setLoading(true);
+    getApplications(activeTab)
+      .then((data) => setApplications(data.applications || []))
+      .catch((err) => console.error("Failed to load applications:", err))
+      .finally(() => setLoading(false));
+  }, [activeTab]);
+
+  // Refresh everything (Refresh button + post-approve/reject)
   const fetchData = async () => {
     setLoading(true);
     try {
       const [statsData, appsData] = await Promise.all([
         getAdminStats(),
-        getApplications('pending')
+        getApplications(activeTab),
       ]);
       setStats(statsData);
       setApplications(appsData.applications || []);
     } catch (err) {
-      console.error("Failed to load dashboard data:", err);
+      console.error("Failed to refresh dashboard:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Backend uses "submitted" for pending applications
-  const statusMap = { pending: "submitted", approved: "approved", rejected: "rejected" };
-  const filteredApplications = applications.filter(app => {
-    const matchesTab = app.status === statusMap[activeTab] || app.status === activeTab;
-    const matchesSearch = !searchQuery ||
-      app.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.charity_name?.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesTab && matchesSearch;
+  // Search filter only — API already returns the correct tab's data
+  const filteredApplications = applications.filter((app) => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      app.name?.toLowerCase().includes(q) ||
+      app.contact_email?.toLowerCase().includes(q) ||
+      app.charity_name?.toLowerCase().includes(q)
+    );
   });
 
   const handleApprove = async (id) => {
@@ -162,40 +174,29 @@ export default function AdminDashboard() {
 
   if (loading && !stats) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-[#EC4899]" />
-      </div>
+      <DashboardLayout title="Admin">
+        <div className="flex items-center justify-center py-32">
+          <Loader2 className="h-8 w-8 animate-spin text-[#EC4899]" />
+        </div>
+      </DashboardLayout>
     );
   }
 
   const pendingCount = stats?.pending_count || 0;
 
   return (
-    <div className="min-h-screen bg-[#FDF2F8]/30 p-4 sm:p-8 space-y-8">
+    <DashboardLayout title="Admin">
+    <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-[#1F2937]">Admin Dashboard</h1>
           <p className="text-[#4B5563] mt-1">Manage charity applications and platform overview.</p>
         </div>
-        <div className="flex gap-3">
-          <Button onClick={fetchData} variant="outline" size="sm" className="gap-2 rounded-xl border-[#FBB6CE]/30 hover:bg-[#FDF2F8]">
-            <RefreshCw className="h-4 w-4" />
-            Refresh
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              logout();
-              navigate(ROUTES.LOGIN);
-            }}
-            className="flex items-center gap-2 rounded-xl text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
-          >
-            <LogOut className="w-4 h-4" />
-            Logout
-          </Button>
-        </div>
+        <Button onClick={fetchData} variant="outline" size="sm" className="gap-2 rounded-xl border-[#FBB6CE]/30 hover:bg-[#FDF2F8]">
+          <RefreshCw className="h-4 w-4" />
+          Refresh
+        </Button>
       </div>
 
       {/* Stats Grid */}
@@ -266,7 +267,11 @@ export default function AdminDashboard() {
             </TabsList>
 
             <TabsContent value={activeTab}>
-              {filteredApplications.length === 0 ? (
+              {loading ? (
+                <div className="flex justify-center py-12">
+                  <Loader2 className="h-6 w-6 animate-spin text-[#EC4899]" />
+                </div>
+              ) : filteredApplications.length === 0 ? (
                 <div className="text-center py-12 text-[#4B5563]">
                   <p className="font-medium">No {activeTab} applications found.</p>
                 </div>
@@ -436,5 +441,6 @@ export default function AdminDashboard() {
         </DialogContent>
       </Dialog>
     </div>
+    </DashboardLayout>
   );
 }

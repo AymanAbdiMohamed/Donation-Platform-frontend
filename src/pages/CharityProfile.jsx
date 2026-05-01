@@ -30,7 +30,7 @@ function CharityProfile() {
   }, [id]);
 
   return (
-    <div className="min-h-screen bg-[#FDF2F8]/50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-[#FBB6CE]/20 bg-white/80 backdrop-blur-lg sticky top-0 z-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3">

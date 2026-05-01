@@ -84,7 +84,7 @@ function Login() {
       </div>
 
       {/* RIGHT PANEL ??? FORM */}
-      <div className="flex flex-1 items-center justify-center bg-[#FDF2F8]/30 px-4 sm:px-8">
+      <div className="flex flex-1 items-center justify-center bg-background px-4 sm:px-8">
         <div className="w-full max-w-md space-y-8 animate-fade-in-up">
           {/* mobile logo */}
           <div className="lg:hidden flex items-center gap-2.5 justify-center">

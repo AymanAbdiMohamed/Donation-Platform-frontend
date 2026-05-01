@@ -36,7 +36,7 @@ function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#FDF2F8]">
+    <div className="min-h-screen bg-background">
       {/* HEADER */}
       <header className="sticky top-0 z-50 border-b border-[#FBB6CE]/20 bg-white/80 backdrop-blur-lg">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -119,29 +119,26 @@ function Home() {
                 alt={`Hero ${idx + 1}`}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-white/40" />
+              <div className="absolute inset-0 bg-gray-900/55" />
             </div>
           ))}
         </div>
 
-        {/* Background decorations */}
-        <div className="absolute inset-0 z-10 bg-gradient-to-b from-primary/5 via-transparent to-white" />
-        <div className="absolute z-10 top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-primary/5 blur-3xl -translate-y-1/2" />
-        <div className="absolute z-10 top-40 right-0 w-72 h-72 rounded-full bg-teal-100/40 blur-3xl" />
-        <div className="absolute z-10 top-60 left-0 w-72 h-72 rounded-full bg-primary/5 blur-3xl" />
+        {/* Smooth fade to the stats section below */}
+        <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-b from-transparent to-gray-50 z-10 pointer-events-none" />
 
         <div className="relative z-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-24 sm:pt-28 sm:pb-32">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#FBB6CE]/30 bg-[#FDF2F8] px-4 py-1.5 text-sm font-medium text-[#EC4899] animate-fade-in">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-1.5 text-sm font-medium text-white animate-fade-in">
               Empowering Girls Across Africa
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#1F2937] leading-[1.1] text-balance animate-fade-in-up">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.1] text-balance animate-fade-in-up">
               Donate. Empower.{" "}
               <span className="text-[#EC4899]">Change</span>
             </h1>
 
-            <p className="mt-6 text-lg sm:text-xl text-[#4B5563] max-w-2xl mx-auto leading-relaxed animate-fade-in-up animation-delay-200">
+            <p className="mt-6 text-lg sm:text-xl text-white/80 max-w-2xl mx-auto leading-relaxed animate-fade-in-up animation-delay-200">
               Your donations provide sanitary products, clean water, and proper
               sanitation facilities for school-going girls across sub-Saharan
               Africa.
@@ -151,7 +148,7 @@ function Home() {
               <Button
                 asChild
                 size="lg"
-                className="h-12 px-8 text-base rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all"
+                className="h-12 px-8 text-base rounded-xl shadow-lg shadow-black/30 hover:shadow-xl hover:shadow-black/40 transition-all"
               >
                 <Link
                   to={
@@ -167,16 +164,16 @@ function Home() {
                 variant="outline"
                 asChild
                 size="lg"
-                className="h-12 px-8 text-base rounded-xl border-2 hover:bg-primary/5"
+                className="h-12 px-8 text-base rounded-xl border-2 border-white/30 text-white bg-white/5 hover:bg-white/15 hover:border-white/50 transition-all"
               >
                 <Link to="/charities">View Charities</Link>
               </Button>
             </div>
 
             {/* Trust indicators */}
-            <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-[#4B5563] animate-fade-in-up animation-delay-600">
+            <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-white/75 animate-fade-in-up animation-delay-600">
               <div className="flex items-center gap-1.5">
-                <Shield className="h-4 w-4 text-[#22C55E]" />
+                <Shield className="h-4 w-4 text-green-400" />
                 <span>Verified Charities</span>
               </div>
               <div className="flex items-center gap-1.5">
@@ -184,7 +181,7 @@ function Home() {
                 <span>100% Goes to Cause</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Globe className="h-4 w-4 text-[#F59E0B]" />
+                <Globe className="h-4 w-4 text-amber-400" />
                 <span>Active in 12+ Countries</span>
               </div>
             </div>
@@ -193,7 +190,7 @@ function Home() {
       </section>
 
       {/* IMPACT STATS */}
-      <section className="relative border-y border-[#FBB6CE]/20 bg-gradient-to-r from-[#FDF2F8] via-white to-[#FDF2F8]">
+      <section className="relative border-b border-[#FBB6CE]/20 bg-gray-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
             {[
@@ -245,7 +242,7 @@ function Home() {
       </section>
 
       {/* OUR PARTNERS CAROUSEL */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-card border-b border-border/50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-bold text-[#1F2937] tracking-tight">
@@ -260,7 +257,7 @@ function Home() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="py-20 sm:py-28 bg-white">
+      <section className="py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1F2937] tracking-tight">
@@ -284,7 +281,7 @@ function Home() {
                 step: "02",
                 icon: Heart,
                 title: "Make a Donation",
-                desc: "Contribute any amount ??? every shilling helps provide essential products and support.",
+                desc: "Contribute any amount — every shilling helps provide essential products and support.",
                 color: "bg-[#FDF2F8] text-[#DB2777]",
               },
               {
@@ -318,7 +315,7 @@ function Home() {
       </section>
 
       {/* WHY TRUST US */}
-      <section className="py-20 sm:py-28 bg-gradient-to-b from-[#FDF2F8]/50 to-white">
+      <section className="py-20 sm:py-28 bg-card border-y border-border/50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1F2937] tracking-tight">
@@ -420,7 +417,7 @@ function Home() {
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-[#FBB6CE]/20 bg-white">
+      <footer className="border-t border-border/50 bg-card">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">

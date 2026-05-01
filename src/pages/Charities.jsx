@@ -72,7 +72,7 @@ function Charities() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FDF2F8]/50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center animate-fade-in">
           <Loader2 className="h-8 w-8 animate-spin text-[#EC4899] mx-auto mb-4" />
           <p className="text-[#4B5563]">Loading charities...</p>
@@ -83,7 +83,7 @@ function Charities() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#FDF2F8]/50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center animate-fade-in-up">
           <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="h-8 w-8 text-red-500" />
@@ -102,7 +102,7 @@ function Charities() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FDF2F8]/50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-[#FBB6CE]/20 bg-white/80 backdrop-blur-lg sticky top-0 z-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3">
