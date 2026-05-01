@@ -7,9 +7,10 @@ import {
   getApplications,
   approveApplication,
   rejectApplication,
-  getPlatformStats,
+  getAdminStats,
 } from "../../api/admin";
-import { Check, X, Eye, Search, RefreshCw, LogOut, Loader2, DollarSign, Users, Building2, Clock } from "lucide-react";
+import AnalyticsCharts from "../../components/admin/AnalyticsCharts";
+import { Check, X, Eye, Search, RefreshCw, LogOut, Loader2, DollarSign, Users, Building2, Clock, HeartHandshake } from "lucide-react";
 import {
   Button,
   Input,
